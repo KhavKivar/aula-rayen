@@ -1,4 +1,5 @@
 import axios, { type AxiosError } from "axios";
+import { env } from "@/config/env";
 
 export class SessionExpiredError extends Error {
   constructor() {
@@ -8,7 +9,7 @@ export class SessionExpiredError extends Error {
 }
 
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000",
+  baseURL: env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
     Accept: "application/json",

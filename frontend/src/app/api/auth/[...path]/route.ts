@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
+import { env } from "@/config/env";
 
-const backendOrigin =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const backendOrigin = env.NEXT_PUBLIC_API_URL;
 
 type RouteContext = {
   params: Promise<{ path: string[] }>;

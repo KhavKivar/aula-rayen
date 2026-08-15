@@ -15,6 +15,51 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "cloudflare-env.d.ts",
   ]),
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    settings: {
+      "import/resolver": {
+        typescript: {
+          project: "./tsconfig.json",
+        },
+      },
+    },
+    rules: {
+      "import/no-restricted-paths": [
+        "error",
+        {
+          basePath: import.meta.dirname,
+          zones: [
+            {
+              target: "./src/features",
+              from: "./src/app",
+              message: "Los features no pueden depender de la capa app.",
+            },
+            {
+              target: [
+                "./src/components",
+                "./src/config",
+                "./src/hooks",
+                "./src/lib",
+                "./src/testing",
+                "./src/types",
+                "./src/utils",
+              ],
+              from: ["./src/features", "./src/app"],
+              message:
+                "Los módulos compartidos no pueden depender de features ni app.",
+            },
+            {
+              target: "./src/features/auth",
+              from: "./src/features",
+              except: ["./auth"],
+              message: "Un feature no puede importar internals de otro feature.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

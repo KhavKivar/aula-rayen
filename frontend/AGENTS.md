@@ -1,9 +1,52 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Librerías del frontend
 
-# This is NOT the Next.js you know
+## Arquitectura
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+El flujo de dependencias es `shared → features → app`:
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+- `src/app`: rutas, layouts, providers y composición.
+- `src/features`: lógica de dominio autocontenida.
+- `src/components`, `config`, `hooks`, `lib`, `testing`, `types` y `utils`:
+  módulos compartidos que no dependen de features ni de app.
 
-<!-- END:nextjs-agent-rules -->
+No importes internals entre features. Compón features desde `app`, usa imports
+directos en vez de barrel files y añade una zona ESLint al crear un feature.
+
+## Librerías
+
+Usa primero las dependencias ya instaladas:
+
+- Componentes: **shadcn** y **Base UI**. Reutiliza `src/components/ui/` antes de
+  crear una primitiva nueva.
+- Estilos: **Tailwind CSS**. Combina clases con `cn()` de `@/lib/utils`.
+- Iconos: **Lucide React**.
+- Formularios: **React Hook Form**.
+- Validación: **Zod**, conectado al formulario mediante **zodResolver**.
+- Peticiones y estado remoto: **TanStack Query** con `useQuery` y `useMutation`.
+- Cliente HTTP: **Axios** mediante `@/lib/api-client`; no crees otra instancia.
+- Autenticación: **Better Auth** mediante `@/lib/auth-client`.
+- Navegación: `next/link` y `next/navigation`.
+- Imágenes: `next/image`.
+- Variantes de componentes: **class-variance-authority**.
+- Tests: **Vitest**, **Testing Library**, **jest-dom** y **user-event**.
+
+No agregues una librería que duplique alguna de estas capacidades sin justificarlo.
+
+## Reglas mínimas
+
+- Usa imports con `@/`.
+- Centraliza variables de entorno en `src/config/env.ts`.
+- Nunca guardes secretos en variables `NEXT_PUBLIC_*`.
+- Mantén peticiones y transformación de errores fuera de los componentes.
+- Usa Server Components por defecto y `"use client"` solo cuando sea necesario.
+
+## Validación
+
+```bash
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm test:run
+```
+
+Ejecuta también `pnpm build` al cambiar rutas o configuración. Husky ejecuta
+`pnpm test:run` antes de cada commit y debe bloquearlo si una prueba falla.

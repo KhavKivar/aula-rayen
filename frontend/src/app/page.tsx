@@ -18,7 +18,7 @@ import {
   faqs,
   methodSteps,
   siteContent,
-} from "@/content/landing-content";
+} from "@/config/static-content";
 
 const profilePhoto =
   "/profile-placeholder.svg";
