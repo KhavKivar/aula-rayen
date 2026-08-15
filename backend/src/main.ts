@@ -9,7 +9,10 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.enableCors({
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3001',
+    origin: [
+      process.env.FRONTEND_URL ?? 'http://localhost:3001',
+      'http://localhost:3001',
+    ],
     credentials: true,
   });
 
