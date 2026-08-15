@@ -21,3 +21,22 @@ export async function login(credentials: LoginCredentials): Promise<void> {
     throw toAuthError({}, "No fue posible conectar con el servidor.");
   }
 }
+
+export async function loginWithGoogle(): Promise<void> {
+  try {
+    const { error } = await signIn.social({
+      provider: "google",
+      callbackURL: window.location.origin,
+    });
+
+    if (error) {
+      throw toAuthError(error, "No fue posible iniciar sesión con Google.");
+    }
+  } catch (error) {
+    if (error instanceof AuthError) {
+      throw error;
+    }
+
+    throw toAuthError({}, "No fue posible conectar con Google.");
+  }
+}

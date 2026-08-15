@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/features/auth/api/login";
+import { login, loginWithGoogle } from "@/features/auth/api/login";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
   loginSchema,
@@ -41,6 +41,10 @@ export function LoginForm() {
     },
   });
 
+  const googleLoginMutation = useMutation<void, AuthError>({
+    mutationFn: loginWithGoogle,
+  });
+
   function onSubmit(credentials: LoginCredentials) {
     loginMutation.mutate(credentials);
   }
@@ -53,15 +57,20 @@ export function LoginForm() {
           variant="outline"
           size="lg"
           className="w-full"
-          disabled
-          title="Inicio con Google disponible próximamente"
+          disabled={googleLoginMutation.isPending}
+          onClick={() => googleLoginMutation.mutate()}
         >
           <GoogleIcon data-icon="inline-start" />
-          Continuar con Google
-          <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-            Próximamente
-          </span>
+          {googleLoginMutation.isPending
+            ? "Conectando con Google..."
+            : "Continuar con Google"}
         </Button>
+
+        {googleLoginMutation.isError ? (
+          <p role="alert" className="text-sm text-destructive">
+            {googleLoginMutation.error.message}
+          </p>
+        ) : null}
 
         <div className="flex items-center gap-3" aria-hidden="true">
           <div className="h-px flex-1 bg-border" />
