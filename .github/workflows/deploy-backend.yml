@@ -75,9 +75,15 @@ jobs:
           ln -s /opt/aula-rayen-backend/shared/.env "$release/.env"
           cd "$release"
           pnpm install --prod --frozen-lockfile
-          ln -sfn "$release" /opt/aula-rayen-backend/current
+          ln -sfnT "$release" /opt/aula-rayen-backend/current
           pm2 startOrReload /opt/aula-rayen-backend/current/ecosystem.config.cjs --update-env
           pm2 save
-          sleep 2
-          curl --fail --silent http://127.0.0.1:3000/health
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          pm2 logs aula-rayen-backend --lines 50 --nostream
+          exit 1
           REMOTE
