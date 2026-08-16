@@ -68,7 +68,7 @@ describe("LoginForm", () => {
     loginResult.resolve();
 
     await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledWith("/");
+      expect(routerMock.replace).toHaveBeenCalledWith("/dashboard");
       expect(routerMock.refresh).toHaveBeenCalledOnce();
     });
   });

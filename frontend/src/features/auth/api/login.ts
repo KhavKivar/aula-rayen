@@ -26,7 +26,7 @@ export async function loginWithGoogle(): Promise<void> {
   try {
     const { error } = await signIn.social({
       provider: "google",
-      callbackURL: window.location.origin,
+      callbackURL: new URL("/dashboard", window.location.origin).toString(),
     });
 
     if (error) {

@@ -36,7 +36,7 @@ export function LoginForm() {
   const loginMutation = useMutation<void, AuthError, LoginCredentials>({
     mutationFn: login,
     onSuccess: () => {
-      router.replace("/");
+      router.replace("/dashboard");
       router.refresh();
     },
   });
