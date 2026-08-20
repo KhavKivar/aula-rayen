@@ -1,44 +1,92 @@
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { spawn } from "node:child_process";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-const htmlPath = resolve(process.cwd(), ".next/server/app/index.html");
-const html = await readFile(htmlPath, "utf8");
-
-const requiredContent = [
-  ['lang="es"', "idioma español"],
-  ["Aula Rayen", "marca comercial"],
-  ["Arteterapia para niños y niñas", "curso inicial"],
-  ["Inscripciones próximamente", "estado del curso"],
-  ['href="/login"', "enlace de inicio de sesión"],
-  ['href="/register"', "enlace de registro"],
-  ['href="https://example.com/professional-profile"', "CTA de Instagram"],
-  ['target="_blank"', "señal de destino externo"],
-  ['id="cursos"', "sección de cursos"],
-  ['id="metodologia"', "sección de metodología"],
-  ['id="elena"', "sección sobre Elena"],
-  ['id="preguntas"', "sección de preguntas"],
-  ['property="og:image"', "imagen social"],
-  ['name="description"', "descripción SEO"],
-];
-
-const missing = requiredContent.filter(([needle]) => !html.includes(needle));
-
-if (missing.length > 0) {
-  const labels = missing.map(([, label]) => label).join(", ");
-  throw new Error(`La landing construida no contiene: ${labels}`);
-}
-
-const forbiddenCourseLinks = [
-  '/courses/arteterapia-infancias',
-  '/checkout/arteterapia-infancias',
-];
-
-for (const href of forbiddenCourseLinks) {
-  if (html.includes(href)) {
-    throw new Error(`El curso próximo no debe enlazar a ${href}`);
-  }
-}
-
-console.log(
-  `Landing verificada: ${requiredContent.length} comprobaciones aprobadas.`,
+const previewUrl = "http://127.0.0.1:4173/";
+const previewStateDirectory = await mkdtemp(
+  join(tmpdir(), "aula-rayen-preview-"),
 );
+const preview = spawn(
+  "pnpm",
+  ["exec", "vite", "preview", "--host", "127.0.0.1", "--port", "4173"],
+  {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      MINIFLARE_REGISTRY_PATH: join(previewStateDirectory, "registry"),
+      WRANGLER_LOG_PATH: join(previewStateDirectory, "wrangler.log"),
+    },
+    stdio: ["ignore", "pipe", "pipe"],
+  },
+);
+
+let previewOutput = "";
+preview.stdout.on("data", (chunk) => {
+  previewOutput += chunk.toString();
+});
+preview.stderr.on("data", (chunk) => {
+  previewOutput += chunk.toString();
+});
+
+async function readLanding() {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    try {
+      const response = await fetch(previewUrl);
+      if (response.ok) {
+        return response.text();
+      }
+    } catch {
+      // The preview server may still be starting.
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+
+  throw new Error(`El preview no respondió.\n${previewOutput}`);
+}
+
+try {
+  const html = await readLanding();
+  const requiredContent = [
+    ['lang="es"', "idioma español"],
+    ["Aula Rayen", "marca comercial"],
+    ["Arteterapia para niños y niñas", "curso inicial"],
+    ["Inscripciones próximamente", "estado del curso"],
+    ['href="/login"', "enlace de inicio de sesión"],
+    ['href="/register"', "enlace de registro"],
+    ['href="https://example.com/professional-profile"', "CTA de Instagram"],
+    ['target="_blank"', "señal de destino externo"],
+    ['id="cursos"', "sección de cursos"],
+    ['id="metodologia"', "sección de metodología"],
+    ['id="elena"', "sección sobre Elena"],
+    ['id="preguntas"', "sección de preguntas"],
+    ['property="og:image"', "imagen social"],
+    ['name="description"', "descripción SEO"],
+  ];
+
+  const missing = requiredContent.filter(([needle]) => !html.includes(needle));
+  if (missing.length > 0) {
+    const labels = missing.map(([, label]) => label).join(", ");
+    throw new Error(`La landing construida no contiene: ${labels}`);
+  }
+
+  for (const href of [
+    "/courses/arteterapia-infancias",
+    "/checkout/arteterapia-infancias",
+  ]) {
+    if (html.includes(href)) {
+      throw new Error(`El curso próximo no debe enlazar a ${href}`);
+    }
+  }
+
+  console.log(
+    `Landing verificada: ${requiredContent.length} comprobaciones aprobadas.`,
+  );
+} finally {
+  preview.kill("SIGTERM");
+  if (preview.exitCode === null) {
+    await new Promise((resolve) => preview.once("exit", resolve));
+  }
+  await rm(previewStateDirectory, { recursive: true });
+}

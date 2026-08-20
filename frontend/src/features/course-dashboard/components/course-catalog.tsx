@@ -1,14 +1,27 @@
-"use client";
-
 import { BookOpen, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
 import { CourseCard } from "@/features/course-dashboard/components/course-card";
-import type { DemoCourse } from "@/features/course-dashboard/types/demo-course";
+import type { Course } from "@/features/course-dashboard/types/course";
+import { useMutation } from "@tanstack/react-query";
+import { createWebPay, CreateWebPayDto } from "../api/create-webpay";
 
-export function CourseCatalog({ courses }: { courses: readonly DemoCourse[] }) {
-  const [selectedCourse, setSelectedCourse] = useState<DemoCourse | null>(null);
+export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const mutation = useMutation({
+    mutationFn: createWebPay,
 
+    onSuccess: (data) => {
+      console.log("creado", data);
+    },
+
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+  const onSubmit = (courseId: number) => {
+    mutation.mutate({ course_id: courseId } as CreateWebPayDto);
+  };
   if (courses.length === 0) {
     return (
       <section
@@ -44,6 +57,7 @@ export function CourseCatalog({ courses }: { courses: readonly DemoCourse[] }) {
             key={course.id}
             course={course}
             onSelect={setSelectedCourse}
+            onClickWebPay={onSubmit}
           />
         ))}
       </section>

@@ -4,7 +4,9 @@ import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { nanoid } from 'nanoid';
 
 import { webpayTransaction } from '@/lib/transbank';
-import type { NewWebPaySession } from '@/db/schema';
+import type { Course, NewWebPaySession } from '@/db/schema';
+
+import { CourseService } from '../course/course.service';
 
 type CreateResponse = {
   token: string;
@@ -22,7 +24,10 @@ function isCreateResponse(value: unknown): value is CreateResponse {
 
 @Injectable()
 export class WebPayService {
-  constructor(private readonly repository: WebPayRepository) {}
+  constructor(
+    private readonly repository: WebPayRepository,
+    private readonly courseService: CourseService,
+  ) {}
 
   getAll() {
     return this.repository.findAll();
@@ -36,10 +41,14 @@ export class WebPayService {
     const sessionId = nanoid(61);
     const returnUrl = `${process.env.BASE_URL}/api/webpay/commit?buyOrder=${buyOrder}`;
 
+    const course: Course = await this.courseService.getById(
+      createWebpayDto.course_id,
+    );
+
     const response: unknown = await webpayTransaction.create(
       buyOrder,
       sessionId,
-      createWebpayDto.amountToPay,
+      course.price,
       returnUrl,
     );
     if (!isCreateResponse(response)) {
@@ -49,7 +58,7 @@ export class WebPayService {
     const webpaySession: NewWebPaySession = {
       buyOrderId: buyOrder,
       userId,
-      amount: createWebpayDto.amountToPay,
+      amount: course.price,
     };
     await this.repository.create(webpaySession);
 

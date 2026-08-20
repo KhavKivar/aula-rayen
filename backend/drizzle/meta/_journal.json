@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1785506598155,
-      "tag": "0000_opposite_black_bird",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1785506644944,
-      "tag": "0001_fixed_the_hand",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1785800206847,
-      "tag": "0002_tough_whizzer",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1785800759625,
-      "tag": "0003_powerful_mach_iv",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1786041531502,
-      "tag": "0004_unknown_taskmaster",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1786048497039,
-      "tag": "0005_salty_kabuki",
+      "when": 1787019572942,
+      "tag": "0000_lazy_maestro",
       "breakpoints": true
     }
   ]

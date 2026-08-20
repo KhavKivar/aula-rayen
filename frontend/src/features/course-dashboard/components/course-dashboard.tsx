@@ -1,16 +1,22 @@
-import { BookOpenCheck, Sparkles } from "lucide-react";
-import Link from "next/link";
+import { AlertCircle, BookOpenCheck, LoaderCircle, Sparkles } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 
+import { getCourses } from "@/features/course-dashboard/api/get-courses";
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
-import { demoCourses } from "@/features/course-dashboard/data/demo-courses";
 
 export function CourseDashboard() {
+  const coursesQuery = useQuery({
+    queryKey: ["courses"],
+    queryFn: getCourses,
+  });
+
   return (
     <main className="min-h-svh overflow-x-clip bg-[#f7f4ec] text-[#294944]">
       <header className="border-b border-[#d9dfd8] bg-[#fffdf8]/95">
         <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
           <Link
-            href="/"
+            to="/"
             className="font-heading text-xl font-semibold tracking-[-0.03em]"
           >
             Aula Rayen
@@ -42,7 +48,25 @@ export function CourseDashboard() {
         </section>
 
         <div className="mt-10 sm:mt-12">
-          <CourseCatalog courses={demoCourses} />
+          {coursesQuery.isPending ? (
+            <div
+              role="status"
+              className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+            >
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+              Cargando cursos…
+            </div>
+          ) : coursesQuery.isError ? (
+            <div
+              role="alert"
+              className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+            >
+              <AlertCircle aria-hidden="true" />
+              No fue posible cargar los cursos. Inténtalo nuevamente.
+            </div>
+          ) : (
+            <CourseCatalog courses={coursesQuery.data} />
+          )}
         </div>
       </div>
     </main>

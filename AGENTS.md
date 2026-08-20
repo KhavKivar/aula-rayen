@@ -4,7 +4,8 @@
 
 Este repositorio es un monorepo con dos aplicaciones independientes:
 
-- `frontend/`: Next.js y React, desplegado en Cloudflare Workers mediante OpenNext.
+- `frontend/`: TanStack Start y React, desplegado en Cloudflare Workers mediante
+  Vite y el plugin oficial de Cloudflare.
 - `backend/`: NestJS, Better Auth, Drizzle ORM y PostgreSQL.
 - `.github/workflows/`: despliegues separados según los paths modificados.
 
@@ -47,7 +48,7 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 ## Integración entre aplicaciones
 
 - El frontend usa `NEXT_PUBLIC_API_URL` para llamadas directas a la API.
-- Better Auth puede pasar por el proxy de Next.js bajo `/api/auth/*`.
+- Better Auth puede pasar por la server route de TanStack Start bajo `/api/auth/*`.
 - Al agregar un origen del frontend, actualiza tanto `trustedOrigins` de Better Auth
   como CORS en NestJS.
 - Las cookies y peticiones autenticadas requieren `credentials: true` en ambos lados.

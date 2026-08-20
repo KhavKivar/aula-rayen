@@ -13,14 +13,15 @@
 # testing
 /coverage
 
-# next.js
-/.next/
-/out/
-
-# cloudflare / opennext
-/.open-next/
+# vite / tanstack start / cloudflare
+/dist/
+/.tanstack/
 /.wrangler/
 /cloudflare-env.d.ts
+
+# historical generated output (safe to leave after migration)
+/.next/
+/.open-next/
 
 # production
 /build
@@ -44,4 +45,3 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts

@@ -1,14 +1,15 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { render } from "@/testing/test-utils";
 
-const { registerAccountMock, routerMock } = vi.hoisted(() => ({
+const { navigateMock, registerAccountMock, routerMock } = vi.hoisted(() => ({
+  navigateMock: vi.fn(),
   registerAccountMock: vi.fn(),
   routerMock: {
-    replace: vi.fn(),
-    refresh: vi.fn(),
+    invalidate: vi.fn(),
   },
 }));
 
@@ -16,7 +17,11 @@ vi.mock("@/features/auth/api/register", () => ({
   registerAccount: registerAccountMock,
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
+  useNavigate: () => navigateMock,
   useRouter: () => routerMock,
 }));
 
@@ -69,8 +74,8 @@ describe("RegisterForm", () => {
       expect.anything(),
     );
     await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledWith("/");
-      expect(routerMock.refresh).toHaveBeenCalledOnce();
+      expect(navigateMock).toHaveBeenCalledWith({ to: "/", replace: true });
+      expect(routerMock.invalidate).toHaveBeenCalledOnce();
     });
   });
 });

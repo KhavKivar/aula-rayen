@@ -1,30 +1,37 @@
+import eslintPluginImport from "eslint-plugin-import";
+import reactHooks from "eslint-plugin-react-hooks";
 import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import tseslint from "typescript-eslint";
 
-const eslintConfig = defineConfig([
-  ...nextVitals,
-  ...nextTs,
-  // Override default ignores of eslint-config-next.
+export default defineConfig([
   globalIgnores([
-    // Default ignores of eslint-config-next:
+    "dist/**",
     ".next/**",
     ".open-next/**",
-    "out/**",
+    ".tanstack/**",
+    ".wrangler/**",
     "build/**",
-    "next-env.d.ts",
     "cloudflare-env.d.ts",
+    "src/routeTree.gen.ts",
   ]),
+  ...tseslint.configs.recommended,
+  reactHooks.configs.flat.recommended,
+  eslintPluginImport.flatConfigs.recommended,
   {
-    files: ["src/**/*.{ts,tsx}"],
+    files: ["eslint.config.mjs"],
+    rules: {
+      "import/no-unresolved": "off",
+    },
+  },
+  {
+    files: ["**/*.{ts,tsx,mts}"],
     settings: {
       "import/resolver": {
-        typescript: {
-          project: "./tsconfig.json",
-        },
+        typescript: { project: "./tsconfig.json" },
       },
     },
     rules: {
+      "import/no-unresolved": "error",
       "import/no-restricted-paths": [
         "error",
         {
@@ -61,5 +68,3 @@ const eslintConfig = defineConfig([
     },
   },
 ]);
-
-export default eslintConfig;

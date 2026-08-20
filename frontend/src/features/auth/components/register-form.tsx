@@ -1,10 +1,7 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -18,6 +15,7 @@ import {
 } from "@/features/auth/schemas/register-schema";
 
 export function RegisterForm() {
+  const navigate = useNavigate();
   const router = useRouter();
 
   const {
@@ -40,9 +38,9 @@ export function RegisterForm() {
     RegisterCredentials
   >({
     mutationFn: registerAccount,
-    onSuccess: () => {
-      router.replace("/");
-      router.refresh();
+    onSuccess: async () => {
+      await navigate({ to: "/", replace: true });
+      await router.invalidate();
     },
   });
 
@@ -153,7 +151,7 @@ export function RegisterForm() {
       <p className="text-center text-sm text-muted-foreground">
         ¿Ya tienes una cuenta?{" "}
         <Link
-          href="/login"
+          to="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Inicia sesión

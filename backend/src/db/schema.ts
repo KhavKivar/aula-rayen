@@ -6,17 +6,19 @@ import {
   timestamp,
   boolean,
   index,
-  serial,
   integer,
+  serial,
+  uniqueIndex,
 } from 'drizzle-orm/pg-core';
 
-export const products = pgTable('products', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-});
+export type WebPaySession = typeof webpay_sessions.$inferSelect;
+export type NewWebPaySession = typeof webpay_sessions.$inferInsert;
 
-export type Product = typeof products.$inferSelect;
-export type NewProduct = typeof products.$inferInsert;
+export type Course = typeof courses.$inferSelect;
+export type NewCourse = typeof courses.$inferInsert;
+
+export type CoursePurchase = typeof course_purchases.$inferSelect;
+export type NewCoursePurchase = typeof course_purchases.$inferInsert;
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -44,11 +46,8 @@ export const webpay_sessions = pgTable(
   (table) => [index('webpay_sessions_userId_idx').on(table.userId)],
 );
 
-export type WebPaySession = typeof webpay_sessions.$inferSelect;
-export type NewWebPaySession = typeof webpay_sessions.$inferInsert;
-
 export const courses = pgTable('courses', {
-  id: text('id').primaryKey(),
+  id: serial('id').primaryKey(),
   title: text('title').notNull(),
   description: text('description').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -57,6 +56,28 @@ export const courses = pgTable('courses', {
   duration: text('duration').notNull(),
   price: integer('price').notNull(),
 });
+
+export const course_purchases = pgTable(
+  'course_purchases',
+  {
+    id: serial('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    courseId: integer('course_id')
+      .notNull()
+      .references(() => courses.id, { onDelete: 'restrict' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('course_purchases_userId_idx').on(table.userId),
+    index('course_purchases_courseId_idx').on(table.courseId),
+    uniqueIndex('course_purchases_user_course_idx').on(
+      table.userId,
+      table.courseId,
+    ),
+  ],
+);
 
 export const session = pgTable(
   'session',

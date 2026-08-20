@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Aula Rayen</title>
+  <desc id="desc">Talleres listos para profesionales de la psicología</desc>
+  <rect width="1200" height="630" fill="#294944"/>
+  <rect x="840" width="360" height="630" fill="#d98968"/>
+  <circle cx="1150" cy="40" r="150" fill="#f0c972"/>
+  <path d="M905 370c70-45 160-6 137 78-15 58-108 101-151 38-29-43-24-92 14-116Z" fill="#e6eee9"/>
+  <text x="68" y="105" fill="#f0c972" font-family="system-ui,sans-serif" font-size="28">Aula Rayen</text>
+  <text x="68" y="285" fill="#fffdf8" font-family="system-ui,sans-serif" font-size="68" font-weight="700">Talleres con propósito,</text>
+  <text x="68" y="365" fill="#f2dca8" font-family="Georgia,serif" font-size="60" font-style="italic">listos para la práctica.</text>
+  <text x="68" y="550" fill="#d6e0dd" font-family="system-ui,sans-serif" font-size="24">Formación y materiales para profesionales de la psicología</text>
+</svg>

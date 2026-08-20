@@ -1,19 +1,27 @@
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/features/course-dashboard/api/create-webpay", () => ({
+  createWebPay: vi.fn().mockResolvedValue({
+    token: "webpay-token",
+    url: "https://webpay.example.com",
+  }),
+}));
 
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
-import type { DemoCourse } from "@/features/course-dashboard/types/demo-course";
+import type { Course } from "@/features/course-dashboard/types/course";
 import { render } from "@/testing/test-utils";
 
-const course: DemoCourse = {
-  id: "curso-demo",
+const course: Course = {
+  id: 1,
   title: "Curso de demostración",
   description: "Una descripción breve para probar el catálogo.",
-  category: "Arteterapia",
+  createdAt: "2026-08-17T00:00:00.000Z",
+  videoLink: "https://example.com/video",
+  fileLink: "https://example.com/material",
   duration: "3 módulos",
-  priceClp: 49990,
-  accent: "terracotta",
+  price: 49990,
 };
 
 describe("CourseCatalog", () => {

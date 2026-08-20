@@ -1,10 +1,7 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +16,7 @@ import {
 import { GoogleIcon } from "@/features/auth/components/google-icon";
 
 export function LoginForm() {
+  const navigate = useNavigate();
   const router = useRouter();
 
   const {
@@ -35,9 +33,9 @@ export function LoginForm() {
 
   const loginMutation = useMutation<void, AuthError, LoginCredentials>({
     mutationFn: login,
-    onSuccess: () => {
-      router.replace("/dashboard");
-      router.refresh();
+    onSuccess: async () => {
+      await navigate({ to: "/dashboard", replace: true });
+      await router.invalidate();
     },
   });
 
@@ -146,7 +144,7 @@ export function LoginForm() {
       <p className="text-center text-sm text-muted-foreground">
         ¿No tienes una cuenta?{" "}
         <Link
-          href="/register"
+          to="/register"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Regístrate

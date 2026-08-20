@@ -1,20 +1,18 @@
-"use client";
-
+import { useNavigate } from "@tanstack/react-router";
 import { LoaderCircle } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 
 import { useSession } from "@/lib/auth-client";
 
 export function DashboardGate({ children }: { children: ReactNode }) {
-  const router = useRouter();
+  const navigate = useNavigate();
   const { data: session, isPending } = useSession();
 
   useEffect(() => {
     if (!isPending && !session) {
-      router.replace("/login");
+      void navigate({ to: "/login", replace: true });
     }
-  }, [isPending, router, session]);
+  }, [isPending, navigate, session]);
 
   if (isPending || !session) {
     return (

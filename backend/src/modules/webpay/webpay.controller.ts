@@ -19,6 +19,7 @@ export class WebPayController {
     @Body() createWebpayDto: CreateWebpayDto,
     @Session() session: UserSession,
   ) {
+    console.log('createWebpayDto', createWebpayDto);
     return this.webpayService.create(createWebpayDto, session.user.id);
   }
 }

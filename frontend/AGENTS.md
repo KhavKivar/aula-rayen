@@ -4,7 +4,7 @@
 
 El flujo de dependencias es `shared → features → app`:
 
-- `src/app`: rutas, layouts, providers y composición.
+- `src/app`: rutas de TanStack Router, documento raíz, providers y composición.
 - `src/features`: lógica de dominio autocontenida.
 - `src/components`, `config`, `hooks`, `lib`, `testing`, `types` y `utils`:
   módulos compartidos que no dependen de features ni de app.
@@ -25,8 +25,9 @@ Usa primero las dependencias ya instaladas:
 - Peticiones y estado remoto: **TanStack Query** con `useQuery` y `useMutation`.
 - Cliente HTTP: **Axios** mediante `@/lib/api-client`; no crees otra instancia.
 - Autenticación: **Better Auth** mediante `@/lib/auth-client`.
-- Navegación: `next/link` y `next/navigation`.
-- Imágenes: `next/image`.
+- Navegación: `Link`, `useNavigate` y `useRouter` de TanStack Router.
+- Imágenes: elementos HTML responsivos con dimensiones explícitas y loading
+  apropiado; no agregues una librería de imágenes sin justificarla.
 - Variantes de componentes: **class-variance-authority**.
 - Tests: **Vitest**, **Testing Library**, **jest-dom** y **user-event**.
 
@@ -38,7 +39,8 @@ No agregues una librería que duplique alguna de estas capacidades sin justifica
 - Centraliza variables de entorno en `src/config/env.ts`.
 - Nunca guardes secretos en variables `NEXT_PUBLIC_*`.
 - Mantén peticiones y transformación de errores fuera de los componentes.
-- Usa Server Components por defecto y `"use client"` solo cuando sea necesario.
+- Mantén el SSR universal de TanStack Start y evita APIs exclusivas del navegador
+  durante el render del servidor.
 
 ## Validación
 

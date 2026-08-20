@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend de Aula Rayen
 
-## Getting Started
+Aplicación React full-stack construida con TanStack Start, TanStack Router y Vite.
+Se despliega como Cloudflare Worker mediante el plugin oficial de Cloudflare.
 
-First, run the development server:
+## Desarrollo local
+
+Instala dependencias y levanta el servidor en `http://localhost:3001`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Copia `.env.example` a `.env.local` y configura:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```dotenv
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_URL=http://localhost:3001
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Las dos variables son públicas y se incluyen en el bundle del navegador. No deben
+contener secretos.
 
-## Learn More
+## Validación
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm lint
+pnpm exec tsc --noEmit
+pnpm test:run
+pnpm build
+pnpm check:landing
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`check:landing` inicia temporalmente el preview de producción y comprueba por HTTP
+el contenido y metadatos esenciales de la página principal.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Rutas
 
-## Deploy on Vercel
+Las rutas basadas en archivos viven en `src/app/`. TanStack Router genera
+`src/routeTree.gen.ts`; el archivo generado se versiona pero no se edita a mano.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+El endpoint catch-all `src/app/api/auth/$.ts` reenvía `/api/auth/*` al backend para
+mantener el flujo de cookies de Better Auth en el mismo origen.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Cloudflare Workers
+
+```bash
+pnpm preview
+pnpm run cf-typegen
+pnpm deploy
+```
+
+`pnpm deploy` compila y publica el Worker `aula-rayen`. No lo ejecutes para una
+validación local; los pushes a `main` bajo `frontend/**` activan el workflow de
+producción.
+
+Consulta la [documentación de TanStack Start](https://tanstack.com/start/latest)
+y la [guía de Cloudflare Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/).

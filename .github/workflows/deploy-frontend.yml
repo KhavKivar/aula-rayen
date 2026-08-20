@@ -41,7 +41,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Validate
-        run: pnpm run lint
+        run: |
+          pnpm run lint
+          pnpm exec tsc --noEmit
+          pnpm run test:run
+          pnpm run build
+          pnpm run check:landing
 
-      - name: Deploy with OpenNext
+      - name: Deploy TanStack Start
         run: pnpm run deploy

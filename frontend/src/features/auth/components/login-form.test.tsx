@@ -1,16 +1,17 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthError } from "@/features/auth/errors/auth-error";
 import { render } from "@/testing/test-utils";
 
-const { loginMock, loginWithGoogleMock, routerMock } = vi.hoisted(() => ({
+const { loginMock, loginWithGoogleMock, navigateMock, routerMock } = vi.hoisted(() => ({
   loginMock: vi.fn(),
   loginWithGoogleMock: vi.fn(),
+  navigateMock: vi.fn(),
   routerMock: {
-    replace: vi.fn(),
-    refresh: vi.fn(),
+    invalidate: vi.fn(),
   },
 }));
 
@@ -19,7 +20,11 @@ vi.mock("@/features/auth/api/login", () => ({
   loginWithGoogle: loginWithGoogleMock,
 }));
 
-vi.mock("next/navigation", () => ({
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to }: { children: ReactNode; to: string }) => (
+    <a href={to}>{children}</a>
+  ),
+  useNavigate: () => navigateMock,
   useRouter: () => routerMock,
 }));
 
@@ -68,8 +73,11 @@ describe("LoginForm", () => {
     loginResult.resolve();
 
     await waitFor(() => {
-      expect(routerMock.replace).toHaveBeenCalledWith("/dashboard");
-      expect(routerMock.refresh).toHaveBeenCalledOnce();
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: "/dashboard",
+        replace: true,
+      });
+      expect(routerMock.invalidate).toHaveBeenCalledOnce();
     });
   });
 
@@ -90,6 +98,6 @@ describe("LoginForm", () => {
     expect(
       await screen.findByText("Correo o contraseña incorrectos."),
     ).toHaveAttribute("role", "alert");
-    expect(routerMock.replace).not.toHaveBeenCalled();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 });

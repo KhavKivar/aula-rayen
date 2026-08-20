@@ -3,7 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DbModule } from './db/db.module';
-import { ProductModule } from './modules/product/product.module';
+import { CourseModule } from './modules/course/course.module';
 import { WebPayModule } from './modules/webpay/webpay.module';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { auth } from './modules/auth/auth';
@@ -11,7 +11,7 @@ import { auth } from './modules/auth/auth';
   imports: [
     ConfigModule.forRoot(),
     DbModule,
-    ProductModule,
+    CourseModule,
     WebPayModule,
     AuthModule.forRoot({ auth }),
   ],

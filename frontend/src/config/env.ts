@@ -8,11 +8,11 @@ function requiredEnv(value: string | undefined, name: string): string {
 
 export const env = Object.freeze({
   NEXT_PUBLIC_API_URL: requiredEnv(
-    process.env.NEXT_PUBLIC_API_URL,
+    import.meta.env.NEXT_PUBLIC_API_URL,
     "NEXT_PUBLIC_API_URL",
   ),
   NEXT_PUBLIC_SITE_URL: requiredEnv(
-    process.env.NEXT_PUBLIC_SITE_URL,
+    import.meta.env.NEXT_PUBLIC_SITE_URL,
     "NEXT_PUBLIC_SITE_URL",
   ),
 });
