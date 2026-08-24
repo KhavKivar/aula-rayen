@@ -7,11 +7,27 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: [env.FRONTEND_URL, 'http://localhost:3001'],
+  advanced: {
+    ipAddress: {
+      ipAddressHeaders: ['cf-connecting-ip'],
+    },
+  },
   database: drizzleAdapter(db, {
     provider: 'pg', // or "mysql", "sqlite"
   }),
   emailAndPassword: {
     enabled: true,
+  },
+  rateLimit: {
+    enabled: true,
+    window: 60,
+    max: 100,
+    customRules: {
+      '/sign-in/email': {
+        window: 10,
+        max: 3,
+      },
+    },
   },
   socialProviders: {
     google: {

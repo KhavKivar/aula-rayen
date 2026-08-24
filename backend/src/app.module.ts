@@ -10,9 +10,20 @@ import { auth } from './modules/auth/auth';
 import { configuration } from './config/configuration';
 import { LoggerModule } from 'nestjs-pino';
 import { env } from './config/env';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60_000,
+          limit: 50,
+        },
+      ],
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport:
@@ -20,7 +31,13 @@ import { env } from './config/env';
             ? undefined
             : {
                 target: 'pino-pretty',
-                options: { singleLine: true },
+                options: {
+                  singleLine: true,
+                  colorize: true,
+                  translateTime: 'HH:MM:ss.l',
+                  ignore:
+                    'pid,hostname,req.headers,req.query,req.params,req.remoteAddress,req.remotePort,res.headers',
+                },
               },
       },
     }),
@@ -30,6 +47,12 @@ import { env } from './config/env';
     AuthModule.forRoot({ auth }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

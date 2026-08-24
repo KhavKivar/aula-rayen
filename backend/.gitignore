@@ -45,6 +45,7 @@ lerna-debug.log*
 
 # Local authentication session
 cookies.txt
+.auth/
 
 # temp directory
 .temp
