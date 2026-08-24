@@ -8,6 +8,13 @@
       "when": 1787019572942,
       "tag": "0000_lazy_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1787277946912,
+      "tag": "0001_loud_boomerang",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { CreateCourseDto } from './dto/create-course.dto';
 import { CourseRepository } from './course.repository';
@@ -11,12 +15,26 @@ export class CourseService {
     return this.repository.findAll();
   }
 
+  getCatalogForUser(userId: string) {
+    return this.repository.findCatalogByUser(userId);
+  }
+
   async getById(id: number) {
     const course = await this.repository.findById(id);
 
     if (!course) {
       throw new NotFoundException(`Curso con ID ${id} no encontrado`);
     }
+    return course;
+  }
+
+  async getPurchasedById(id: number, userId: string) {
+    const course = await this.repository.findPurchasedById(id, userId);
+
+    if (!course) {
+      throw new ForbiddenException('No tienes acceso a este curso');
+    }
+
     return course;
   }
 

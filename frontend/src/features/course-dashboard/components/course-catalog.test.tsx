@@ -1,6 +1,20 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import type { ComponentProps } from "react";
+
+type TestLinkProps = ComponentProps<"a"> & {
+  to: string;
+  params?: { courseId?: string };
+};
+
+vi.mock("@tanstack/react-router", () => ({
+  Link: ({ children, to, params, ...props }: TestLinkProps) => (
+    <a href={to.replace("$courseId", params?.courseId ?? "")} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
 vi.mock("@/features/course-dashboard/api/create-webpay", () => ({
   createWebPay: vi.fn().mockResolvedValue({
@@ -18,10 +32,9 @@ const course: Course = {
   title: "Curso de demostración",
   description: "Una descripción breve para probar el catálogo.",
   createdAt: "2026-08-17T00:00:00.000Z",
-  videoLink: "https://example.com/video",
-  fileLink: "https://example.com/material",
   duration: "3 módulos",
   price: 49990,
+  hasAccess: false,
 };
 
 describe("CourseCatalog", () => {
@@ -50,8 +63,11 @@ describe("CourseCatalog", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("activates the Webpay mock with the keyboard without navigating", async () => {
+  it("submits the Webpay form for a course without access", async () => {
     const user = userEvent.setup();
+    const submit = vi
+      .spyOn(HTMLFormElement.prototype, "submit")
+      .mockImplementation(() => undefined);
     render(<CourseCatalog courses={[course]} />);
 
     await user.tab();
@@ -62,12 +78,20 @@ describe("CourseCatalog", () => {
     ).toHaveFocus();
     await user.keyboard("{Enter}");
 
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Demostración de Webpay",
-    );
-    expect(screen.getByRole("status")).toHaveTextContent(course.title);
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "no inicia una compra ni te redirige",
-    );
+    await waitFor(() => expect(submit).toHaveBeenCalled());
+    submit.mockRestore();
+  });
+
+  it("shows the course link instead of Webpay when the user has access", () => {
+    render(<CourseCatalog courses={[{ ...course, hasAccess: true }]} />);
+
+    expect(
+      screen.getByRole("link", { name: `Ver ${course.title}` }),
+    ).toHaveAttribute("href", `/courses/${course.id}`);
+    expect(
+      screen.queryByRole("button", {
+        name: `Pagar ${course.title} con Webpay`,
+      }),
+    ).not.toBeInTheDocument();
   });
 });

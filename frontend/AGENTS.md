@@ -20,8 +20,10 @@ Usa primero las dependencias ya instaladas:
   crear una primitiva nueva.
 - Estilos: **Tailwind CSS**. Combina clases con `cn()` de `@/lib/utils`.
 - Iconos: **Lucide React**.
-- Formularios: **React Hook Form**.
-- Validación: **Zod**, conectado al formulario mediante **zodResolver**.
+- Formularios: **TanStack React Form** para formularios nuevos o migrados. React
+  Hook Form permanece temporalmente en formularios existentes aún no migrados.
+- Validación: **Zod** mediante Standard Schema con TanStack Form; usa
+  **zodResolver** solamente en formularios que todavía usan React Hook Form.
 - Peticiones y estado remoto: **TanStack Query** con `useQuery` y `useMutation`.
 - Cliente HTTP: **Axios** mediante `@/lib/api-client`; no crees otra instancia.
 - Autenticación: **Better Auth** mediante `@/lib/auth-client`.

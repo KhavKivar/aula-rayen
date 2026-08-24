@@ -1,5 +1,5 @@
-import { BookOpen, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { BookOpen } from "lucide-react";
+import { useRef } from "react";
 
 import { CourseCard } from "@/features/course-dashboard/components/course-card";
 import type { Course } from "@/features/course-dashboard/types/course";
@@ -7,12 +7,28 @@ import { useMutation } from "@tanstack/react-query";
 import { createWebPay, CreateWebPayDto } from "../api/create-webpay";
 
 export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
   const mutation = useMutation({
     mutationFn: createWebPay,
 
     onSuccess: (data) => {
-      console.log("creado", data);
+      const form = formRef.current;
+      if (!form) {
+        console.error("Webpay form not found");
+        return;
+      }
+      form.action = data.url;
+
+      const input = form.elements.namedItem("token_ws") as HTMLInputElement;
+
+      if (!(input instanceof HTMLInputElement)) {
+        console.error("token_ws input not found");
+        return;
+      }
+      input.value = data.token;
+      console.log(form);
+      form.submit();
     },
 
     onError: (error) => {
@@ -56,31 +72,14 @@ export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
           <CourseCard
             key={course.id}
             course={course}
-            onSelect={setSelectedCourse}
             onClickWebPay={onSubmit}
           />
         ))}
       </section>
 
-      {selectedCourse ? (
-        <div
-          role="status"
-          aria-live="polite"
-          className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-xl items-start gap-3 rounded-2xl border border-[#b9d0c6] bg-[#f3faf6] p-4 text-[#294944] shadow-xl sm:bottom-6"
-        >
-          <CheckCircle2
-            className="mt-0.5 shrink-0 text-[#3d7a64]"
-            aria-hidden="true"
-          />
-          <div>
-            <p className="font-semibold">Demostración de Webpay</p>
-            <p className="mt-1 text-sm leading-5 text-[#516963]">
-              Seleccionaste “{selectedCourse.title}”. Este mockup no inicia una
-              compra ni te redirige fuera de Aula Rayen.
-            </p>
-          </div>
-        </div>
-      ) : null}
+      <form style={{ display: "none" }} ref={formRef} action="/" method="POST">
+        <input type="hidden" name="token_ws" />
+      </form>
     </>
   );
 }

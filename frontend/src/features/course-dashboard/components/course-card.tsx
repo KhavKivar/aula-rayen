@@ -1,6 +1,7 @@
-import { ArrowRight, Clock3, CreditCard } from "lucide-react";
+import { ArrowRight, BookOpen, Clock3, CreditCard } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/features/course-dashboard/types/course";
 
@@ -22,16 +23,10 @@ function getAccentClass(id: number) {
 
 type CourseCardProps = {
   course: Course;
-  onSelect: (course: Course) => void;
   onClickWebPay?: (courseId: number) => void;
 };
 
-export function CourseCard({
-  course,
-  onSelect,
-  onClickWebPay,
-}: CourseCardProps) {
-  console.log("CourseCard rendered for course:", course); // Debugging log
+export function CourseCard({ course, onClickWebPay }: CourseCardProps) {
   return (
     <article className="group flex min-w-0 flex-col overflow-hidden rounded-[1.75rem] border border-[#d9dfd8] bg-[#fffdf8] shadow-[0_16px_45px_rgba(46,68,62,.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_55px_rgba(46,68,62,.14)]">
       <div
@@ -69,20 +64,34 @@ export function CourseCard({
           <p className="mt-1 font-heading text-2xl font-semibold text-[#294944]">
             {priceFormatter.format(course.price)}
           </p>
-          <Button
-            type="button"
-            size="lg"
-            className="mt-5 min-h-11 w-full bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]"
-            onClick={() => {
-              onSelect(course);
-              onClickWebPay?.(course.id);
-            }}
-            aria-label={`Pagar ${course.title} con Webpay`}
-          >
-            <CreditCard data-icon="inline-start" aria-hidden="true" />
-            Pagar con Webpay
-            <ArrowRight data-icon="inline-end" aria-hidden="true" />
-          </Button>
+          {course.hasAccess ? (
+            <Link
+              to="/courses/$courseId"
+              params={{ courseId: String(course.id) }}
+              className={buttonVariants({
+                size: "lg",
+                className:
+                  "mt-5 min-h-11 w-full bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]",
+              })}
+              aria-label={`Ver ${course.title}`}
+            >
+              <BookOpen data-icon="inline-start" aria-hidden="true" />
+              Ver curso
+              <ArrowRight data-icon="inline-end" aria-hidden="true" />
+            </Link>
+          ) : (
+            <Button
+              type="button"
+              size="lg"
+              className="mt-5 min-h-11 w-full bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d] cursor-pointer"
+              onClick={() => onClickWebPay?.(course.id)}
+              aria-label={`Pagar ${course.title} con Webpay`}
+            >
+              <CreditCard data-icon="inline-start" aria-hidden="true" />
+              Pagar con Webpay
+              <ArrowRight data-icon="inline-end" aria-hidden="true" />
+            </Button>
+          )}
         </div>
       </div>
     </article>

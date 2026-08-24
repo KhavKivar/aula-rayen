@@ -1,6 +1,6 @@
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 
-import type { Course } from '../../db/schema';
+import type { Course } from '@/db/types';
 import { CourseRepository } from './course.repository';
 import { CourseService } from './course.service';
 
@@ -18,7 +18,9 @@ describe('CourseService', () => {
 
   const repository = {
     findAll: jest.fn(),
+    findCatalogByUser: jest.fn(),
     findById: jest.fn(),
+    findPurchasedById: jest.fn(),
     create: jest.fn(),
   };
   const service = new CourseService(repository as unknown as CourseRepository);
@@ -33,6 +35,16 @@ describe('CourseService', () => {
     await expect(service.getAll()).resolves.toEqual([course]);
   });
 
+  it('returns the catalog with access state for a user', async () => {
+    const catalog = [{ ...course, hasAccess: true }];
+    repository.findCatalogByUser.mockResolvedValue(catalog);
+
+    await expect(service.getCatalogForUser('user-id')).resolves.toEqual(
+      catalog,
+    );
+    expect(repository.findCatalogByUser).toHaveBeenCalledWith('user-id');
+  });
+
   it('returns a course by id', async () => {
     repository.findById.mockResolvedValue(course);
 
@@ -43,6 +55,22 @@ describe('CourseService', () => {
     repository.findById.mockResolvedValue(null);
 
     await expect(service.getById(999)).rejects.toThrow(NotFoundException);
+  });
+
+  it('returns a purchased course', async () => {
+    repository.findPurchasedById.mockResolvedValue(course);
+
+    await expect(
+      service.getPurchasedById(course.id, 'user-id'),
+    ).resolves.toEqual(course);
+  });
+
+  it('rejects access to a course that was not purchased', async () => {
+    repository.findPurchasedById.mockResolvedValue(null);
+
+    await expect(
+      service.getPurchasedById(course.id, 'user-id'),
+    ).rejects.toThrow(ForbiddenException);
   });
 
   it('creates a course', async () => {

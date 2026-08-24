@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './app/__root'
 import { Route as IndexRouteImport } from './app/index'
 import { Route as DashboardRouteImport } from './app/dashboard'
 import { Route as LoginRouteImport } from './app/login'
+import { Route as PaymentResultRouteImport } from './app/payment-result'
 import { Route as RegisterRouteImport } from './app/register'
+import { Route as CoursesCourseIdRouteImport } from './app/courses/$courseId'
 import { Route as ApiAuthSplatRouteImport } from './app/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
@@ -30,9 +32,19 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaymentResultRoute = PaymentResultRouteImport.update({
+  id: '/payment-result',
+  path: '/payment-result',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CoursesCourseIdRoute = CoursesCourseIdRouteImport.update({
+  id: '/courses/$courseId',
+  path: '/courses/$courseId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -45,14 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/payment-result': typeof PaymentResultRoute
   '/register': typeof RegisterRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/payment-result': typeof PaymentResultRoute
   '/register': typeof RegisterRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -60,22 +76,48 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/payment-result': typeof PaymentResultRoute
   '/register': typeof RegisterRoute
+  '/courses/$courseId': typeof CoursesCourseIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/register' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/payment-result'
+    | '/register'
+    | '/courses/$courseId'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/register' | '/api/auth/$'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/register' | '/api/auth/$'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/payment-result'
+    | '/register'
+    | '/courses/$courseId'
+    | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/payment-result'
+    | '/register'
+    | '/courses/$courseId'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  PaymentResultRoute: typeof PaymentResultRoute
   RegisterRoute: typeof RegisterRoute
+  CoursesCourseIdRoute: typeof CoursesCourseIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -102,11 +144,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payment-result': {
+      id: '/payment-result'
+      path: '/payment-result'
+      fullPath: '/payment-result'
+      preLoaderRoute: typeof PaymentResultRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/courses/$courseId': {
+      id: '/courses/$courseId'
+      path: '/courses/$courseId'
+      fullPath: '/courses/$courseId'
+      preLoaderRoute: typeof CoursesCourseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -123,7 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  PaymentResultRoute: PaymentResultRoute,
   RegisterRoute: RegisterRoute,
+  CoursesCourseIdRoute: CoursesCourseIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

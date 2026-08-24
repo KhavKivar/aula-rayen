@@ -7,18 +7,10 @@ import {
   boolean,
   index,
   integer,
+  numeric,
   serial,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
-
-export type WebPaySession = typeof webpay_sessions.$inferSelect;
-export type NewWebPaySession = typeof webpay_sessions.$inferInsert;
-
-export type Course = typeof courses.$inferSelect;
-export type NewCourse = typeof courses.$inferInsert;
-
-export type CoursePurchase = typeof course_purchases.$inferSelect;
-export type NewCoursePurchase = typeof course_purchases.$inferInsert;
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -36,14 +28,33 @@ export const user = pgTable('user', {
 export const webpay_sessions = pgTable(
   'webpay_sessions',
   {
-    buyOrderId: text('buy_order_id').primaryKey(),
+    buyOrderId: text('buy_order').primaryKey(),
     userId: text('user_id')
       .notNull()
       .references(() => user.id),
+    courseId: integer('course_id')
+      .notNull()
+      .references(() => courses.id, { onDelete: 'restrict' }),
     amount: integer('amount').notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
+    tokenWs: text('token_ws'),
+    vci: text('vci'),
+    tbAmount: numeric('tb_amount', { mode: 'number' }),
+    tbStatus: text('tb_status'),
+    cardNumber: text('card_number'),
+    accountingDate: text('accounting_date'),
+    transactionDate: timestamp('transaction_date', { withTimezone: true }),
+    authorizationCode: text('authorization_code'),
+    paymentTypeCode: text('payment_type_code'),
+    responseCode: integer('response_code'),
+    installmentsAmount: numeric('installments_amount', { mode: 'number' }),
+    installmentsNumber: integer('installments_number'),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+    committedAt: timestamp('committed_at', { withTimezone: true }),
   },
-  (table) => [index('webpay_sessions_userId_idx').on(table.userId)],
+  (table) => [
+    index('webpay_sessions_userId_idx').on(table.userId),
+    index('webpay_sessions_courseId_idx').on(table.courseId),
+  ],
 );
 
 export const courses = pgTable('courses', {

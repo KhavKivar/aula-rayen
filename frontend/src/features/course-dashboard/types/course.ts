@@ -3,8 +3,12 @@ export type Course = {
   title: string;
   description: string;
   createdAt: string;
-  videoLink: string;
-  fileLink: string;
   duration: string;
   price: number;
+  hasAccess: boolean;
+};
+
+export type CourseContent = Omit<Course, "hasAccess"> & {
+  videoLink: string;
+  fileLink: string;
 };

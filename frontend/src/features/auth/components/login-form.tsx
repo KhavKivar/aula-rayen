@@ -1,35 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login, loginWithGoogle } from "@/features/auth/api/login";
+import { GoogleIcon } from "@/features/auth/components/google-icon";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
   loginSchema,
   type LoginCredentials,
 } from "@/features/auth/schemas/login-schema";
-import { GoogleIcon } from "@/features/auth/components/google-icon";
 
 export function LoginForm() {
   const navigate = useNavigate();
   const router = useRouter();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginCredentials>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
 
   const loginMutation = useMutation<void, AuthError, LoginCredentials>({
     mutationFn: login,
@@ -43,12 +30,29 @@ export function LoginForm() {
     mutationFn: loginWithGoogle,
   });
 
-  function onSubmit(credentials: LoginCredentials) {
-    loginMutation.mutate(credentials);
-  }
+  const form = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    validators: {
+      onSubmit: loginSchema,
+    },
+    onSubmit: ({ value }) => {
+      loginMutation.mutate(value);
+    },
+  });
 
   return (
-    <form className="space-y-7" onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form
+      className="space-y-7"
+      onSubmit={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        void form.handleSubmit();
+      }}
+      noValidate
+    >
       <div className="space-y-5">
         <Button
           type="button"
@@ -79,51 +83,77 @@ export function LoginForm() {
         </div>
       </div>
 
-      <div className="space-y-2.5">
-        <Label htmlFor="email">Correo electrónico</Label>
-        <Input
-          id="email"
-          type="email"
-          placeholder="nombre@ejemplo.com"
-          autoComplete="email"
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? "email-error" : undefined}
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("email")}
-        />
-        {errors.email?.message ? (
-          <p id="email-error" className="text-xs text-destructive">
-            {errors.email.message}
-          </p>
-        ) : null}
-      </div>
+      <form.Field
+        name="email"
+      >
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
 
-      <div className="space-y-2.5">
-        <div className="flex items-center justify-between gap-4">
-          <Label htmlFor="password">Contraseña</Label>
-          <a
-            href="#"
-            className="text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
-          >
-            ¿La olvidaste?
-          </a>
-        </div>
-        <Input
-          id="password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="current-password"
-          aria-invalid={Boolean(errors.password)}
-          aria-describedby={errors.password ? "password-error" : undefined}
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("password")}
-        />
-        {errors.password?.message ? (
-          <p id="password-error" className="text-xs text-destructive">
-            {errors.password.message}
-          </p>
-        ) : null}
-      </div>
+          return (
+            <div className="space-y-2.5">
+              <Label htmlFor={field.name}>Correo electrónico</Label>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="email"
+                placeholder="nombre@ejemplo.com"
+                autoComplete="email"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "email-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+              {error ? (
+                <p id="email-error" className="text-xs text-destructive">
+                  {error}
+                </p>
+              ) : null}
+            </div>
+          );
+        }}
+      </form.Field>
+
+      <form.Field
+        name="password"
+      >
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
+
+          return (
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between gap-4">
+                <Label htmlFor={field.name}>Contraseña</Label>
+                <a
+                  href="#"
+                  className="text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  ¿La olvidaste?
+                </a>
+              </div>
+              <Input
+                id={field.name}
+                name={field.name}
+                type="password"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "password-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+              {error ? (
+                <p id="password-error" className="text-xs text-destructive">
+                  {error}
+                </p>
+              ) : null}
+            </div>
+          );
+        }}
+      </form.Field>
 
       {loginMutation.isError ? (
         <p role="alert" className="text-sm text-destructive">

@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Redirect } from '@nestjs/common';
 import { WebPayService } from './webpay.service';
 
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
+import { env } from '@/config/env';
 
 @Controller('webpay')
 export class WebPayController {
@@ -21,5 +22,27 @@ export class WebPayController {
   ) {
     console.log('createWebpayDto', createWebpayDto);
     return this.webpayService.create(createWebpayDto, session.user.id);
+  }
+
+  @Get('commit')
+  @Redirect()
+  async commit(
+    @Query('token_ws') tokenNormal: string | undefined,
+    @Query('TBK_TOKEN') tokenReject: string | undefined,
+    @Query('buyOrder') buyOrderId: string,
+  ) {
+    const result = await this.webpayService.checkCommit(
+      buyOrderId,
+      tokenNormal,
+    );
+    const status = result.payment
+      ? 'success'
+      : tokenNormal || tokenReject
+        ? 'rejected'
+        : 'timeout';
+    const url = new URL('/payment-result', env.FRONTEND_URL);
+    url.searchParams.set('status', status);
+
+    return { url: url.toString() };
   }
 }
