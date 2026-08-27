@@ -1,0 +1,40 @@
+{
+  "name": "@aula-rayen/contracts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist-cjs/index.js"
+    },
+    "./course": {
+      "types": "./dist/course.d.ts",
+      "import": "./dist/course.js",
+      "require": "./dist-cjs/course.js"
+    },
+    "./api-error": {
+      "types": "./dist/api-error.d.ts",
+      "import": "./dist/api-error.js",
+      "require": "./dist-cjs/api-error.js"
+    }
+  },
+  "files": [
+    "dist",
+    "dist-cjs"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && cp package.cjs.json dist-cjs/package.json",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
+  }
+}

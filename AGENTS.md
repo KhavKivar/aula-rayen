@@ -4,13 +4,15 @@
 
 Este repositorio es un monorepo con dos aplicaciones independientes:
 
-- `frontend/`: TanStack Start y React, desplegado en Cloudflare Workers mediante
+- `apps/web/`: TanStack Start y React, desplegado en Cloudflare Workers mediante
   Vite y el plugin oficial de Cloudflare.
-- `backend/`: NestJS, Better Auth, Drizzle ORM y PostgreSQL.
+- `apps/api/`: NestJS, Better Auth, Drizzle ORM y PostgreSQL.
+- `packages/contracts/`: contratos HTTP compartidos y neutrales al framework,
+  publicados dentro del workspace como `@aula-rayen/contracts`.
 - `.github/workflows/`: despliegues separados según los paths modificados.
 
 Trata la raíz como el único repositorio Git. No inicialices repositorios ni crees
-directorios `.git` dentro de `frontend/` o `backend/`.
+directorios `.git` dentro de `apps/web/` o `apps/api/`.
 
 ## Forma de trabajar
 
@@ -26,7 +28,7 @@ directorios `.git` dentro de `frontend/` o `backend/`.
 
 ## Comandos de validación
 
-Frontend, desde `frontend/`:
+Web, desde `apps/web/`:
 
 ```bash
 pnpm lint
@@ -34,7 +36,7 @@ pnpm exec tsc --noEmit
 pnpm build
 ```
 
-Backend, desde `backend/`:
+API, desde `apps/api/`:
 
 ```bash
 pnpm exec eslint src test
@@ -56,8 +58,10 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 
 ## Despliegue
 
-- Un push a `main` que modifica `frontend/**` activa `deploy-frontend.yml`.
-- Un push a `main` que modifica `backend/**` activa `deploy-backend.yml`.
+- Un push a `main` que modifica `apps/web/**` activa `deploy-web.yml`.
+- Un push a `main` que modifica `apps/api/**` activa `deploy-api.yml`.
+- Los cambios en `packages/contracts/**` activan ambos despliegues porque afectan sus
+  contratos compartidos.
 - Revisa el alcance del diff antes de hacer push, porque puede iniciar un despliegue
   de producción.
 - No ejecutes despliegues manuales si el usuario solo pidió validar o compilar.
