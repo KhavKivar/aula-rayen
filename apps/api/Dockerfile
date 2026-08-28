@@ -28,4 +28,4 @@ COPY --from=build /app/apps/api/dist ./dist
 
 EXPOSE 3000
 
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main.js"]

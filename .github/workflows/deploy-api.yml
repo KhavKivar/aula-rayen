@@ -36,6 +36,7 @@ jobs:
       - name: Validate
         run: |
           pnpm install --frozen-lockfile
+          pnpm --filter @aula-rayen/contracts build
           pnpm --dir apps/api exec eslint src test
           pnpm --dir apps/api test
           pnpm --dir apps/api run build
