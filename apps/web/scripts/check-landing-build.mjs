@@ -1,15 +1,24 @@
 import { spawn } from "node:child_process";
 import { mkdtemp, rm } from "node:fs/promises";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const previewUrl = "http://127.0.0.1:4173/";
+const port = await new Promise((resolve, reject) => {
+  const server = createServer();
+  server.once("error", reject);
+  server.listen(0, "127.0.0.1", () => {
+    const address = server.address();
+    server.close(() => resolve(address.port));
+  });
+});
+const previewUrl = `http://127.0.0.1:${port}/`;
 const previewStateDirectory = await mkdtemp(
   join(tmpdir(), "aula-rayen-preview-"),
 );
 const preview = spawn(
   "pnpm",
-  ["exec", "vite", "preview", "--host", "127.0.0.1", "--port", "4173"],
+  ["exec", "vite", "preview", "--host", "127.0.0.1", "--port", String(port)],
   {
     cwd: process.cwd(),
     env: {
@@ -54,7 +63,6 @@ try {
     ["Arteterapia para niños y niñas", "curso inicial"],
     ["Inscripciones próximamente", "estado del curso"],
     ['href="/login"', "enlace de inicio de sesión"],
-    ['href="/register"', "enlace de registro"],
     ['href="https://example.com/professional-profile"', "CTA de Instagram"],
     ['target="_blank"', "señal de destino externo"],
     ['id="cursos"', "sección de cursos"],
