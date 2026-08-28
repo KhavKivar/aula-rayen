@@ -1,4 +1,4 @@
-name: Deploy API
+name: Validate API
 
 on:
   push:
@@ -13,11 +13,11 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-api-production
-  cancel-in-progress: false
+  group: validate-api-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  validate:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -33,60 +33,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
-      - name: Install and build
+      - name: Validate
         run: |
           pnpm install --frozen-lockfile
+          pnpm --dir apps/api exec eslint src test
+          pnpm --dir apps/api test
           pnpm --dir apps/api run build
-
-      - name: Package release
-        run: |
-          pnpm --filter @aula-rayen/api deploy --legacy --prod backend-release
-          tar -czf backend-release.tar.gz -C backend-release .
-
-      - name: Configure SSH
-        working-directory: .
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
-          SSH_HOST: ${{ secrets.BACKEND_SSH_HOST }}
-        run: |
-          install -m 700 -d ~/.ssh
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/aula_rayen
-          chmod 600 ~/.ssh/aula_rayen
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-
-      - name: Upload release
-        working-directory: .
-        env:
-          SSH_HOST: ${{ secrets.BACKEND_SSH_HOST }}
-          SSH_USER: ${{ secrets.BACKEND_SSH_USER }}
-        run: scp -i ~/.ssh/aula_rayen backend-release.tar.gz "$SSH_USER@$SSH_HOST:/tmp/aula-rayen-backend-release.tar.gz"
-
-      - name: Activate release
-        working-directory: .
-        env:
-          SSH_HOST: ${{ secrets.BACKEND_SSH_HOST }}
-          SSH_USER: ${{ secrets.BACKEND_SSH_USER }}
-        run: |
-          ssh -i ~/.ssh/aula_rayen "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
-          set -euo pipefail
-          release="/opt/aula-rayen-backend/releases/${GITHUB_SHA:-$(date +%Y%m%d%H%M%S)}"
-          sudo mkdir -p "$release" /opt/aula-rayen-backend/shared
-          sudo chown -R "$USER":"$USER" /opt/aula-rayen-backend
-          tar -xzf /tmp/aula-rayen-backend-release.tar.gz -C "$release"
-          rm -f /tmp/aula-rayen-backend-release.tar.gz
-          test -f /opt/aula-rayen-backend/shared/.env
-          ln -s /opt/aula-rayen-backend/shared/.env "$release/.env"
-          cd "$release"
-          pnpm install --prod --frozen-lockfile
-          ln -sfnT "$release" /opt/aula-rayen-backend/current
-          pm2 startOrReload /opt/aula-rayen-backend/current/ecosystem.config.cjs --update-env
-          pm2 save
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:3000/health; then
-              exit 0
-            fi
-            sleep 1
-          done
-          pm2 logs aula-rayen-backend --lines 50 --nostream
-          exit 1
-          REMOTE
