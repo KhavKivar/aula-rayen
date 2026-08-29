@@ -1,5 +1,5 @@
 {
-  "name": "plataforma-monorepo",
+  "name": "fullstack-learning-platform",
   "private": true,
   "packageManager": "pnpm@10.33.0",
   "scripts": {
