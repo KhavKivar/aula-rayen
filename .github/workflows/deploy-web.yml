@@ -1,0 +1,87 @@
+name: Deploy web
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/**"
+      - "packages/contracts/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - ".github/workflows/deploy-web.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-web-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    steps:
+      - name: Check out public application
+        uses: actions/checkout@v5
+
+      - name: Check out private production content
+        uses: actions/checkout@v5
+        with:
+          repository: KhavKivar/fullstack-learning-platform-deploy
+          ref: main
+          path: .private-deployment
+          ssh-key: ${{ secrets.PRIVATE_DEPLOY_REPO_SSH_KEY }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Validate private content
+        working-directory: .private-deployment
+        run: npm run validate
+
+      - name: Materialize production content
+        working-directory: .private-deployment
+        run: npm run materialize -- "$GITHUB_WORKSPACE"
+
+      - name: Validate deployment configuration
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test -n "$NEXT_PUBLIC_API_URL"
+          test -n "$NEXT_PUBLIC_SITE_URL"
+
+      - name: Install pnpm
+        run: npm install --global pnpm@10.33.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+
+      - name: Validate web
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: |
+          pnpm --filter @aula-rayen/web lint
+          pnpm --filter @aula-rayen/web typecheck
+          pnpm --filter @aula-rayen/web test:run
+          pnpm --filter @aula-rayen/web build
+          pnpm --filter @aula-rayen/web check:landing
+
+      - name: Deploy web to Cloudflare
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+        run: pnpm --dir apps/web exec wrangler deploy --keep-vars

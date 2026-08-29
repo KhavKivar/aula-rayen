@@ -1,8 +1,15 @@
 import { spawn } from "node:child_process";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+
+const siteContent = JSON.parse(
+  await readFile(
+    new URL("../src/config/site-content.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 const port = await new Promise((resolve, reject) => {
   const server = createServer();
@@ -63,8 +70,7 @@ try {
     ["Arteterapia para niños y niñas", "curso inicial"],
     ["Inscripciones próximamente", "estado del curso"],
     ['href="/login"', "enlace de inicio de sesión"],
-    ["Elena Montes", "identidad ficticia"],
-    ["Contenido de demostración", "aviso de contenido ficticio"],
+    [siteContent.professional.name, "identidad profesional"],
     ['id="cursos"', "sección de cursos"],
     ['id="metodologia"', "sección de metodología"],
     ['id="profesional"', "sección profesional"],
@@ -72,6 +78,18 @@ try {
     ['property="og:image"', "imagen social"],
     ['name="description"', "descripción SEO"],
   ];
+
+  if (siteContent.social.instagramUrl) {
+    requiredContent.push(
+      [`href="${siteContent.social.instagramUrl}"`, "CTA de Instagram"],
+      ['target="_blank"', "señal de destino externo"],
+    );
+  } else {
+    requiredContent.push([
+      "Contenido de demostración",
+      "aviso de contenido ficticio",
+    ]);
+  }
 
   const missing = requiredContent.filter(([needle]) => !html.includes(needle));
   if (missing.length > 0) {
