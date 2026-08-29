@@ -8,7 +8,7 @@ A production-oriented learning platform implemented as a pnpm monorepo. It combi
 - NestJS API with typed configuration and health checks
 - Shared contracts consumed by both applications
 - Email/password and Google authentication flows
-- Course catalog, enrollment dashboard, and Transbank integration
+- Course catalog, enrollment dashboard, and payments with Webpay Plus through the official Transbank SDK
 - Docker Compose development environment
 - Unit, integration, and end-to-end test suites
 
