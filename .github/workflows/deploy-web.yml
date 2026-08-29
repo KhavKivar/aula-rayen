@@ -73,6 +73,7 @@ jobs:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
         run: |
+          pnpm --filter @aula-rayen/contracts build
           pnpm --filter @aula-rayen/web lint
           pnpm --filter @aula-rayen/web typecheck
           pnpm --filter @aula-rayen/web test:run
