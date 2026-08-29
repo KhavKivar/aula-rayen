@@ -9,13 +9,17 @@ import {
 } from "@tanstack/react-router";
 
 import { env } from "@/config/env";
+import { siteContent } from "@/config/static-content";
 import { Providers } from "@/app/-providers";
 import appCss from "@/app/globals.css?url";
 
-const title = "Aula Rayen | Talleres para profesionales de la psicología";
+const title = `${siteContent.brandName} | Talleres para profesionales de la psicología`;
 const description =
   "Cursos para psicólogos y psicólogas con formación, dinámicas paso a paso y materiales editables para facilitar talleres.";
-const socialImage = new URL("/opengraph-image.svg", env.NEXT_PUBLIC_SITE_URL).toString();
+const socialImage = new URL(
+  "/opengraph-image.svg",
+  env.NEXT_PUBLIC_SITE_URL,
+).toString();
 
 export const Route = createRootRoute({
   head: () => ({
@@ -26,10 +30,10 @@ export const Route = createRootRoute({
       { name: "description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "es_CL" },
-      { property: "og:site_name", content: "Aula Rayen" },
+      { property: "og:site_name", content: siteContent.brandName },
       {
         property: "og:title",
-        content: "Aula Rayen | Talleres listos para llevar a la práctica",
+        content: `${siteContent.brandName} | Talleres listos para llevar a la práctica`,
       },
       {
         property: "og:description",

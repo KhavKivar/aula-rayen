@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "isDemo": true,
+  "brand": {
+    "name": "Aula Rayen"
+  },
+  "professional": {
+    "name": "Elena Montes",
+    "shortName": "Elena",
+    "title": "Profesional de demostración",
+    "biography": [
+      "Profesional ficticia especializada en experiencias educativas y recursos creativos para el trabajo con grupos.",
+      "Este perfil utiliza contenido demostrativo para presentar la arquitectura y el diseño de la plataforma sin exponer datos personales."
+    ],
+    "credentials": [
+      "Perfil profesional ficticio",
+      "Formación de posgrado de demostración",
+      "Experiencia educativa simulada",
+      "Contenido creado exclusivamente para este repositorio"
+    ]
+  },
+  "social": {
+    "instagramUrl": null,
+    "instagramHandle": null
+  },
+  "assets": {
+    "profileImageUrl": "/profile-placeholder.svg",
+    "profileImageAlt": "Ilustración abstracta de una profesional ficticia"
+  }
+}

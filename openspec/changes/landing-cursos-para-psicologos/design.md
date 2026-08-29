@@ -2,7 +2,7 @@
 
 La portada de `frontend` es actualmente un componente cliente mínimo que solo enlaza a `/login` y `/register`. El proyecto utiliza Next.js 16, React 19, Tailwind CSS 4 y componentes UI locales. No hay un catálogo ni endpoints de comercio en el backend, y la propuesta excluye pagos y entrega protegida.
 
-La información profesional inicial proviene del sitio público de Elena, pero las fotografías, publicaciones de talleres, métricas, precios y textos comerciales definitivos deben ser aprobados por ella antes de publicarse. Instagram no ofrece una fuente pública estable para renderizar el perfil sin autenticación.
+La información profesional, las fotografías, publicaciones de talleres, métricas, precios y textos comerciales definitivos deben mantenerse en una fuente privada y aprobarse antes de publicarse. Instagram no ofrece una fuente pública estable para renderizar un perfil sin autenticación.
 
 ## Goals / Non-Goals
 
@@ -66,7 +66,7 @@ La ruta declarará español, título, descripción, Open Graph y una imagen soci
 ## Risks / Trade-offs
 
 - [Contenido definitivo incompleto] → Mantener placeholders claramente identificados en datos de desarrollo y exigir revisión editorial antes del lanzamiento.
-- [Uso no autorizado de imágenes o publicaciones] → Incorporar solo activos entregados o aprobados por Elena y registrar su URL de origen.
+- [Uso no autorizado de imágenes o publicaciones] → Incorporar solo activos entregados o aprobados para producción y registrar su URL de origen.
 - [Confusión entre formación y atención clínica] → Usar lenguaje dirigido a profesionales y separar la oferta educativa de los servicios terapéuticos.
 - [Confusión sobre la licencia] → Mostrar un resumen visible y enlazar los términos completos cuando estén disponibles.
 - [CTA sin infraestructura comercial] → Configurar destinos por curso y representar cursos sin destino como próximos lanzamientos.
@@ -82,7 +82,7 @@ La ruta declarará español, título, descripción, Open Graph y una imagen soci
 
 ## Open Questions
 
-- ¿Cuál será el nombre comercial definitivo visible junto a Elena: “La plataforma”, una marca nueva o su nombre profesional?
+- ¿Cuál será el nombre comercial definitivo visible junto al perfil profesional?
 - ¿Cuáles serán los primeros cursos, precios y destinos temporales de sus CTA?
-- ¿Qué publicaciones e imágenes de Instagram autoriza Elena para reutilización comercial?
+- ¿Qué publicaciones e imágenes de Instagram están autorizadas para reutilización comercial?
 - ¿La licencia permitirá editar archivos fuente con identidad propia o únicamente imprimir y completar los materiales entregados?

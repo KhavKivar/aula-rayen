@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1076" viewBox="0 0 860 1076" role="img" aria-labelledby="title desc">
+  <title id="title">Perfil profesional de demostración</title>
+  <desc id="desc">Composición abstracta sin rasgos de una persona real</desc>
+  <rect width="860" height="1076" fill="#e8d9bb"/>
+  <circle cx="430" cy="322" r="178" fill="#d98968"/>
+  <path d="M182 1076V794c0-198 111-314 248-314s248 116 248 314v282Z" fill="#294944"/>
+  <path d="M430 480c-93 0-168-71-176-162 49 28 111 21 159-20 51 43 119 51 177 16-6 93-83 166-160 166Z" fill="#f2dca8"/>
+  <circle cx="704" cy="170" r="92" fill="#f0c972" opacity=".8"/>
+  <path d="M74 734c110-96 178-91 267 17s183 120 286 12 157-98 224-34" fill="none" stroke="#fffdf8" stroke-width="18" opacity=".45"/>
+</svg>

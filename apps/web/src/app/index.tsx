@@ -13,16 +13,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   benefits,
   courses,
-  credentials,
   faqs,
   methodSteps,
   siteContent,
 } from "@/config/static-content";
 import { useSession } from "@/lib/auth-client";
 import { Navbar } from "@/components/ui/navbar";
-
-const profilePhoto =
-  "/profile-placeholder.svg";
 
 function ExternalInstagramLink({
   className,
@@ -31,10 +27,14 @@ function ExternalInstagramLink({
   className: string;
   children: React.ReactNode;
 }) {
+  if (!siteContent.social.instagramUrl) {
+    return null;
+  }
+
   return (
     <a
       className={className}
-      href={siteContent.instagramUrl}
+      href={siteContent.social.instagramUrl}
       target="_blank"
       rel="noreferrer"
     >
@@ -90,7 +90,8 @@ function Home() {
                 Explorar cursos <ArrowDown aria-hidden="true" size={17} />
               </a>
               <ExternalInstagramLink className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/25 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                <Camera aria-hidden="true" size={17} /> Ver trabajo de Elena
+                <Camera aria-hidden="true" size={17} /> Ver trabajo de{" "}
+                {siteContent.professional.shortName}
               </ExternalInstagramLink>
             </div>
           </div>
@@ -98,8 +99,8 @@ function Home() {
           <div className="relative mx-auto w-full max-w-md lg:max-w-none">
             <div className="relative mx-auto aspect-[4/5] max-w-[430px] overflow-hidden rounded-[9rem_9rem_2rem_2rem] border border-white/15 bg-[#e8d9bb] shadow-2xl shadow-black/20">
               <img
-                src={profilePhoto}
-                alt="Elena Montes, psicóloga y creadora de Aula Rayen"
+                src={siteContent.assets.profileImageUrl}
+                alt={siteContent.assets.profileImageAlt}
                 width={430}
                 height={538}
                 fetchPriority="high"
@@ -107,7 +108,7 @@ function Home() {
               />
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#1d3935]/95 via-[#1d3935]/60 to-transparent px-7 pb-7 pt-24">
                 <p className="text-sm font-semibold text-[#f0c972]">
-                  Ps. Elena Montes
+                  {siteContent.professional.title}
                 </p>
                 <p className="mt-1 text-sm text-white/75">
                   Psicología · Arteterapia · Talleres
@@ -351,15 +352,17 @@ function Home() {
             <div>
               <p className="section-kicker">Experiencia en acción</p>
               <h2 className="section-title mt-4">
-                Conoce el trabajo de Elena como tallerista.
+                Conoce el enfoque de {siteContent.professional.shortName} como
+                tallerista.
               </h2>
               <p className="mt-5 max-w-2xl leading-7 text-[#62716d]">
-                Mientras seleccionamos una galería editorial de talleres
-                autorizados, puedes revisar en Instagram sus procesos creativos,
-                actividades y recursos profesionales.
+                {siteContent.social.instagramUrl
+                  ? "Mientras seleccionamos una galería editorial de talleres autorizados, puedes revisar en Instagram sus procesos creativos, actividades y recursos profesionales."
+                  : "Esta versión pública utiliza un perfil y recursos ficticios para demostrar la experiencia sin exponer información personal."}
               </p>
               <ExternalInstagramLink className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-[#294944] px-5 text-sm font-semibold text-white transition hover:bg-[#355b54] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#294944]">
-                <Camera aria-hidden="true" size={17} /> Ir a @professional_demo{" "}
+                <Camera aria-hidden="true" size={17} /> Ir a{" "}
+                {siteContent.social.instagramHandle ?? "Instagram"}{" "}
                 <ArrowUpRight aria-hidden="true" size={16} />
               </ExternalInstagramLink>
             </div>
@@ -381,12 +384,15 @@ function Home() {
         </div>
       </section>
 
-      <section id="elena" className="scroll-mt-8 bg-[#e6eee9] py-24 sm:py-28">
+      <section
+        id="profesional"
+        className="scroll-mt-8 bg-[#e6eee9] py-24 sm:py-28"
+      >
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[.8fr_1.2fr] lg:items-center lg:gap-20 lg:px-12">
           <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-[2rem_7rem_2rem_2rem] bg-[#d9c9aa]">
             <img
-              src={profilePhoto}
-              alt="Retrato profesional de la psicóloga Elena Montes"
+              src={siteContent.assets.profileImageUrl}
+              alt={siteContent.assets.profileImageAlt}
               width={430}
               height={538}
               loading="lazy"
@@ -395,20 +401,28 @@ function Home() {
           </div>
           <div>
             <p className="section-kicker">Quien está detrás</p>
-            <h2 className="section-title mt-4">Ps. Elena Montes</h2>
-            <p className="mt-6 text-lg leading-8 text-[#425852]">
-              Psicóloga y Formación de posgrado de demostración, con experiencia en
-              experiencia profesional de demostración. Su trabajo integra
-              psicoterapia, psicoeducación y recursos creativos desde un enfoque
-              inclusivo, respetuoso y atento a cada etapa del desarrollo.
-            </p>
+            <h2 className="section-title mt-4">
+              {siteContent.professional.name}
+            </h2>
+            {siteContent.professional.biography.map((paragraph, index) => (
+              <p
+                className={
+                  index === 0
+                    ? "mt-6 text-lg leading-8 text-[#425852]"
+                    : "mt-4 leading-7 text-[#62716d]"
+                }
+                key={paragraph}
+              >
+                {paragraph}
+              </p>
+            ))}
             <p className="mt-4 leading-7 text-[#62716d]">
-              En Aula Rayen transforma su experiencia diseñando y facilitando
-              talleres en rutas prácticas para que otros profesionales puedan
-              crear espacios grupales cuidados, claros y significativos.
+              En {siteContent.brandName}, la experiencia profesional se
+              convierte en rutas prácticas para crear espacios grupales
+              cuidados, claros y significativos.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {credentials.map((credential) => (
+              {siteContent.professional.credentials.map((credential) => (
                 <li
                   key={credential}
                   className="flex items-start gap-3 text-sm font-medium text-[#394d48]"
@@ -518,8 +532,9 @@ function Home() {
             Que tu próximo taller empiece con una ruta clara.
           </h2>
           <p className="mx-auto mt-5 max-w-xl leading-7 text-white/78">
-            Sigue a Elena en Instagram para conocer el proceso y enterarte
-            cuando se abran las inscripciones.
+            {siteContent.social.instagramUrl
+              ? `Sigue a ${siteContent.professional.shortName} en Instagram para conocer el proceso y enterarte cuando se abran las inscripciones.`
+              : "Explora el catálogo para conocer las próximas formaciones y materiales disponibles."}
           </p>
           <ExternalInstagramLink className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#294944] px-6 text-sm font-semibold text-white transition hover:bg-[#203d38] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             <Camera aria-hidden="true" size={18} /> Seguir en Instagram{" "}
@@ -535,7 +550,8 @@ function Home() {
               {siteContent.brandName}
             </p>
             <p className="mt-1 text-xs">
-              Formación creada por Ps. Elena Montes
+              Formación creada por {siteContent.professional.name}
+              {siteContent.isDemo ? " · Contenido de demostración" : ""}
             </p>
           </div>
           <div className="flex flex-wrap gap-5">

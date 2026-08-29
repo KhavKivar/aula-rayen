@@ -1,10 +1,35 @@
+import deploymentContent from "@/config/site-content.json";
+
+type DeploymentContent = {
+  version: number;
+  isDemo: boolean;
+  brand: { name: string };
+  professional: {
+    name: string;
+    shortName: string;
+    title: string;
+    biography: string[];
+    credentials: string[];
+  };
+  social: {
+    instagramUrl: string | null;
+    instagramHandle: string | null;
+  };
+  assets: {
+    profileImageUrl: string;
+    profileImageAlt: string;
+  };
+};
+
+const deployment: DeploymentContent = deploymentContent;
+
 export const siteContent = {
-  brandName: "Aula Rayen",
+  ...deployment,
+  brandName: deployment.brand.name,
   eyebrow: "Formación para profesionales de la psicología",
   title: "Talleres con propósito, listos para llevar a la práctica.",
   description:
     "Aprende a facilitar experiencias terapéuticas y psicoeducativas con una metodología clara, dinámicas paso a paso y materiales que puedes adaptar a tu identidad profesional.",
-  instagramUrl: "https://example.com/professional-profile",
 } as const;
 
 export type AvailableCourse = {
@@ -52,7 +77,9 @@ export function assertCourseCatalog(catalog: readonly Course[]) {
     }
 
     if (course.status === "coming-soon" && "href" in course) {
-      throw new Error(`El curso próximo ${course.id} no debe tener un destino.`);
+      throw new Error(
+        `El curso próximo ${course.id} no debe tener un destino.`,
+      );
     }
   }
 }
@@ -99,13 +126,6 @@ export const methodSteps = [
     description:
       "Apóyate en una secuencia clara para abrir, acompañar y cerrar la experiencia con cuidado.",
   },
-] as const;
-
-export const credentials = [
-  "Psicóloga, institución de demostración",
-  "Formación de posgrado de demostración",
-  "Experiencia profesional de demostración",
-  "Formación complementaria de demostración",
 ] as const;
 
 export const faqs = [

@@ -1,7 +1,7 @@
 ## 1. Contenido y activos aprobados
 
 - [x] 1.1 Definir el nombre comercial visible, los cursos iniciales, sus estados, precios y destinos de CTA en un inventario editorial
-- [x] 1.2 Confirmar con Elena las credenciales, textos biográficos y alcance definitivo de la licencia de materiales
+- [x] 1.2 Confirmar las credenciales, textos biográficos y alcance definitivo de la licencia de materiales
 - [ ] 1.3 Reunir fotografías y publicaciones de talleres autorizadas para uso comercial, con sus textos alternativos y enlaces de origen
 - [x] 1.4 Preparar la fotografía principal y la imagen de vista previa social en formatos y dimensiones optimizados
 
@@ -17,7 +17,7 @@
 - [x] 3.1 Implementar el catálogo adaptable con contenido incluido, público, estado y CTA de cada curso
 - [x] 3.2 Implementar las secciones de metodología y proceso de uso profesional de los talleres
 - [x] 3.3 Implementar la sección de evidencia editorial con activos locales aprobados y enlaces atribuidos a Instagram
-- [x] 3.4 Implementar la presentación profesional de Elena separando credenciales verificables de afirmaciones comerciales
+- [x] 3.4 Implementar la presentación profesional separando credenciales verificables de afirmaciones comerciales
 - [x] 3.5 Implementar el resumen de licencia, preguntas frecuentes y CTA final con tratamiento claro de destinos externos
 
 ## 4. Identidad, metadatos y accesibilidad
@@ -34,4 +34,4 @@
 - [x] 5.2 Añadir pruebas o comprobaciones de las secciones y metadatos públicos requeridos
 - [x] 5.3 Ejecutar lint y build de producción del frontend y resolver las incidencias relacionadas con la landing
 - [x] 5.4 Revisar manualmente todos los textos, enlaces externos, atribuciones y activos contra el inventario aprobado
-- [ ] 5.5 Obtener aprobación editorial final de Elena antes de activar ofertas o evidencia para producción
+- [ ] 5.5 Obtener aprobación editorial final antes de activar ofertas o evidencia para producción

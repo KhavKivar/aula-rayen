@@ -10,14 +10,14 @@ type NavbarProps = {
 const desktopLinks = [
   { href: "#cursos", label: "Cursos" },
   { href: "#metodologia", label: "Metodología" },
-  { href: "#elena", label: "Elena" },
+  { href: "#profesional", label: "Profesional" },
   { href: "#preguntas", label: "Preguntas" },
 ];
 
 const mobileLinks = [
   { href: "#cursos", label: "Cursos" },
   { href: "#metodologia", label: "Método" },
-  { href: "#elena", label: "Elena" },
+  { href: "#profesional", label: "Perfil" },
   { href: "#preguntas", label: "FAQ" },
 ];
 
