@@ -6,14 +6,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import { render } from "@/testing/test-utils";
 
-const { loginMock, loginWithGoogleMock, navigateMock, routerMock } = vi.hoisted(() => ({
-  loginMock: vi.fn(),
-  loginWithGoogleMock: vi.fn(),
-  navigateMock: vi.fn(),
-  routerMock: {
-    invalidate: vi.fn(),
-  },
-}));
+const { loginMock, loginWithGoogleMock, refetchSessionMock, routerMock } =
+  vi.hoisted(() => ({
+    loginMock: vi.fn(),
+    loginWithGoogleMock: vi.fn(),
+    refetchSessionMock: vi.fn(),
+    routerMock: {
+      history: { push: vi.fn() },
+      invalidate: vi.fn(),
+    },
+  }));
 
 vi.mock("@/features/auth/api/login", () => ({
   login: loginMock,
@@ -24,8 +26,11 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
-  useNavigate: () => navigateMock,
   useRouter: () => routerMock,
+}));
+
+vi.mock("@/lib/auth-client", () => ({
+  useSession: () => ({ refetch: refetchSessionMock }),
 }));
 
 import { LoginForm } from "@/features/auth/components/login-form";
@@ -57,12 +62,16 @@ describe("LoginForm", () => {
     );
   });
 
-  it("offers Google sign-in", () => {
-    render(<LoginForm />);
+  it("starts Google sign-in with the requested return route", async () => {
+    const user = userEvent.setup();
+    loginWithGoogleMock.mockResolvedValueOnce(undefined);
+    render(<LoginForm redirectTo="/courses/7" />);
 
-    expect(
+    await user.click(
       screen.getByRole("button", { name: "Continuar con Google" }),
-    ).toBeEnabled();
+    );
+
+    expect(loginWithGoogleMock).toHaveBeenCalledWith("/courses/7");
   });
 
   it("shows pending state and navigates after a successful login", async () => {
@@ -90,12 +99,27 @@ describe("LoginForm", () => {
     loginResult.resolve();
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith({
-        to: "/dashboard",
-        replace: true,
-      });
+      expect(refetchSessionMock).toHaveBeenCalledOnce();
       expect(routerMock.invalidate).toHaveBeenCalledOnce();
+      expect(routerMock.history.push).toHaveBeenCalledWith("/dashboard");
     });
+  });
+
+  it("returns to the requested protected route after login", async () => {
+    const user = userEvent.setup();
+    loginMock.mockResolvedValueOnce(undefined);
+    render(<LoginForm redirectTo="/courses/7" />);
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Correo electrónico" }),
+      "persona@example.com",
+    );
+    await user.type(screen.getByLabelText("Contraseña"), "secreto");
+    await user.click(screen.getByRole("button", { name: "Ingresar" }));
+
+    await waitFor(() =>
+      expect(routerMock.history.push).toHaveBeenCalledWith("/courses/7"),
+    );
   });
 
   it("shows an authentication error returned by the API", async () => {
@@ -115,6 +139,6 @@ describe("LoginForm", () => {
     expect(
       await screen.findByText("Correo o contraseña incorrectos."),
     ).toHaveAttribute("role", "alert");
-    expect(navigateMock).not.toHaveBeenCalled();
+    expect(routerMock.history.push).not.toHaveBeenCalled();
   });
 });

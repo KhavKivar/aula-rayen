@@ -4,17 +4,28 @@ const oauthErrorCodeSchema = z.literal("account_not_linked");
 
 export type OAuthErrorCode = z.infer<typeof oauthErrorCodeSchema> | "unknown";
 
-export const oauthSearchSchema = z
+export const loginSearchSchema = z
   .object({
     error: z.unknown().optional(),
+    redirect: z.unknown().optional(),
   })
-  .transform(({ error }) => {
+  .transform(({ error, redirect }) => {
+    const safeRedirect =
+      typeof redirect === "string" &&
+      redirect.startsWith("/") &&
+      !redirect.startsWith("//")
+        ? redirect
+        : undefined;
+
     if (error === undefined) {
-      return { error: undefined };
+      return { error: undefined, redirect: safeRedirect };
     }
 
     const result = oauthErrorCodeSchema.safeParse(error);
-    return { error: result.success ? result.data : ("unknown" as const) };
+    return {
+      error: result.success ? result.data : ("unknown" as const),
+      redirect: safeRedirect,
+    };
   });
 
 const oauthErrorMessages: Record<OAuthErrorCode, string> = {

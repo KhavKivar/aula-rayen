@@ -25,9 +25,16 @@ export default defineConfig([
   },
   {
     files: ["**/*.{ts,tsx,mts}"],
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     settings: {
       "import/resolver": {
-        typescript: { project: "./tsconfig.json" },
+        typescript: {
+          project: new URL("./tsconfig.json", import.meta.url).pathname,
+        },
       },
     },
     rules: {

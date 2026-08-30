@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
-import { Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,21 +13,23 @@ import {
   loginSchema,
   type LoginCredentials,
 } from "@/features/auth/schemas/login-schema";
+import { useSession } from "@/lib/auth-client";
 
-export function LoginForm() {
-  const navigate = useNavigate();
+export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }) {
   const router = useRouter();
 
+  const { refetch: refetchSession } = useSession();
   const loginMutation = useMutation<void, AuthError, LoginCredentials>({
     mutationFn: login,
     onSuccess: async () => {
-      await navigate({ to: "/dashboard", replace: true });
+      await refetchSession();
       await router.invalidate();
+      router.history.push(redirectTo);
     },
   });
 
   const googleLoginMutation = useMutation<void, AuthError>({
-    mutationFn: loginWithGoogle,
+    mutationFn: () => loginWithGoogle(redirectTo),
   });
 
   const form = useForm({
@@ -83,9 +85,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <form.Field
-        name="email"
-      >
+      <form.Field name="email">
         {(field) => {
           const error = field.state.meta.errors[0]?.message;
 
@@ -115,9 +115,7 @@ export function LoginForm() {
         }}
       </form.Field>
 
-      <form.Field
-        name="password"
-      >
+      <form.Field name="password">
         {(field) => {
           const error = field.state.meta.errors[0]?.message;
 

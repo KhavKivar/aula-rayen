@@ -22,12 +22,15 @@ export async function login(credentials: LoginCredentials): Promise<void> {
   }
 }
 
-export async function loginWithGoogle(): Promise<void> {
+export async function loginWithGoogle(redirectTo: string): Promise<void> {
   try {
     const { error } = await signIn.social({
       provider: "google",
-      callbackURL: new URL("/dashboard", window.location.origin).toString(),
-      errorCallbackURL: new URL("/login", window.location.origin).toString(),
+      callbackURL: new URL(redirectTo, window.location.origin).toString(),
+      errorCallbackURL: new URL(
+        `/login?redirect=${encodeURIComponent(redirectTo)}`,
+        window.location.origin,
+      ).toString(),
     });
 
     if (error) {

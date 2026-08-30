@@ -7,16 +7,16 @@ import {
 } from "@/components/ui/card";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { OAuthErrorAlert } from "@/features/auth/components/oauth-error-alert";
-import { oauthSearchSchema } from "@/features/auth/errors/oauth-error";
+import { loginSearchSchema } from "@/features/auth/errors/oauth-error";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/login")({
-  validateSearch: oauthSearchSchema,
+  validateSearch: loginSearchSchema,
   component: LoginPage,
 });
 
 function LoginPage() {
-  const { error } = Route.useSearch();
+  const { error, redirect } = Route.useSearch();
 
   return (
     <main className="flex min-h-svh items-center justify-center bg-[#f4f4f4] px-4 py-10">
@@ -32,7 +32,7 @@ function LoginPage() {
 
         <CardContent className="px-6">
           <OAuthErrorAlert error={error} />
-          <LoginForm />
+          <LoginForm redirectTo={redirect ?? "/dashboard"} />
         </CardContent>
       </Card>
     </main>

@@ -1,5 +1,6 @@
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
+	"issuer" text NOT NULL,
 	"account_id" text NOT NULL,
 	"provider_id" text NOT NULL,
 	"user_id" text NOT NULL,
@@ -65,10 +66,24 @@ CREATE TABLE "verification" (
 );
 --> statement-breakpoint
 CREATE TABLE "webpay_sessions" (
-	"buy_order_id" text PRIMARY KEY NOT NULL,
+	"buy_order" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
+	"course_id" integer NOT NULL,
 	"amount" integer NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"token_ws" text,
+	"vci" text,
+	"tb_amount" numeric,
+	"tb_status" text,
+	"card_number" text,
+	"accounting_date" text,
+	"transaction_date" timestamp with time zone,
+	"authorization_code" text,
+	"payment_type_code" text,
+	"response_code" integer,
+	"installments_amount" numeric,
+	"installments_number" integer,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"committed_at" timestamp with time zone
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -76,10 +91,13 @@ ALTER TABLE "course_purchases" ADD CONSTRAINT "course_purchases_user_id_user_id_
 ALTER TABLE "course_purchases" ADD CONSTRAINT "course_purchases_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "webpay_sessions" ADD CONSTRAINT "webpay_sessions_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "webpay_sessions" ADD CONSTRAINT "webpay_sessions_course_id_courses_id_fk" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "account_issuer_accountId_uidx" ON "account" USING btree ("issuer","account_id");--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "course_purchases_userId_idx" ON "course_purchases" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "course_purchases_courseId_idx" ON "course_purchases" USING btree ("course_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "course_purchases_user_course_idx" ON "course_purchases" USING btree ("user_id","course_id");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");--> statement-breakpoint
-CREATE INDEX "webpay_sessions_userId_idx" ON "webpay_sessions" USING btree ("user_id");
+CREATE INDEX "webpay_sessions_userId_idx" ON "webpay_sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "webpay_sessions_courseId_idx" ON "webpay_sessions" USING btree ("course_id");

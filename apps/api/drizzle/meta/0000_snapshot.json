@@ -1,5 +1,5 @@
 {
-  "id": "603ba772-75eb-49cb-bc89-8d22f6a2670a",
+  "id": "f7c98a78-1d9c-4727-85ef-c8c137124606",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -12,6 +12,12 @@
           "name": "id",
           "type": "text",
           "primaryKey": true,
+          "notNull": true
+        },
+        "issuer": {
+          "name": "issuer",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true
         },
         "account_id": {
@@ -89,6 +95,27 @@
         }
       },
       "indexes": {
+        "account_issuer_accountId_uidx": {
+          "name": "account_issuer_accountId_uidx",
+          "columns": [
+            {
+              "expression": "issuer",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "account_userId_idx": {
           "name": "account_userId_idx",
           "columns": [
@@ -542,8 +569,8 @@
       "name": "webpay_sessions",
       "schema": "",
       "columns": {
-        "buy_order_id": {
-          "name": "buy_order_id",
+        "buy_order": {
+          "name": "buy_order",
           "type": "text",
           "primaryKey": true,
           "notNull": true
@@ -554,18 +581,102 @@
           "primaryKey": false,
           "notNull": true
         },
+        "course_id": {
+          "name": "course_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
         "amount": {
           "name": "amount",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
+        "token_ws": {
+          "name": "token_ws",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vci": {
+          "name": "vci",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tb_amount": {
+          "name": "tb_amount",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tb_status": {
+          "name": "tb_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "card_number": {
+          "name": "card_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accounting_date": {
+          "name": "accounting_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "transaction_date": {
+          "name": "transaction_date",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "authorization_code": {
+          "name": "authorization_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_type_code": {
+          "name": "payment_type_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "response_code": {
+          "name": "response_code",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "installments_amount": {
+          "name": "installments_amount",
+          "type": "numeric",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "installments_number": {
+          "name": "installments_number",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "created_at": {
           "name": "created_at",
-          "type": "timestamp",
+          "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
+        },
+        "committed_at": {
+          "name": "committed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -574,6 +685,21 @@
           "columns": [
             {
               "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "webpay_sessions_courseId_idx": {
+          "name": "webpay_sessions_courseId_idx",
+          "columns": [
+            {
+              "expression": "course_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -597,6 +723,19 @@
             "id"
           ],
           "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "webpay_sessions_course_id_courses_id_fk": {
+          "name": "webpay_sessions_course_id_courses_id_fk",
+          "tableFrom": "webpay_sessions",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
           "onUpdate": "no action"
         }
       },
