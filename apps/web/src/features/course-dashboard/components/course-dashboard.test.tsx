@@ -10,12 +10,23 @@ vi.mock("@tanstack/react-router", () => ({
   useRouter: () => ({ invalidate: vi.fn() }),
 }));
 
+vi.mock("@/config/env", () => ({
+  env: {
+    NEXT_PUBLIC_API_URL: "https://api.example.com",
+    NEXT_PUBLIC_SITE_URL: "https://app.example.com",
+  },
+}));
+
 vi.mock("@/features/course-dashboard/api/get-courses", () => ({
   getCourses: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/features/course-dashboard/components/course-catalog", () => ({
   CourseCatalog: () => null,
+}));
+
+vi.mock("@/features/course-management/components/course-management-panel", () => ({
+  CourseManagementPanel: () => <div data-testid="management-panel" />,
 }));
 
 vi.mock("@/lib/auth-client", () => ({

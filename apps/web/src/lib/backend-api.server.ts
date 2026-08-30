@@ -3,7 +3,7 @@ import { getRequestHeader, setResponseHeader } from "@tanstack/react-start/serve
 import { env } from "@/config/env";
 
 type BackendRequestOptions = {
-  method?: "GET" | "POST";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
 };
 

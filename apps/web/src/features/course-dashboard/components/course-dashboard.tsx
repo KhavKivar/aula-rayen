@@ -1,12 +1,22 @@
-import { AlertCircle, BookOpenCheck, LoaderCircle, Sparkles } from "lucide-react";
+import {
+  AlertCircle,
+  BookOpenCheck,
+  LoaderCircle,
+  Sparkles,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 
 import { AccountMenu } from "@/features/auth/components/account-menu";
 import { getCourses } from "@/features/course-dashboard/api/get-courses";
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
+import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
+
+type Tab = "catalog" | "manage";
 
 export function CourseDashboard() {
+  const [activeTab, setActiveTab] = useState<Tab>("catalog");
   const coursesQuery = useQuery({
     queryKey: ["courses"],
     queryFn: getCourses,
@@ -52,25 +62,83 @@ export function CourseDashboard() {
         </section>
 
         <div className="mt-10 sm:mt-12">
-          {coursesQuery.isPending ? (
-            <div
-              role="status"
-              className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+          <div
+            role="tablist"
+            aria-label="Secciones del dashboard"
+            className="inline-flex rounded-full border border-[#d9dfd8] bg-[#fffdf8] p-1"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "catalog"}
+              aria-controls="panel-catalog"
+              id="tab-catalog"
+              onClick={() => setActiveTab("catalog")}
+              className={`rounded-full px-5 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294944] focus-visible:ring-offset-2 ${
+                activeTab === "catalog"
+                  ? "bg-[#294944] text-white shadow"
+                  : "text-[#294944] hover:bg-[#f7f4ec]"
+              }`}
             >
-              <LoaderCircle className="animate-spin" aria-hidden="true" />
-              Cargando cursos…
-            </div>
-          ) : coursesQuery.isError ? (
-            <div
-              role="alert"
-              className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+              Ver cursos
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "manage"}
+              aria-controls="panel-manage"
+              id="tab-manage"
+              onClick={() => setActiveTab("manage")}
+              className={`rounded-full px-5 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294944] focus-visible:ring-offset-2 ${
+                activeTab === "manage"
+                  ? "bg-[#294944] text-white shadow"
+                  : "text-[#294944] hover:bg-[#f7f4ec]"
+              }`}
             >
-              <AlertCircle aria-hidden="true" />
-              No fue posible cargar los cursos. Inténtalo nuevamente.
-            </div>
-          ) : (
-            <CourseCatalog courses={coursesQuery.data} />
-          )}
+              Gestionar cursos
+            </button>
+          </div>
+
+          <div className="mt-8">
+            {activeTab === "catalog" ? (
+              <div
+                id="panel-catalog"
+                role="tabpanel"
+                aria-labelledby="tab-catalog"
+              >
+                {coursesQuery.isPending ? (
+                  <div
+                    role="status"
+                    className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+                  >
+                    <LoaderCircle
+                      className="animate-spin"
+                      aria-hidden="true"
+                    />
+                    Cargando cursos…
+                  </div>
+                ) : coursesQuery.isError ? (
+                  <div
+                    role="alert"
+                    className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+                  >
+                    <AlertCircle aria-hidden="true" />
+                    No fue posible cargar los cursos. Inténtalo nuevamente.
+                  </div>
+                ) : (
+                  <CourseCatalog courses={coursesQuery.data} />
+                )}
+              </div>
+            ) : (
+              <div
+                id="panel-manage"
+                role="tabpanel"
+                aria-labelledby="tab-manage"
+              >
+                <CourseManagementPanel />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </main>

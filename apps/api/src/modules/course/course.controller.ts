@@ -49,8 +49,11 @@ export class CourseController {
     return toCourseDetail(course);
   }
 
+  // Temporalmente abierto a cualquier usuario autenticado.
+  // Se añadirá guard de rol admin en el próximo cambio.
   @Post()
   async create(
+    @Session() _session: UserSession,
     @Body(new ZodValidationPipe(createCourseRequestSchema))
     dto: CreateCourseDto,
   ): Promise<CourseDetail> {
@@ -62,6 +65,7 @@ export class CourseController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
+    @Session() _session: UserSession,
     @Body(new ZodValidationPipe(updateCourseRequestSchema))
     dto: UpdateCourseDto,
   ): Promise<CourseDetail> {
@@ -71,7 +75,10 @@ export class CourseController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<CourseDetail> {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Session() _session: UserSession,
+  ): Promise<CourseDetail> {
     const course = await this.courseService.remove(id);
 
     return toCourseDetail(course);

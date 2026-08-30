@@ -69,6 +69,12 @@ export default defineConfig([
               except: ["./auth"],
               message: "Un feature no puede importar internals de otro feature.",
             },
+            {
+              target: "./src/features/course-management",
+              from: "./src/features",
+              except: ["./course-management", "./course-dashboard"],
+              message: "Un feature no puede importar internals de otro feature.",
+            },
           ],
         },
       ],
