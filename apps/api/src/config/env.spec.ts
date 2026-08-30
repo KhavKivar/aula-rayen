@@ -7,6 +7,7 @@ const validEnvironment = {
   GOOGLE_CLIENT_ID: 'google-client',
   GOOGLE_CLIENT_SECRET: 'google-secret',
   GOOGLE_REDIRECT_URI: 'http://localhost:3000/api/auth/callback/google',
+  BASE_PATH: '/auth',
   RESEND_API_KEY: 'resend-key',
   RESEND_FROM_EMAIL: 'sender@example.com',
 };
@@ -27,6 +28,31 @@ describe('environment configuration', () => {
 
     expect(result.NODE_ENV).toBe('development');
     expect(result.BETTER_AUTH_COOKIE_DOMAIN).toBeUndefined();
+  });
+
+  it('accepts an auth URL whose path matches the mounted path', () => {
+    const result = envSchema.safeParse({
+      ...validEnvironment,
+      BETTER_AUTH_URL: 'https://api.example.com/auth',
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an auth URL whose path differs from the mounted path', () => {
+    const result = envSchema.safeParse({
+      ...validEnvironment,
+      BETTER_AUTH_URL: 'https://example.com/api/auth',
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ['BETTER_AUTH_URL'] }),
+        ]),
+      );
+    }
   });
 
   it('requires the cookie domain in production', () => {

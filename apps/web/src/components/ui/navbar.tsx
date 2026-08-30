@@ -52,6 +52,7 @@ export function Navbar({ isLoggedIn, isPending }: NavbarProps) {
           ) : isLoggedIn ? (
             <Link
               to="/dashboard"
+              preload="intent"
               className="inline-flex min-h-10 items-center rounded-full bg-[#f0c972] px-2 py-2 text-sm font-semibold text-[#263c38] transition hover:bg-[#f7d990] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4"
             >
               Ir a mi panel
@@ -59,6 +60,7 @@ export function Navbar({ isLoggedIn, isPending }: NavbarProps) {
           ) : (
             <Link
               to="/login"
+              preload="intent"
               className="inline-flex min-h-10 items-center rounded-full bg-[#f0c972] px-4 py-2 text-sm font-semibold text-[#263c38] transition hover:bg-[#f7d990] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Ingresar

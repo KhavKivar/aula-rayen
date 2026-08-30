@@ -24,7 +24,7 @@ export const envSchema = z
     GOOGLE_CLIENT_ID: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
     GOOGLE_REDIRECT_URI: z.url(),
-    BASE_PATH: z.string().min(1),
+    BASE_PATH: z.string().trim().startsWith('/'),
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.string().min(1),
     TRANSBANK_ENVIRONMENT: z
@@ -34,6 +34,21 @@ export const envSchema = z
     TRANSBANK_API_KEY: z.string().min(1).optional(),
   })
   .superRefine((values, ctx) => {
+    const authUrlPath = new URL(values.BETTER_AUTH_URL).pathname.replace(
+      /\/$/,
+      '',
+    );
+    const basePath = values.BASE_PATH.replace(/\/$/, '');
+
+    if (authUrlPath && authUrlPath !== basePath) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['BETTER_AUTH_URL'],
+        message:
+          'El path de BETTER_AUTH_URL debe coincidir con BASE_PATH; Better Auth prioriza el path de la URL',
+      });
+    }
+
     if (values.NODE_ENV === 'production' && !values.BETTER_AUTH_COOKIE_DOMAIN) {
       ctx.addIssue({
         code: 'custom',

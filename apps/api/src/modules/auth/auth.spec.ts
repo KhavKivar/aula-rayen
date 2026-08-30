@@ -11,6 +11,7 @@ jest.mock('@/config/env', () => ({
     GOOGLE_CLIENT_ID: 'google-client',
     GOOGLE_CLIENT_SECRET: 'google-secret',
     GOOGLE_REDIRECT_URI: 'http://localhost:3000/api/auth/callback/google',
+    BASE_PATH: '/auth',
   },
 }));
 jest.mock('@/db', () => ({ db: {} }));
@@ -57,6 +58,10 @@ describe('password recovery auth settings', () => {
       window: 60,
       max: 3,
     });
+  });
+
+  it('mounts Better Auth at the configured backend path', () => {
+    expect((auth as unknown as { basePath: string }).basePath).toBe('/auth');
   });
 
   it('shares cookies with the configured parent domain', () => {

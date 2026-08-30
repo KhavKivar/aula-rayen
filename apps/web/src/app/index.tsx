@@ -555,7 +555,7 @@ function Home() {
             </p>
           </div>
           <div className="flex flex-wrap gap-5">
-            <Link className="hover:text-white" to="/login">
+            <Link className="hover:text-white" to="/login" preload="intent">
               Ingresar
             </Link>
             <ExternalInstagramLink className="inline-flex items-center gap-1 hover:text-white">
