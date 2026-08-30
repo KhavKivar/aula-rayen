@@ -4,6 +4,10 @@
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-08-19",
   "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "NEXT_PUBLIC_API_URL": "https://aula-rayen.vasvani.shop/api",
+    "NEXT_PUBLIC_SITE_URL": "https://aula-rayen.vasvani.shop"
+  },
   "observability": {
     "enabled": true,
     "logs": {
