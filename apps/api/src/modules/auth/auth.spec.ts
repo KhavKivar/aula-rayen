@@ -6,6 +6,7 @@ jest.mock('@/config/env', () => ({
   env: {
     BETTER_AUTH_SECRET: 'a'.repeat(32),
     BETTER_AUTH_URL: 'http://localhost:3000',
+    BETTER_AUTH_COOKIE_DOMAIN: 'example.com',
     FRONTEND_URL: 'http://localhost:3001',
     GOOGLE_CLIENT_ID: 'google-client',
     GOOGLE_CLIENT_SECRET: 'google-secret',
@@ -28,6 +29,7 @@ import {
   PASSWORD_RESET_RATE_LIMIT,
   PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS,
   auth,
+  getCrossSubDomainCookies,
   queuePasswordResetEmail,
 } from './auth';
 
@@ -55,6 +57,27 @@ describe('password recovery auth settings', () => {
       window: 60,
       max: 3,
     });
+  });
+
+  it('shares cookies with the configured parent domain', () => {
+    const options = auth as unknown as {
+      advanced: {
+        crossSubDomainCookies: { enabled: boolean; domain: string };
+        ipAddress: { ipAddressHeaders: string[] };
+      };
+    };
+
+    expect(options.advanced.crossSubDomainCookies).toEqual({
+      enabled: true,
+      domain: 'example.com',
+    });
+    expect(options.advanced.ipAddress.ipAddressHeaders).toEqual([
+      'cf-connecting-ip',
+    ]);
+  });
+
+  it('omits cross-subdomain settings without a configured domain', () => {
+    expect(getCrossSubDomainCookies()).toBeUndefined();
   });
 
   it('queues delivery without awaiting the provider', () => {

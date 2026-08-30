@@ -11,6 +11,10 @@ export const PASSWORD_RESET_RATE_LIMIT = {
   max: 3,
 } as const;
 
+export function getCrossSubDomainCookies(domain?: string) {
+  return domain ? { enabled: true, domain } : undefined;
+}
+
 const passwordResetLogger = new Logger('PasswordResetEmail');
 
 export function queuePasswordResetEmail({
@@ -37,6 +41,13 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   trustedOrigins: [env.FRONTEND_URL, 'http://localhost:3001'],
   advanced: {
+    ...(env.BETTER_AUTH_COOKIE_DOMAIN
+      ? {
+          crossSubDomainCookies: getCrossSubDomainCookies(
+            env.BETTER_AUTH_COOKIE_DOMAIN,
+          ),
+        }
+      : {}),
     ipAddress: {
       ipAddressHeaders: ['cf-connecting-ip'],
     },
