@@ -5,23 +5,6 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { CourseFormDialog } from "@/features/course-management/components/course-form-dialog";
 import { render } from "@/testing/test-utils";
 
-vi.mock("@tanstack/react-start", () => ({
-  createServerFn: () => {
-    let validate = (data: unknown) => data;
-    const builder = {
-      validator: (schema: { parse: (data: unknown) => unknown }) => {
-        validate = (data) => schema.parse(data);
-        return builder;
-      },
-      handler:
-        (handler: (context: { data: unknown }) => unknown) =>
-        ({ data }: { data?: unknown } = {}) =>
-          handler({ data: validate(data) }),
-    };
-    return builder;
-  },
-}));
-
 const mockCreate = vi.fn();
 const mockUpdate = vi.fn();
 

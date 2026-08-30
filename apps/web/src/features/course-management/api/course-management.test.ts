@@ -1,44 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { requestBackendJson } from "@/lib/backend-api.server";
 import { createCourse } from "@/features/course-management/api/create-course";
-import { updateCourse } from "@/features/course-management/api/update-course";
 import { deleteCourse } from "@/features/course-management/api/delete-course";
+import { updateCourse } from "@/features/course-management/api/update-course";
 
-const { BackendApiError } = vi.hoisted(() => {
-  class BackendApiError extends Error {
-    constructor(
-      message: string,
-      public status: number,
-    ) {
-      super(message);
-      this.name = "BackendApiError";
+vi.mock("@/lib/api-client", () => ({
+  apiClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
+  SessionExpiredError: class SessionExpiredError extends Error {
+    constructor() {
+      super("Sesión expirada");
+      this.name = "SessionExpiredError";
     }
-  }
-  return { BackendApiError };
-});
-
-vi.mock("@tanstack/react-start", () => ({
-  createServerFn: () => {
-    let validate = (data: unknown) => data;
-    const builder = {
-      validator: (schema: { parse: (data: unknown) => unknown }) => {
-        validate = (data) => schema.parse(data);
-        return builder;
-      },
-      handler:
-        (handler: (context: { data: unknown }) => unknown) =>
-        ({ data }: { data?: unknown } = {}) =>
-          handler({ data: validate(data) }),
-    };
-    return builder;
   },
 }));
 
-vi.mock("@/lib/backend-api.server", () => ({
-  requestBackendJson: vi.fn(),
-  BackendApiError,
-}));
+import { apiClient } from "@/lib/api-client";
 
 const courseDetail = {
   id: 1,
@@ -62,74 +43,71 @@ const validCreatePayload = {
 
 describe("Course Management API", () => {
   beforeEach(() => {
-    vi.mocked(requestBackendJson).mockReset();
+    vi.mocked(apiClient.post).mockReset();
+    vi.mocked(apiClient.patch).mockReset();
+    vi.mocked(apiClient.delete).mockReset();
   });
 
-  it("creates a course", async () => {
-    vi.mocked(requestBackendJson).mockResolvedValue(courseDetail);
+  it("creates a course via apiClient", async () => {
+    vi.mocked(apiClient.post).mockResolvedValue({ data: courseDetail });
 
     await expect(createCourse(validCreatePayload)).resolves.toEqual(
       courseDetail,
     );
-    expect(requestBackendJson).toHaveBeenCalledWith("/courses", {
-      method: "POST",
-      body: validCreatePayload,
-    });
+    expect(apiClient.post).toHaveBeenCalledWith("/courses", validCreatePayload);
   });
 
   it("rejects invalid create payload before calling backend", async () => {
     await expect(
       createCourse({ ...validCreatePayload, title: "" }),
     ).rejects.toThrow();
-    expect(requestBackendJson).not.toHaveBeenCalled();
+    expect(apiClient.post).not.toHaveBeenCalled();
   });
 
   it("propagates backend error on create", async () => {
-    vi.mocked(requestBackendJson).mockRejectedValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      new (BackendApiError as any)("Error", 400),
-    );
+    const axiosError = Object.assign(new Error("Error"), {
+      isAxiosError: true,
+      response: { status: 400, data: { message: "Error" } },
+    });
+    vi.mocked(apiClient.post).mockRejectedValue(axiosError);
 
-    await expect(createCourse(validCreatePayload)).rejects.toBeInstanceOf(
-      BackendApiError,
+    await expect(createCourse(validCreatePayload)).rejects.toEqual(
+      expect.objectContaining({ message: expect.any(String) }),
     );
   });
 
-  it("updates a course", async () => {
-    vi.mocked(requestBackendJson).mockResolvedValue(courseDetail);
+  it("updates a course via apiClient.patch", async () => {
+    vi.mocked(apiClient.patch).mockResolvedValue({ data: courseDetail });
 
     await expect(
       updateCourse({ id: 1, data: { title: "Nuevo título" } }),
     ).resolves.toEqual(courseDetail);
-    expect(requestBackendJson).toHaveBeenCalledWith("/courses/1", {
-      method: "PATCH",
-      body: { title: "Nuevo título" },
+    expect(apiClient.patch).toHaveBeenCalledWith("/courses/1", {
+      title: "Nuevo título",
     });
   });
 
   it("rejects empty update payload", async () => {
     await expect(updateCourse({ id: 1, data: {} })).rejects.toThrow();
-    expect(requestBackendJson).not.toHaveBeenCalled();
+    expect(apiClient.patch).not.toHaveBeenCalled();
   });
 
   it("rejects invalid id on update", async () => {
     await expect(
       updateCourse({ id: 0, data: { title: "x" } }),
     ).rejects.toThrow();
-    expect(requestBackendJson).not.toHaveBeenCalled();
+    expect(apiClient.patch).not.toHaveBeenCalled();
   });
 
-  it("deletes a course", async () => {
-    vi.mocked(requestBackendJson).mockResolvedValue(courseDetail);
+  it("deletes a course via apiClient.delete", async () => {
+    vi.mocked(apiClient.delete).mockResolvedValue({ data: courseDetail });
 
     await expect(deleteCourse({ id: 1 })).resolves.toEqual(courseDetail);
-    expect(requestBackendJson).toHaveBeenCalledWith("/courses/1", {
-      method: "DELETE",
-    });
+    expect(apiClient.delete).toHaveBeenCalledWith("/courses/1");
   });
 
   it("rejects invalid id on delete", async () => {
     await expect(deleteCourse({ id: -1 })).rejects.toThrow();
-    expect(requestBackendJson).not.toHaveBeenCalled();
+    expect(apiClient.delete).not.toHaveBeenCalled();
   });
 });

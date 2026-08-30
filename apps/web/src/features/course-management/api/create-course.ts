@@ -1,25 +1,17 @@
-import { createServerFn } from "@tanstack/react-start";
 import {
   courseDetailSchema,
   createCourseRequestSchema,
 } from "@aula-rayen/contracts/course";
 import type { CourseDetail } from "@aula-rayen/contracts/course";
 
-import { requestBackendJson } from "@/lib/backend-api.server";
-
-const createCourseServerFn = createServerFn({ method: "POST" })
-  .validator(createCourseRequestSchema)
-  .handler(async ({ data }) => {
-    const response = await requestBackendJson("/courses", {
-      method: "POST",
-      body: data,
-    });
-
-    return courseDetailSchema.parse(response);
-  });
+import { apiClient } from "@/lib/api-client";
 
 export async function createCourse(
-  data: Parameters<typeof createCourseServerFn>[0]["data"],
+  data: Parameters<typeof createCourseRequestSchema.parse>[0],
 ): Promise<CourseDetail> {
-  return createCourseServerFn({ data });
+  const parsed = createCourseRequestSchema.parse(data);
+
+  const { data: response } = await apiClient.post<unknown>("/courses", parsed);
+
+  return courseDetailSchema.parse(response);
 }
