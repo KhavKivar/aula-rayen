@@ -40,8 +40,7 @@ el contenido y metadatos esenciales de la página principal.
 Las rutas basadas en archivos viven en `src/app/`. TanStack Router genera
 `src/routeTree.gen.ts`; el archivo generado se versiona pero no se edita a mano.
 
-El endpoint catch-all `src/app/api/auth/$.ts` reenvía `/api/auth/*` al backend para
-mantener el flujo de cookies de Better Auth en el mismo origen.
+La autenticación usa Better Auth directo contra `NEXT_PUBLIC_API_URL` (`https://aula-rayen.vasvani.shop/api` en prod) vía `src/lib/auth-client.ts`; el Worker `aula-rayen.vasvani.shop/api/` reenvía `/api/*` al origen NestJS. No existe proxy frontend `/api/auth/*`.
 
 ## Cloudflare Workers
 

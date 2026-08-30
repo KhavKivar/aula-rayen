@@ -1,5 +1,7 @@
 # Spec: Migración de Next.js a TanStack Start
 
+> Nota (2026-08-30, `remove-frontend-auth-proxy`): el proxy `/api/auth/*` descrito en este documento fue eliminado tras mover la API a `aula-rayen.vasvani.shop/api` vía Cloudflare Worker. Ver `openspec/changes/remove-frontend-auth-proxy/` para el transporte directo actual.
+
 ## Supuestos
 
 1. La migración debe conservar la UI y el comportamiento actuales de las rutas `/`,
