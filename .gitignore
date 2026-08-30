@@ -2,3 +2,8 @@
 /packages/*/node_modules/
 /packages/*/dist/
 /packages/*/dist-cjs/
+
+# Cloudflare Workers (proxy api - no commitear)
+workers/
+.wrangler/
+**/.wrangler/
