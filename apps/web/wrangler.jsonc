@@ -4,19 +4,15 @@
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-08-19",
   "compatibility_flags": ["nodejs_compat"],
-  "vars": {
-    "VITE_PUBLIC_API_URL": "https://aula-rayen.vasvani.shop/api",
-    "VITE_PUBLIC_SITE_URL": "https://aula-rayen.vasvani.shop"
-  },
   "observability": {
     "enabled": true,
     "logs": {
       "enabled": true,
-      "head_sampling_rate": 1
+      "head_sampling_rate": 1,
     },
     "traces": {
       "enabled": true,
-      "head_sampling_rate": 0.01
-    }
-  }
+      "head_sampling_rate": 0.01,
+    },
+  },
 }
