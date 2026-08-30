@@ -18,7 +18,7 @@ const description =
   "Cursos para psicólogos y psicólogas con formación, dinámicas paso a paso y materiales editables para facilitar talleres.";
 const socialImage = new URL(
   "/opengraph-image.svg",
-  env.NEXT_PUBLIC_SITE_URL,
+  env.VITE_PUBLIC_SITE_URL,
 ).toString();
 
 export const Route = createRootRoute({

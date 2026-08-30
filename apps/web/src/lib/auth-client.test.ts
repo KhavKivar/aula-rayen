@@ -17,8 +17,8 @@ vi.mock("better-auth/react", () => ({
 
 vi.mock("@/config/env", () => ({
   env: {
-    NEXT_PUBLIC_API_URL: "https://aula-rayen.vasvani.shop/api",
-    NEXT_PUBLIC_SITE_URL: "https://aula-rayen.vasvani.shop",
+    VITE_PUBLIC_API_URL: "https://aula-rayen.vasvani.shop/api",
+    VITE_PUBLIC_SITE_URL: "https://aula-rayen.vasvani.shop",
   },
 }));
 

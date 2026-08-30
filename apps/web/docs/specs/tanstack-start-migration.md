@@ -8,9 +8,9 @@
    `/login`, `/register` y `/dashboard`.
 2. El frontend seguirá desplegándose como un único Cloudflare Worker llamado
    `aula-rayen`; no se hará un despliegue desde esta tarea.
-3. Se conservarán los nombres públicos `NEXT_PUBLIC_API_URL` y
-   `NEXT_PUBLIC_SITE_URL` para no exigir cambios de secretos en CI, configurando
-   Vite para exponer exclusivamente ese prefijo.
+3. Las variables públicas usan `VITE_PUBLIC_API_URL` y
+   `VITE_PUBLIC_SITE_URL`, configurando Vite para exponer exclusivamente ese
+   prefijo.
 4. El proxy `/api/auth/*` seguirá reenviando métodos, query string, cabeceras, cuerpo
    y respuestas hacia el backend, porque Better Auth depende de él.
 5. La migración no debe modificar el backend ni sobrescribir los cambios locales que
@@ -107,7 +107,7 @@ No se añadirán `any` ni aserciones no nulas para ocultar configuración ausent
 - No quedan dependencias ni imports de `next`, `eslint-config-next` u OpenNext.
 - `/`, `/login`, `/register` y `/dashboard` renderizan la misma experiencia actual.
 - Los links y redirects usan TanStack Router.
-- `/api/auth/*` conserva el proxy hacia `NEXT_PUBLIC_API_URL` para todos los métodos
+- `/api/auth/*` conserva el proxy hacia `VITE_PUBLIC_API_URL` para todos los métodos
   HTTP actualmente soportados.
 - Head/SEO, favicon, fuentes y la imagen Open Graph tienen reemplazos funcionales.
 - Las variables existentes funcionan en desarrollo, build, preview y CI sin

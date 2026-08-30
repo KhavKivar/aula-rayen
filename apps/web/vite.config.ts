@@ -5,7 +5,7 @@ import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  envPrefix: "NEXT_PUBLIC_",
+  envPrefix: "VITE_PUBLIC_",
   resolve: {
     tsconfigPaths: true,
   },

@@ -39,7 +39,7 @@ No agregues una librería que duplique alguna de estas capacidades sin justifica
 
 - Usa imports con `@/`.
 - Centraliza variables de entorno en `src/config/env.ts`.
-- Nunca guardes secretos en variables `NEXT_PUBLIC_*`.
+- Nunca guardes secretos en variables `VITE_PUBLIC_*`.
 - Mantén peticiones y transformación de errores fuera de los componentes.
 - Mantén el SSR universal de TanStack Start y evita APIs exclusivas del navegador
   durante el render del servidor.

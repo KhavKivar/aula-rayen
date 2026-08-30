@@ -5,9 +5,9 @@
 
 ## 2. Entorno y variables públicas
 
-- [x] 2.1 Actualizar `apps/web/src/config/env.ts` y `apps/web/.env.example` para documentar `NEXT_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api` (prod) y `NEXT_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`, manteniendo `http://localhost:3000/3001` en dev.
+- [x] 2.1 Actualizar `apps/web/src/config/env.ts` y `apps/web/.env.example` para documentar `VITE_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api` (prod) y `VITE_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`, manteniendo `http://localhost:3000/3001` en dev.
 - [x] 2.2 Actualizar `apps/api/.env.example`, `apps/api/src/config/env.schema.ts` (si aplica default de `BETTER_AUTH_URL`/`GOOGLE_REDIRECT_URI`) y `apps/api/src/config/env.spec.ts` con nuevos orígenes Worker.
-- [x] 2.3 Actualizar secrets de `.github/workflows/deploy-web.yml` (y `deploy-api.yml` si usa `BETTER_AUTH_URL`/`FRONTEND_URL`): verificar `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_URL`, `BETTER_AUTH_URL`, `FRONTEND_URL`, `GOOGLE_REDIRECT_URI`, `BETTER_AUTH_COOKIE_DOMAIN`.
+- [x] 2.3 Actualizar secrets de `.github/workflows/deploy-web.yml` (y `deploy-api.yml` si usa `BETTER_AUTH_URL`/`FRONTEND_URL`): verificar `VITE_PUBLIC_API_URL`, `VITE_PUBLIC_SITE_URL`, `BETTER_AUTH_URL`, `FRONTEND_URL`, `GOOGLE_REDIRECT_URI`, `BETTER_AUTH_COOKIE_DOMAIN`.
 
 ## 3. Backend — CORS y Better Auth
 
@@ -17,8 +17,8 @@
 
 ## 4. Frontend — cliente Better Auth directo
 
-- [x] 4.1 Reescribir `apps/web/src/lib/auth-client.ts`: `baseURL = env.NEXT_PUBLIC_API_URL` (único para SSR y browser) y `fetchOptions: { credentials: "include" }` (o wrapper `fetch` con `credentials: "include"` si la versión de `better-auth` no soporta `fetchOptions`). Verificar tipo y bundling.
-- [x] 4.2 Revisar `apps/web/src/lib/backend-api.server.ts`: confirmar reenvío de `cookie` header en SSR hacia `NEXT_PUBLIC_API_URL` sigue correcto con origen same-site; añadir `credentials: "include"` si el fetch SSR lo requiere, y mantener `Cache-Control: no-store`.
+- [x] 4.1 Reescribir `apps/web/src/lib/auth-client.ts`: `baseURL = env.VITE_PUBLIC_API_URL` (único para SSR y browser) y `fetchOptions: { credentials: "include" }` (o wrapper `fetch` con `credentials: "include"` si la versión de `better-auth` no soporta `fetchOptions`). Verificar tipo y bundling.
+- [x] 4.2 Revisar `apps/web/src/lib/backend-api.server.ts`: confirmar reenvío de `cookie` header en SSR hacia `VITE_PUBLIC_API_URL` sigue correcto con origen same-site; añadir `credentials: "include"` si el fetch SSR lo requiere, y mantener `Cache-Control: no-store`.
 - [x] 4.3 Revisar `apps/web/src/app/_protected.tsx` (`beforeLoad` con `authClient.getSession()`): asegurar que la sesión se obtiene directa contra API con cookies reenviadas en SSR y sin proxy.
 
 ## 5. Eliminación del proxy
@@ -30,15 +30,15 @@
 
 ## 6. Tests frontend
 
-- [x] 6.1 Actualizar `apps/web/src/lib/backend-api.server.test.ts` para esperar `fetch` directo a `NEXT_PUBLIC_API_URL` con forwarding de `cookie`.
-- [x] 6.2 Actualizar tests que mockean env (`src/features/course-dashboard/components/course-dashboard.test.tsx`, `src/features/course-management/components/course-management-panel.test.tsx`, etc.) para usar `NEXT_PUBLIC_API_URL` como `baseURL`.
+- [x] 6.1 Actualizar `apps/web/src/lib/backend-api.server.test.ts` para esperar `fetch` directo a `VITE_PUBLIC_API_URL` con forwarding de `cookie`.
+- [x] 6.2 Actualizar tests que mockean env (`src/features/course-dashboard/components/course-dashboard.test.tsx`, `src/features/course-management/components/course-management-panel.test.tsx`, etc.) para usar `VITE_PUBLIC_API_URL` como `baseURL`.
 - [x] 6.3 Añadir/actualizar tests de `auth-client` (config `baseURL`/`credentials`) y de `_protected` `beforeLoad` que verifica redirección a `/login` cuando `getSession` directa retorna `null`.
 - [x] 6.4 Eliminar snapshots/expectativas ligadas al proxy (`routeTree` tests si existen, tests de `auth-proxy`).
 
 ## 7. Documentación y workflows
 
 - [x] 7.1 Actualizar `apps/web/README.md` (sección Rutas y variables) para quitar mención a catch-all `src/app/api/auth/$.ts`.
-- [x] 7.2 Actualizar `apps/web/docs/specs/tanstack-start-migration.md` y `AGENTS.md` (integración `NEXT_PUBLIC_API_URL`/Better Auth/CORS).
+- [x] 7.2 Actualizar `apps/web/docs/specs/tanstack-start-migration.md` y `AGENTS.md` (integración `VITE_PUBLIC_API_URL`/Better Auth/CORS).
 - [x] 7.3 Verificar `apps/web/wrangler.jsonc` no tenga rewrites/route del proxy; limpiar si existe.
 
 ## 8. Validación local

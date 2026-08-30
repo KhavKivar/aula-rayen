@@ -6,9 +6,9 @@
 
 ## 2. Restaurar capa apiClient
 
-- [x] 2.1 Crear `apps/web/src/lib/api-client.ts` con `axios.create({ baseURL: env.NEXT_PUBLIC_API_URL, withCredentials: true, headers: { Accept: "application/json" } })`, exportar `SessionExpiredError` y registrar interceptor `response.use(r=>r, (e: AxiosError)=> e.response?.status===401 ? Promise.reject(new SessionExpiredError()) : Promise.reject(e))` (paridad con archivo previo a `01a7676`).
+- [x] 2.1 Crear `apps/web/src/lib/api-client.ts` con `axios.create({ baseURL: env.VITE_PUBLIC_API_URL, withCredentials: true, headers: { Accept: "application/json" } })`, exportar `SessionExpiredError` y registrar interceptor `response.use(r=>r, (e: AxiosError)=> e.response?.status===401 ? Promise.reject(new SessionExpiredError()) : Promise.reject(e))` (paridad con archivo previo a `01a7676`).
 - [x] 2.2 Agregar `axios@^1.19.0` a `apps/web/package.json` `dependencies` y ejecutar `pnpm install` (regenerar `pnpm-lock.yaml`).
-- [x] 2.3 Añadir o actualizar test de `api-client` si se desea: verificar `baseURL` usa `env.NEXT_PUBLIC_API_URL`, `withCredentials: true` y que `401` mapea a `SessionExpiredError`. — Omitido: cubierto por interceptor y tests de apiClient; no requiere test dedicado en este change.
+- [x] 2.3 Añadir o actualizar test de `api-client` si se desea: verificar `baseURL` usa `env.VITE_PUBLIC_API_URL`, `withCredentials: true` y que `401` mapea a `SessionExpiredError`. — Omitido: cubierto por interceptor y tests de apiClient; no requiere test dedicado en este change.
 
 ## 3. Migrar `course-dashboard` a apiClient
 
@@ -44,9 +44,9 @@
 - [x] 7.2 `pnpm lint` en `apps/web` — sin imports no usados ni `createServerFn` residual.
 - [x] 7.3 `pnpm test` / `pnpm test:run` en `apps/web` — todos los suites dashboard/management en verde; `grep` de 5.3 sigue en 0.
 - [x] 7.4 `pnpm build` en `apps/web` (Vite + Cloudflare) — build exitoso sin rutas serverFn huérfanas; `routeTree.gen.ts` sin cambios inesperados.
-- [ ] 7.5 Smoke dev: `NEXT_PUBLIC_API_URL=http://localhost:3000` — login, `/dashboard` catálogo, `/courses/:id` video/file, Webpay `token/url`, gestión crear/editar/eliminar. — Pendiente verificación manual con backend local.
+- [ ] 7.5 Smoke dev: `VITE_PUBLIC_API_URL=http://localhost:3000` — login, `/dashboard` catálogo, `/courses/:id` video/file, Webpay `token/url`, gestión crear/editar/eliminar. — Pendiente verificación manual con backend local.
 - [ ] 7.6 Smoke prod/staging contra `https://aula-rayen.vasvani.shop/api` vía túnel Cloudflare — misma matriz; confirmar `withCredentials` envía `better-auth.session_token` same-origin (cookie `Secure`, `HttpOnly`, `SameSite=Lax`). — Pendiente deploy.
-- [x] 7.7 Actualizar `apps/web/README.md` y `.env.example` si mencionan `backend-api.server` o proxy SSR (deben documentar `apiClient` con `withCredentials`). — Verificado: ya documentan `NEXT_PUBLIC_API_URL` directo, no requieren cambio.
+- [x] 7.7 Actualizar `apps/web/README.md` y `.env.example` si mencionan `backend-api.server` o proxy SSR (deben documentar `apiClient` con `withCredentials`). — Verificado: ya documentan `VITE_PUBLIC_API_URL` directo, no requieren cambio.
 
 ## 8. Documentación y cierre
 

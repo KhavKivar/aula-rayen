@@ -7,8 +7,8 @@ import { render } from "@/testing/test-utils";
 
 vi.mock("@/config/env", () => ({
   env: {
-    NEXT_PUBLIC_API_URL: "https://api.example.com",
-    NEXT_PUBLIC_SITE_URL: "https://app.example.com",
+    VITE_PUBLIC_API_URL: "https://api.example.com",
+    VITE_PUBLIC_SITE_URL: "https://app.example.com",
   },
 }));
 

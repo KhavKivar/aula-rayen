@@ -9,7 +9,7 @@ export class SessionExpiredError extends Error {
 }
 
 export const apiClient = axios.create({
-  baseURL: env.NEXT_PUBLIC_API_URL,
+  baseURL: env.VITE_PUBLIC_API_URL,
   withCredentials: true,
   headers: {
     Accept: "application/json",

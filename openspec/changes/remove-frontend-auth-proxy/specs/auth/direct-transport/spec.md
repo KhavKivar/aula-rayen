@@ -9,7 +9,7 @@ The system SHALL route all Better Auth operations (sign-in, sign-up, sign-out, s
 
 #### Scenario: Email sign-in goes directly to API
 - **WHEN** a user submits email/password on `/login`
-- **THEN** the frontend issues a request to `{NEXT_PUBLIC_API_URL}/api/auth/sign-in/email` with `credentials: include` and without traversing `src/app/api/auth/$`
+- **THEN** the frontend issues a request to `{VITE_PUBLIC_API_URL}/api/auth/sign-in/email` with `credentials: include` and without traversing `src/app/api/auth/$`
 
 #### Scenario: Proxy route no longer exists
 - **WHEN** a browser requests `GET /api/auth/session` on the frontend origin
@@ -20,11 +20,11 @@ The system SHALL route all Better Auth operations (sign-in, sign-up, sign-out, s
 - **THEN** `signIn.social` uses a `callbackURL` and `errorCallbackURL` built from `window.location.origin` but Better Auth redirects through the direct API origin, and no proxy rewrites the OAuth flow
 
 ### Requirement: Auth client baseURL points to direct API origin
-The system SHALL configure the Better Auth client `baseURL` to the canonical API origin (`NEXT_PUBLIC_API_URL`, e.g. `https://aula-rayen.vasvani.shop/api` in production, `http://localhost:3000` in development) consistently for SSR and browser, instead of `NEXT_PUBLIC_SITE_URL` / `window.location.origin` proxy mode.
+The system SHALL configure the Better Auth client `baseURL` to the canonical API origin (`VITE_PUBLIC_API_URL`, e.g. `https://aula-rayen.vasvani.shop/api` in production, `http://localhost:3000` in development) consistently for SSR and browser, instead of `VITE_PUBLIC_SITE_URL` / `window.location.origin` proxy mode.
 
 #### Scenario: Browser client resolves baseURL to API
 - **WHEN** the auth client runs in the browser
-- **THEN** its `baseURL` equals `NEXT_PUBLIC_API_URL` (or derived API URL) and requests include credentials
+- **THEN** its `baseURL` equals `VITE_PUBLIC_API_URL` (or derived API URL) and requests include credentials
 
 #### Scenario: SSR client resolves baseURL to API
 - **WHEN** the auth client or `authClient.getSession()` runs on the server (SSR / `beforeLoad` in `/_protected`)
@@ -64,14 +64,14 @@ The system SHALL preserve observable auth semantics: `toAuthError` mapping, sess
 - **THEN** it redirects to `/login?redirect=...` identically to the proxied flow
 
 ### Requirement: Environment configuration documents direct API origin
-The system SHALL document `NEXT_PUBLIC_API_URL` as the direct API Worker origin and `NEXT_PUBLIC_SITE_URL` as the site origin, with distinct values in production (`https://aula-rayen.vasvani.shop/api` vs `https://aula-rayen.vasvani.shop`) and matching localhost values in development.
+The system SHALL document `VITE_PUBLIC_API_URL` as the direct API Worker origin and `VITE_PUBLIC_SITE_URL` as the site origin, with distinct values in production (`https://aula-rayen.vasvani.shop/api` vs `https://aula-rayen.vasvani.shop`) and matching localhost values in development.
 
 #### Scenario: Production env example reflects Worker URL
 - **WHEN** a developer reads `apps/web/.env.example` and `apps/api/.env.example`
-- **THEN** the examples show `NEXT_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api` (or equivalent), `NEXT_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`, `BETTER_AUTH_URL=https://aula-rayen.vasvani.shop/api`, and `FRONTEND_URL=https://aula-rayen.vasvani.shop`
+- **THEN** the examples show `VITE_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api` (or equivalent), `VITE_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`, `BETTER_AUTH_URL=https://aula-rayen.vasvani.shop/api`, and `FRONTEND_URL=https://aula-rayen.vasvani.shop`
 
 #### Scenario: Local env still works without proxy
-- **WHEN** the frontend runs locally with `NEXT_PUBLIC_API_URL=http://localhost:3000` and `NEXT_PUBLIC_SITE_URL=http://localhost:3001`
+- **WHEN** the frontend runs locally with `VITE_PUBLIC_API_URL=http://localhost:3000` and `VITE_PUBLIC_SITE_URL=http://localhost:3001`
 - **THEN** direct auth requests reach `http://localhost:3000/api/auth/*` and local cookies remain host-only
 
 ### Requirement: Removal is verifiable and does not leave dead code

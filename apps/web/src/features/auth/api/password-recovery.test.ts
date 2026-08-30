@@ -6,7 +6,7 @@ const { requestPasswordResetMock, resetPasswordMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/config/env", () => ({
-  env: { NEXT_PUBLIC_SITE_URL: "https://app.example" },
+  env: { VITE_PUBLIC_SITE_URL: "https://app.example" },
 }));
 vi.mock("@/lib/auth-client", () => ({
   authClient: {

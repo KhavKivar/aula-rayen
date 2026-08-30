@@ -15,8 +15,8 @@ pnpm dev
 Copia `.env.example` a `.env.local` y configura:
 
 ```dotenv
-NEXT_PUBLIC_API_URL=http://localhost:3000
-NEXT_PUBLIC_SITE_URL=http://localhost:3001
+VITE_PUBLIC_API_URL=http://localhost:3000
+VITE_PUBLIC_SITE_URL=http://localhost:3001
 ```
 
 Las dos variables son públicas y se incluyen en el bundle del navegador. No deben
@@ -40,7 +40,7 @@ el contenido y metadatos esenciales de la página principal.
 Las rutas basadas en archivos viven en `src/app/`. TanStack Router genera
 `src/routeTree.gen.ts`; el archivo generado se versiona pero no se edita a mano.
 
-La autenticación usa Better Auth directo contra `NEXT_PUBLIC_API_URL` (`https://aula-rayen.vasvani.shop/api` en prod) vía `src/lib/auth-client.ts`; el Worker `aula-rayen.vasvani.shop/api/` reenvía `/api/*` al origen NestJS. No existe proxy frontend `/api/auth/*`.
+La autenticación usa Better Auth directo contra `VITE_PUBLIC_API_URL` (`https://aula-rayen.vasvani.shop/api` en prod) vía `src/lib/auth-client.ts`; el Worker `aula-rayen.vasvani.shop/api/` reenvía `/api/*` al origen NestJS. No existe proxy frontend `/api/auth/*`.
 
 ## Cloudflare Workers
 

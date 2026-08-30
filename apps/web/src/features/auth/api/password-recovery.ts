@@ -14,7 +14,7 @@ export async function requestPasswordReset({
       email,
       redirectTo: new URL(
         "/reset-password",
-        env.NEXT_PUBLIC_SITE_URL,
+        env.VITE_PUBLIC_SITE_URL,
       ).toString(),
     });
   } catch {
