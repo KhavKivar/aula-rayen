@@ -29,22 +29,21 @@ Restricciones: TanStack Start SSR corre en Cloudflare Worker; Better Auth necesi
 
 Borrar ambos archivos y su test. `proxyAuthRequest` hace streaming y borra headers manualmente; con Worker same-origin ese código no aporta y es deuda. Alternativa considerada: dejar shim que redirija 301 a `VITE_PUBLIC_API_URL`. Rechazada porque Better Auth y `fetch` ya resuelven directo; un shim solo retrasa la limpieza y confunde `routeTree`.
 
-### 2. `auth-client.ts` apunta directo a `VITE_PUBLIC_API_URL` con `credentials: include`
+### 2. `auth-client.ts` apunta a `VITE_PUBLIC_AUTH_URL`
 
 Cambiar:
 ```ts
 export const authClient = createAuthClient({
-  baseURL: env.VITE_PUBLIC_API_URL, // https://aula-rayen.vasvani.shop/api en prod
-  fetchOptions: { credentials: "include" },
+  baseURL: env.VITE_PUBLIC_AUTH_URL, // https://aula-rayen.vasvani.shop/api/auth en prod
 });
 ```
-Antes usaba `VITE_PUBLIC_SITE_URL` (SSR) vs `window.location.origin` (browser) divergentes. Nueva opción unifica ambos entornos; Better Auth `fetch` respeta `credentials`. Alternativa considerada: mantener `window.location.origin` y configurar Worker rewrite `/api/*` → API. Rechazada porque acopla despliegue del frontend al backend y oculta CORS; usar `VITE_PUBLIC_API_URL` es explícito y funciona tanto local (`http://localhost:3000`) como prod.
+La URL dedicada evita que Better Auth trate `/api` como su ruta final: producción usa `/api/auth` para que el Worker lo transforme en `/auth`, mientras desarrollo llama directamente a `http://localhost:3000/auth`.
 
 Verificación: confirmar que `better-auth/react` soporta `fetchOptions.credentials`; si no, envolver `fetch` con `credentials: "include"`.
 
-### 3. `env.ts` mantiene `VITE_PUBLIC_API_URL` como origen API, `VITE_PUBLIC_SITE_URL` como origen site
+### 3. `env.ts` separa las URLs de API, autenticación y site
 
-Prod: `VITE_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api`, `VITE_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`. Dev: `http://localhost:3000` vs `http://localhost:3001`. No unificar en una sola variable; se usan en lugares distintos (API fetch vs redirects/OG). Alternativa: colapsarlas. Rechazada porque rompería `redirectTo` de OAuth/recovery que debe apuntar al site.
+Prod: `VITE_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api`, `VITE_PUBLIC_AUTH_URL=https://aula-rayen.vasvani.shop/api/auth`, `VITE_PUBLIC_SITE_URL=https://aula-rayen.vasvani.shop`. En desarrollo, auth usa `http://localhost:3000/auth`.
 
 ### 4. Backend: ajustar `BETTER_AUTH_URL`, `FRONTEND_URL`, CORS y `trustedOrigins`
 
@@ -70,7 +69,7 @@ El archivo es generado por TanStack Router; tras borrar `src/app/api/auth/$.ts` 
 
 - Borrar `src/lib/auth-proxy.test.ts`.
 - Actualizar `backend-api.server.test.ts` y tests que mockean `env.VITE_PUBLIC_API_URL` + `VITE_PUBLIC_SITE_URL` (ej. `course-dashboard.test.tsx`, `course-management-panel.test.tsx`) para esperar `baseURL = VITE_PUBLIC_API_URL`.
-- Añadir tests de `auth-client` config (que `baseURL` es `VITE_PUBLIC_API_URL` y `credentials` es `include`) y de `requestBackendJson` que sigue reenviando cookie.
+- Añadir tests de `auth-client` config (que `baseURL` es `VITE_PUBLIC_AUTH_URL`) y de `requestBackendJson` que sigue reenviando cookie.
 - Verificar que `apps/api/src/config/env.spec.ts` y `auth.spec.ts` reflejan nuevo `BETTER_AUTH_URL`.
 
 ## Risks / Trade-offs
@@ -84,8 +83,8 @@ El archivo es generado por TanStack Router; tras borrar `src/app/api/auth/$.ts` 
 
 ## Migration Plan
 
-1. Actualizar env y secrets: `VITE_PUBLIC_API_URL`, `VITE_PUBLIC_SITE_URL`, `BETTER_AUTH_URL`, `FRONTEND_URL`, `GOOGLE_REDIRECT_URI` en `.env.example`, `.env.local` y GitHub Secrets (`deploy-web.yml`, `deploy-api.yml`). Verificar `BETTER_AUTH_COOKIE_DOMAIN`.
-2. Cambiar `src/lib/auth-client.ts` a `baseURL = VITE_PUBLIC_API_URL` + `credentials: include`; actualizar `src/config/env.ts` documentación.
+1. Actualizar env y secrets: `VITE_PUBLIC_API_URL`, `VITE_PUBLIC_AUTH_URL` y `VITE_PUBLIC_SITE_URL` en `.env.example`, `.env.local` y GitHub Secrets.
+2. Cambiar `src/lib/auth-client.ts` a `baseURL = VITE_PUBLIC_AUTH_URL`; actualizar `src/config/env.ts` documentación.
 3. Ajustar `apps/api/src/modules/auth/auth.ts` y `src/main.ts` (CORS/trustedOrigins) y, si aplica, `env.schema.ts`.
 4. Borrar `src/app/api/auth/$.ts`, `src/lib/auth-proxy.ts`, `auth-proxy.test.ts`; regenerar `src/routeTree.gen.ts` (`pnpm build`).
 5. Revisar `src/lib/backend-api.server.ts` y `src/app/_protected.tsx` para forwarding de cookies en SSR.

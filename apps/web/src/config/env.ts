@@ -12,6 +12,11 @@ export const env = Object.freeze({
     import.meta.env.VITE_PUBLIC_API_URL,
     "VITE_PUBLIC_API_URL",
   ),
+  /** URL pública de Better Auth: /api/auth vía Worker en prod, /auth directo en dev. */
+  VITE_PUBLIC_AUTH_URL: requiredEnv(
+    import.meta.env.VITE_PUBLIC_AUTH_URL,
+    "VITE_PUBLIC_AUTH_URL",
+  ),
   /** Origen del site para redirects/OG: https://aula-rayen.vasvani.shop en prod, http://localhost:3001 en dev. */
   VITE_PUBLIC_SITE_URL: requiredEnv(
     import.meta.env.VITE_PUBLIC_SITE_URL,

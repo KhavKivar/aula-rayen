@@ -8,7 +8,7 @@
    `/login`, `/register` y `/dashboard`.
 2. El frontend seguirá desplegándose como un único Cloudflare Worker llamado
    `aula-rayen`; no se hará un despliegue desde esta tarea.
-3. Las variables públicas usan `VITE_PUBLIC_API_URL` y
+3. Las variables públicas usan `VITE_PUBLIC_API_URL`, `VITE_PUBLIC_AUTH_URL` y
    `VITE_PUBLIC_SITE_URL`, configurando Vite para exponer exclusivamente ese
    prefijo.
 4. El proxy `/api/auth/*` seguirá reenviando métodos, query string, cabeceras, cuerpo

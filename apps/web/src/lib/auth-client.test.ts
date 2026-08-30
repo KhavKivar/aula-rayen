@@ -18,6 +18,7 @@ vi.mock("better-auth/react", () => ({
 vi.mock("@/config/env", () => ({
   env: {
     VITE_PUBLIC_API_URL: "https://aula-rayen.vasvani.shop/api",
+    VITE_PUBLIC_AUTH_URL: "https://aula-rayen.vasvani.shop/api/auth",
     VITE_PUBLIC_SITE_URL: "https://aula-rayen.vasvani.shop",
   },
 }));
@@ -26,13 +27,15 @@ vi.mock("@/config/env", () => ({
 import "@/lib/auth-client";
 
 describe("auth-client direct transport", () => {
-  it("configures Better Auth to use direct API origin", () => {
+  it("configures Better Auth to use the public auth proxy path", () => {
     expect(createAuthClientMock).toHaveBeenCalledWith(
-      expect.objectContaining({ baseURL: "https://aula-rayen.vasvani.shop/api" }),
+      expect.objectContaining({
+        baseURL: "https://aula-rayen.vasvani.shop/api/auth",
+      }),
     );
     const opts = createAuthClientMock.mock.calls[0]?.[0] as Record<string, unknown>;
     // No longer uses window.location.origin or SITE_URL
-    expect(opts.baseURL).not.toBe("https://aula-rayen.vasvani.shop");
+    expect(opts.baseURL).not.toBe("https://aula-rayen.vasvani.shop/api");
     expect(opts).not.toHaveProperty("baseURL", "https://app.example");
   });
 });

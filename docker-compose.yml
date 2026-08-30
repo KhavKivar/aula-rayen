@@ -28,6 +28,7 @@ services:
       dockerfile: Dockerfile
     environment:
       VITE_PUBLIC_API_URL: http://localhost:3000
+      VITE_PUBLIC_AUTH_URL: http://localhost:3000/auth
       INTERNAL_API_URL: http://api:3000
       WATCHPACK_POLLING: "true"
     ports:
