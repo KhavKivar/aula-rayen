@@ -1,9 +1,18 @@
 import { courseDetailSchema } from "@aula-rayen/contracts/course";
 import type { CourseDetail } from "@aula-rayen/contracts/course";
-import { apiClient } from "@/lib/api-client";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+
+import { requestBackendJson } from "@/lib/backend-api.server";
+
+const courseIdSchema = z.number().int().positive();
+
+const getCourseServerFn = createServerFn({ method: "GET" })
+  .validator(courseIdSchema)
+  .handler(async ({ data: courseId }) =>
+    courseDetailSchema.parse(await requestBackendJson(`/courses/${courseId}`)),
+  );
 
 export async function getCourse(courseId: number): Promise<CourseDetail> {
-  const { data } = await apiClient.get<unknown>(`/courses/${courseId}`);
-
-  return courseDetailSchema.parse(data);
+  return getCourseServerFn({ data: courseId });
 }

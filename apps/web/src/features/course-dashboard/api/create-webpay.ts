@@ -1,19 +1,48 @@
-import axios from "axios";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
-import { apiClient } from "@/lib/api-client";
+import {
+  BackendApiError,
+  requestBackendJson,
+} from "@/lib/backend-api.server";
 
-export type CreateWebPayDto = {
-  course_id: number;
-};
+const createWebPayDtoSchema = z.object({
+  course_id: z.number().int().positive(),
+});
 
-export type CreateWebPayResponse = {
-  token: string;
-  url: string;
-};
+const createWebPayResponseSchema = z.object({
+  token: z.string().min(1),
+  url: z.url(),
+});
 
-type ApiErrorResponse = {
-  message?: string | string[];
-};
+export type CreateWebPayDto = z.infer<typeof createWebPayDtoSchema>;
+export type CreateWebPayResponse = z.infer<typeof createWebPayResponseSchema>;
+
+const createWebPayServerFn = createServerFn({ method: "POST" })
+  .validator(createWebPayDtoSchema)
+  .handler(async ({ data }) => {
+    try {
+      const response = await requestBackendJson("/webpay", {
+        method: "POST",
+        body: data,
+      });
+
+      return {
+        success: true as const,
+        data: createWebPayResponseSchema.parse(response),
+      };
+    } catch (error: unknown) {
+      if (error instanceof BackendApiError) {
+        return {
+          success: false as const,
+          message: error.message,
+          status: error.status,
+        };
+      }
+
+      throw error;
+    }
+  });
 
 export class CreateWebPayError extends Error {
   constructor(
@@ -28,32 +57,11 @@ export class CreateWebPayError extends Error {
 export async function createWebPay(
   createWebPayDto: CreateWebPayDto,
 ): Promise<CreateWebPayResponse> {
-  try {
-    const { data } = await apiClient.post<CreateWebPayResponse>(
-      "/webpay",
-      createWebPayDto,
-    );
+  const result = await createWebPayServerFn({ data: createWebPayDto });
 
-    return data;
-  } catch (error: unknown) {
-    if (axios.isAxiosError<ApiErrorResponse>(error)) {
-      const apiMessage = error.response?.data.message;
-      const message = Array.isArray(apiMessage)
-        ? apiMessage.join(" ")
-        : apiMessage;
-
-      throw new CreateWebPayError(
-        message ?? "No fue posible iniciar el pago con Webpay.",
-        error.response?.status,
-      );
-    }
-
-    if (error instanceof Error) {
-      throw error;
-    }
-
-    throw new CreateWebPayError(
-      "Ocurrió un error inesperado al iniciar el pago.",
-    );
+  if (!result.success) {
+    throw new CreateWebPayError(result.message, result.status);
   }
+
+  return result.data;
 }
