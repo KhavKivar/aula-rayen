@@ -112,6 +112,7 @@ export function CourseFormDialog({
       form.reset(defaultValues as never);
       createMutation.reset();
       updateMutation.reset();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setValidationError(null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
