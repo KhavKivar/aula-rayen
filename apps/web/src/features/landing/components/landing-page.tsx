@@ -9,7 +9,8 @@ import {
   PencilRuler,
   Sparkles,
 } from "lucide-react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
+
 import {
   benefits,
   courses,
@@ -17,8 +18,10 @@ import {
   methodSteps,
   siteContent,
 } from "@/config/static-content";
-import { useSession } from "@/lib/auth-client";
+
 import { Navbar } from "@/components/ui/navbar";
+import { useQuery } from "@tanstack/react-query";
+import { queries } from "@/config/queries";
 
 function ExternalInstagramLink({
   className,
@@ -44,13 +47,11 @@ function ExternalInstagramLink({
   );
 }
 
-export const Route = createFileRoute("/")({
-  component: Home,
-});
+export function LandingPage() {
+  // const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useQuery(queries.session);
 
-function Home() {
-  const { data: session, isPending } = useSession();
-  const isLoggedIn = Boolean(session);
+  const isLoggedIn = Boolean(session?.user);
 
   return (
     <main className="overflow-x-clip bg-background text-foreground">

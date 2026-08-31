@@ -5,4 +5,4 @@ export const authClient = createAuthClient({
   baseURL: env.VITE_PUBLIC_AUTH_URL,
 });
 
-export const { signIn, signUp, signOut, useSession } = authClient;
+export const { signIn, signUp, signOut, useSession, getSession } = authClient;

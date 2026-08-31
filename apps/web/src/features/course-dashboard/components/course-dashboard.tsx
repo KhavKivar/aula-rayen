@@ -4,23 +4,24 @@ import {
   LoaderCircle,
   Sparkles,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 import { AccountMenu } from "@/features/auth/components/account-menu";
-import { getCourses } from "@/features/course-dashboard/api/get-courses";
+
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
 import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
+
+import { ErrorBoundary } from "react-error-boundary";
+import { queries } from "@/config/queries";
 
 type Tab = "catalog" | "manage";
 
 export function CourseDashboard() {
+  const { data: courses } = useSuspenseQuery(queries.courses);
+
   const [activeTab, setActiveTab] = useState<Tab>("catalog");
-  const coursesQuery = useQuery({
-    queryKey: ["courses"],
-    queryFn: getCourses,
-  });
 
   return (
     <main className="min-h-svh overflow-x-clip bg-[#f7f4ec] text-[#294944]">
@@ -49,7 +50,8 @@ export function CourseDashboard() {
           </div>
           <div className="relative max-w-3xl">
             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#f0c972]">
-              <Sparkles size={15} aria-hidden="true" /> Formación para tu práctica
+              <Sparkles size={15} aria-hidden="true" /> Formación para tu
+              práctica
             </p>
             <h1 className="mt-4 font-heading text-4xl font-semibold leading-tight tracking-[-0.04em] sm:text-5xl">
               Cursos disponibles
@@ -106,28 +108,34 @@ export function CourseDashboard() {
                 role="tabpanel"
                 aria-labelledby="tab-catalog"
               >
-                {coursesQuery.isPending ? (
-                  <div
-                    role="status"
-                    className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
-                  >
-                    <LoaderCircle
-                      className="animate-spin"
-                      aria-hidden="true"
-                    />
-                    Cargando cursos…
-                  </div>
-                ) : coursesQuery.isError ? (
-                  <div
-                    role="alert"
-                    className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
-                  >
-                    <AlertCircle aria-hidden="true" />
-                    No fue posible cargar los cursos. Inténtalo nuevamente.
-                  </div>
-                ) : (
-                  <CourseCatalog courses={coursesQuery.data} />
-                )}
+                <ErrorBoundary
+                  fallback={
+                    <div
+                      role="alert"
+                      className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+                    >
+                      <AlertCircle aria-hidden="true" />
+                      No fue posible cargar los cursos. Inténtalo nuevamente.
+                    </div>
+                  }
+                ></ErrorBoundary>
+                <Suspense
+                  fallback={
+                    <div
+                      role="status"
+                      className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+                    >
+                      <LoaderCircle
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                      Cargando cursos…
+                    </div>
+                  }
+                >
+                  <CourseCatalog courses={courses} />
+                </Suspense>
+                : coursesQuery.isError ? ( )
               </div>
             ) : (
               <div

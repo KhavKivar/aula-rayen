@@ -2,7 +2,7 @@ import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
 import "@fontsource-variable/plus-jakarta-sans";
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   HeadContent,
   Outlet,
   Scripts,
@@ -10,8 +10,8 @@ import {
 
 import { env } from "@/config/env";
 import { siteContent } from "@/config/static-content";
-import { Providers } from "@/app/-providers";
-import appCss from "@/app/globals.css?url";
+import appCss from "@/styles/app.css?url";
+import { QueryClient } from "@tanstack/react-query";
 
 const title = `${siteContent.brandName} | Talleres para profesionales de la psicología`;
 const description =
@@ -21,7 +21,11 @@ const socialImage = new URL(
   env.VITE_PUBLIC_SITE_URL,
 ).toString();
 
-export const Route = createRootRoute({
+interface RouterContext {
+  queryClient: QueryClient;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -61,9 +65,7 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body className="flex min-h-full flex-col">
-        <Providers>
-          <Outlet />
-        </Providers>
+        <Outlet />
         <Scripts />
       </body>
     </html>

@@ -2,14 +2,14 @@
 
 ## Arquitectura
 
-El flujo de dependencias es `shared → features → app`:
+El flujo de dependencias es `shared → features → routes`:
 
-- `src/app`: rutas de TanStack Router, documento raíz, providers y composición.
+- `src/routes`: rutas de TanStack Router, documento raíz, providers y composición.
 - `src/features`: lógica de dominio autocontenida.
 - `src/components`, `config`, `hooks`, `lib`, `testing`, `types` y `utils`:
-  módulos compartidos que no dependen de features ni de app.
+  módulos compartidos que no dependen de features ni de routes.
 
-No importes internals entre features. Compón features desde `app`, usa imports
+No importes internals entre features. Compón features desde `routes`, usa imports
 directos en vez de barrel files y añade una zona ESLint al crear un feature.
 
 ## Librerías

@@ -8,9 +8,9 @@ vi.mock("@/lib/auth-client", () => ({
   authClient: { getSession: getSessionMock },
 }));
 
-import { Route } from "@/app/_protected";
+import { Route } from "@/routes/_authenticated";
 
-describe("protected route layout", () => {
+describe("authenticated route layout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

@@ -25,7 +25,7 @@ tests y despliegue existentes.
 ## Stack técnico
 
 - React 19 y TypeScript estricto.
-- TanStack Start y TanStack Router con rutas basadas en archivos bajo `src/app`.
+- TanStack Start y TanStack Router con rutas basadas en archivos bajo `src/routes`.
 - Vite y `@vitejs/plugin-react`.
 - Tailwind CSS 4 mediante `@tailwindcss/vite`.
 - `@cloudflare/vite-plugin` y Wrangler para Cloudflare Workers.
@@ -49,12 +49,12 @@ pnpm preview
 ## Estructura del proyecto
 
 ```text
-src/app/__root.tsx                 layout raíz, head, estilos y providers
-src/app/index.tsx                  ruta /
-src/app/login.tsx                  ruta /login
-src/app/register.tsx               ruta /register
-src/app/dashboard.tsx              ruta /dashboard
-src/app/api/auth/$.ts              proxy catch-all de Better Auth
+src/routes/__root.tsx              layout raíz, head, estilos y providers
+src/routes/index.tsx               ruta /
+src/routes/login.tsx               ruta /login
+src/routes/register.tsx            ruta /register
+src/routes/dashboard.tsx           ruta /dashboard
+src/routes/api/auth/$.ts           proxy catch-all de Better Auth
 src/router.tsx                     creación y registro del router
 src/routeTree.gen.ts               árbol generado por el plugin de TanStack Router
 src/features/                      dominio existente, sin cruces entre features

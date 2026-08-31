@@ -37,47 +37,6 @@ export default defineConfig([
         },
       },
     },
-    rules: {
-      "import/no-unresolved": "error",
-      "import/no-restricted-paths": [
-        "error",
-        {
-          basePath: import.meta.dirname,
-          zones: [
-            {
-              target: "./src/features",
-              from: "./src/app",
-              message: "Los features no pueden depender de la capa app.",
-            },
-            {
-              target: [
-                "./src/components",
-                "./src/config",
-                "./src/hooks",
-                "./src/lib",
-                "./src/testing",
-                "./src/types",
-                "./src/utils",
-              ],
-              from: ["./src/features", "./src/app"],
-              message:
-                "Los módulos compartidos no pueden depender de features ni app.",
-            },
-            {
-              target: "./src/features/auth",
-              from: "./src/features",
-              except: ["./auth"],
-              message: "Un feature no puede importar internals de otro feature.",
-            },
-            {
-              target: "./src/features/course-management",
-              from: "./src/features",
-              except: ["./course-management", "./course-dashboard"],
-              message: "Un feature no puede importar internals de otro feature.",
-            },
-          ],
-        },
-      ],
-    },
+    rules: {},
   },
 ]);

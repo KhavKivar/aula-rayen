@@ -11,11 +11,7 @@ export default defineConfig({
   },
   plugins: [
     cloudflare({ viteEnvironment: { name: "ssr" } }),
-    tanstackStart({
-      router: {
-        routesDirectory: "app",
-      },
-    }),
+    tanstackStart(),
     tailwindcss(),
     viteReact(),
   ],
