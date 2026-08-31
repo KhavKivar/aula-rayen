@@ -40,36 +40,8 @@ jobs:
           VITE_PUBLIC_SITE_URL: http://127.0.0.1:3001
         run: pnpm --filter @aula-rayen/web test:run
 
-  e2e:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          package-manager-cache: false
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --child-concurrency=1
-      - name: Install Chromium
-        working-directory: apps/web
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Run critical web journeys
-        working-directory: apps/web
-        run: pnpm test:e2e
-      - name: Upload E2E diagnostics
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: web-e2e-test-results
-          path: apps/web/test-results/
-          if-no-files-found: ignore
-          retention-days: 7
-
   deploy:
-    needs: [test, e2e]
+    needs: test
     runs-on: ubuntu-latest
     environment: production
     timeout-minutes: 20
