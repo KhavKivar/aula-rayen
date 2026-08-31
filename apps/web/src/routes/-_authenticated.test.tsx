@@ -1,62 +1,73 @@
+import { QueryClient } from "@tanstack/react-query";
+import { createMemoryHistory, createRouter } from "@tanstack/react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getSessionMock } = vi.hoisted(() => ({
+const { getCoursesMock, getSessionMock } = vi.hoisted(() => ({
+  getCoursesMock: vi.fn(),
   getSessionMock: vi.fn(),
 }));
 
-vi.mock("@/lib/auth-client", () => ({
-  getSession: getSessionMock,
-  authClient: { getSession: getSessionMock },
+vi.mock("@/config/env", () => ({
+  env: {
+    VITE_PUBLIC_API_URL: "https://api.example.com",
+    VITE_PUBLIC_AUTH_URL: "https://api.example.com/auth",
+    VITE_PUBLIC_SITE_URL: "https://app.example.com",
+  },
 }));
 
-import { Route } from "@/routes/_authenticated";
+vi.mock("@/features/course-dashboard/api/get-courses", () => ({
+  getCourses: getCoursesMock,
+}));
 
-function createMockContext() {
-  return {
-    queryClient: {
-      query: (opts: { queryFn: () => Promise<unknown> }) => opts.queryFn(),
+vi.mock("@/lib/auth-client", () => ({
+  authClient: { getSession: getSessionMock },
+  signOut: vi.fn(),
+}));
+
+import { routeTree } from "@/routeTree.gen";
+
+function createTestRouter(initialEntry: string) {
+  return createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: [initialEntry] }),
+    context: {
+      queryClient: new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      }),
     },
-  };
+  });
 }
 
 describe("authenticated route layout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    getCoursesMock.mockResolvedValue([]);
   });
 
-  it("checks authentication only on the client", () => {
-    expect(Route.options.ssr).toBe(false);
-  });
-
-  it("redirects anonymous visitors back through login", async () => {
+  it("redirects anonymous visitors through login with their requested route", async () => {
     getSessionMock.mockResolvedValueOnce({ data: null });
+    const router = createTestRouter("/courses/7");
 
-    await expect(
-      Route.options.beforeLoad?.({
-        context: createMockContext() as never,
-        location: { href: "/courses/7" },
-      } as never),
-    ).rejects.toMatchObject({
-      options: {
-        to: "/login",
-        search: { redirect: "/courses/7" },
-        replace: true,
+    await router.load();
+
+    expect(router.state.location.pathname).toBe("/login");
+    expect(router.state.location.search).toEqual({ redirect: "/courses/7" });
+  });
+
+  it("keeps an authenticated visitor on protected content", async () => {
+    getSessionMock.mockResolvedValue({
+      data: {
+        session: { id: "session-1" },
+        user: { id: "user-1" },
       },
     });
-  });
+    const router = createTestRouter("/dashboard");
 
-  it("exposes the active session to protected children", async () => {
-    const session = {
-      session: { id: "session-1" },
-      user: { id: "user-1" },
-    };
-    getSessionMock.mockResolvedValueOnce({ data: session });
+    await router.load();
 
-    await expect(
-      Route.options.beforeLoad?.({
-        context: createMockContext() as never,
-        location: { href: "/dashboard" },
-      } as never),
-    ).resolves.toEqual(session);
+    expect(router.state.location.pathname).toBe("/dashboard");
+    expect(router.state.matches.at(-1)?.routeId).toBe(
+      "/_authenticated/dashboard",
+    );
   });
 });

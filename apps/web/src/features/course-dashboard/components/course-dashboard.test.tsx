@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -21,14 +22,6 @@ vi.mock("@/features/course-dashboard/api/get-courses", () => ({
   getCourses: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock("@/features/course-dashboard/components/course-catalog", () => ({
-  CourseCatalog: () => null,
-}));
-
-vi.mock("@/features/course-management/components/course-management-panel", () => ({
-  CourseManagementPanel: () => <div data-testid="management-panel" />,
-}));
-
 vi.mock("@/lib/auth-client", () => ({
   signOut: vi.fn(),
 }));
@@ -46,5 +39,25 @@ describe("CourseDashboard", () => {
     expect(
       screen.queryByRole("menuitem", { name: "Cerrar sesión" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("switches between its real catalog and management panels", async () => {
+    const user = userEvent.setup();
+    render(<CourseDashboard />);
+
+    expect(
+      await screen.findByRole("tabpanel", { name: "Ver cursos" }),
+    ).toBeVisible();
+
+    await user.click(
+      screen.getByRole("tab", { name: "Gestionar cursos" }),
+    );
+
+    expect(
+      screen.getByRole("tabpanel", { name: "Gestionar cursos" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "Gestionar cursos" }),
+    ).toBeVisible();
   });
 });
