@@ -8,14 +8,22 @@ export const queries = {
     queryFn: async () => {
       const session = await getSession();
 
+      if (!session.data?.session || !session.data?.user) {
+        return null;
+      }
+
       return {
-        user: session.data?.user,
-        session: session.data?.session,
+        user: session.data.user,
+        session: session.data.session,
       };
     },
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   }),
   courses: queryOptions({
     queryKey: ["courses"],
     queryFn: getCourses,
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 30,
   }),
 };

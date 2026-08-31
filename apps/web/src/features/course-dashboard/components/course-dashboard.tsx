@@ -7,20 +7,22 @@ import {
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Suspense, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
 
 import { AccountMenu } from "@/features/auth/components/account-menu";
-
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
 import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
-
-import { ErrorBoundary } from "react-error-boundary";
 import { queries } from "@/config/queries";
 
 type Tab = "catalog" | "manage";
 
-export function CourseDashboard() {
+function CatalogContent() {
   const { data: courses } = useSuspenseQuery(queries.courses);
 
+  return <CourseCatalog courses={courses} />;
+}
+
+export function CourseDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("catalog");
 
   return (
@@ -118,24 +120,24 @@ export function CourseDashboard() {
                       No fue posible cargar los cursos. Inténtalo nuevamente.
                     </div>
                   }
-                ></ErrorBoundary>
-                <Suspense
-                  fallback={
-                    <div
-                      role="status"
-                      className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
-                    >
-                      <LoaderCircle
-                        className="animate-spin"
-                        aria-hidden="true"
-                      />
-                      Cargando cursos…
-                    </div>
-                  }
                 >
-                  <CourseCatalog courses={courses} />
-                </Suspense>
-                : coursesQuery.isError ? ( )
+                  <Suspense
+                    fallback={
+                      <div
+                        role="status"
+                        className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+                      >
+                        <LoaderCircle
+                          className="animate-spin"
+                          aria-hidden="true"
+                        />
+                        Cargando cursos…
+                      </div>
+                    }
+                  >
+                    <CatalogContent />
+                  </Suspense>
+                </ErrorBoundary>
               </div>
             ) : (
               <div

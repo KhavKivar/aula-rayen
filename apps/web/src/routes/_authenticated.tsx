@@ -4,11 +4,10 @@ import { queries } from "@/config/queries";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, location }) => {
     const session = await context.queryClient.ensureQueryData(queries.session);
-    // const { data: session } = await authClient.getSession();
 
-    if (!session) {
+    if (!session?.session || !session?.user) {
       throw redirect({
         to: "/login",
         search: {

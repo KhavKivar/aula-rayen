@@ -3,18 +3,15 @@ import { AlertCircle, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { getCourses } from "@/features/course-dashboard/api/get-courses";
 import { getCourse } from "@/features/course-dashboard/api/get-course";
+import { queries } from "@/config/queries";
 import { CourseFormDialog } from "@/features/course-management/components/course-form-dialog";
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 
 export function CourseManagementPanel() {
   const queryClient = useQueryClient();
-  const coursesQuery = useQuery({
-    queryKey: ["courses"],
-    queryFn: getCourses,
-  });
+  const coursesQuery = useQuery(queries.courses);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editCourse, setEditCourse] = useState<

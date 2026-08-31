@@ -5,10 +5,20 @@ const { getSessionMock } = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/auth-client", () => ({
+  getSession: getSessionMock,
   authClient: { getSession: getSessionMock },
 }));
 
 import { Route } from "@/routes/_authenticated";
+
+function createMockContext() {
+  return {
+    queryClient: {
+      ensureQueryData: (opts: { queryFn: () => Promise<unknown> }) =>
+        opts.queryFn(),
+    },
+  };
+}
 
 describe("authenticated route layout", () => {
   beforeEach(() => {
@@ -24,6 +34,7 @@ describe("authenticated route layout", () => {
 
     await expect(
       Route.options.beforeLoad?.({
+        context: createMockContext() as never,
         location: { href: "/courses/7" },
       } as never),
     ).rejects.toMatchObject({
@@ -44,6 +55,7 @@ describe("authenticated route layout", () => {
 
     await expect(
       Route.options.beforeLoad?.({
+        context: createMockContext() as never,
         location: { href: "/dashboard" },
       } as never),
     ).resolves.toEqual(session);
