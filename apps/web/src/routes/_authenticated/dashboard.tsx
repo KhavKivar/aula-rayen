@@ -6,7 +6,10 @@ import { queries } from "@/config/queries";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: CourseDashboard,
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(queries.courses);
+  loader: ({ context }) => {
+    context.queryClient.query({
+      ...queries.courses,
+      staleTime: "static",
+    });
   },
 });

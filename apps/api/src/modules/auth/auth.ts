@@ -71,8 +71,8 @@ export const auth = betterAuth({
     max: 100,
     customRules: {
       '/sign-in/email': {
-        window: 10,
-        max: 3,
+        window: 15,
+        max: 15,
       },
       '/request-password-reset': PASSWORD_RESET_RATE_LIMIT,
     },

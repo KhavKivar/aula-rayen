@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { LogOut, UserRound } from "lucide-react";
 
@@ -12,10 +12,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
+import { queries } from "@/config/queries";
 
 export function AccountMenu() {
   const navigate = useNavigate();
   const router = useRouter();
+  const queryClient = useQueryClient();
+
   const logoutMutation = useMutation<void, Error>({
     mutationFn: async () => {
       const { error } = await signOut();
@@ -25,6 +28,9 @@ export function AccountMenu() {
       }
     },
     onSuccess: async () => {
+      queryClient.invalidateQueries({
+        queryKey: queries.session.queryKey,
+      });
       await navigate({ to: "/", replace: true });
       await router.invalidate();
     },

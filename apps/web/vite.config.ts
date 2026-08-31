@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import { devtools } from "@tanstack/devtools-vite";
 
 export default defineConfig({
   envPrefix: "VITE_PUBLIC_",
@@ -14,5 +15,8 @@ export default defineConfig({
     tanstackStart(),
     tailwindcss(),
     viteReact(),
+    devtools({
+      removeDevtoolsOnBuild: false,
+    }),
   ],
 });

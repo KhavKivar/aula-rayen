@@ -1,13 +1,12 @@
 import { getCourses } from "@/features/course-dashboard/api/get-courses";
-import { getSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 import { queryOptions } from "@tanstack/react-query";
 
 export const queries = {
   session: queryOptions({
-    queryKey: ["user"],
+    queryKey: ["session"],
     queryFn: async () => {
-      const session = await getSession();
-
+      const session = await authClient.getSession();
       if (!session.data?.session || !session.data?.user) {
         return null;
       }
@@ -17,7 +16,7 @@ export const queries = {
         session: session.data.session,
       };
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
     gcTime: 1000 * 60 * 30,
   }),
   courses: queryOptions({

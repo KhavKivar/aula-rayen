@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
-import { Link, useRouter } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,36 @@ import {
   loginSchema,
   type LoginCredentials,
 } from "@/features/auth/schemas/login-schema";
-import { useSession } from "@/lib/auth-client";
 
-export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }) {
+import { queries } from "@/config/queries";
+
+export function LoginForm({
+  redirectTo = "/dashboard",
+}: {
+  redirectTo?: string;
+}) {
   const router = useRouter();
 
-  const { refetch: refetchSession } = useSession();
-  const loginMutation = useMutation<void, AuthError, LoginCredentials>({
+  // const { refetch: refetchSession } = useSession();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const loginMutation = useMutation<
+    Awaited<ReturnType<typeof login>>,
+    AuthError,
+    LoginCredentials
+  >({
     mutationFn: login,
+
     onSuccess: async () => {
-      await refetchSession();
+      // await refetchSession();
+
+      // await router.invalidate();
+      // router.history.push(redirectTo);
+      await queryClient.invalidateQueries({
+        queryKey: queries.session.queryKey,
+      });
       await router.invalidate();
-      router.history.push(redirectTo);
+      await navigate({ to: redirectTo, replace: true });
     },
   });
 
@@ -40,7 +58,7 @@ export function LoginForm({ redirectTo = "/dashboard" }: { redirectTo?: string }
     validators: {
       onSubmit: loginSchema,
     },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       loginMutation.mutate(value);
     },
   });

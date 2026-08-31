@@ -14,8 +14,7 @@ import { Route } from "@/routes/_authenticated";
 function createMockContext() {
   return {
     queryClient: {
-      ensureQueryData: (opts: { queryFn: () => Promise<unknown> }) =>
-        opts.queryFn(),
+      query: (opts: { queryFn: () => Promise<unknown> }) => opts.queryFn(),
     },
   };
 }

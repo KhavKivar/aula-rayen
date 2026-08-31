@@ -6,13 +6,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import { render } from "@/testing/test-utils";
 
-const { loginMock, loginWithGoogleMock, refetchSessionMock, routerMock } =
+const { loginMock, loginWithGoogleMock, navigateMock, routerMock } =
   vi.hoisted(() => ({
     loginMock: vi.fn(),
     loginWithGoogleMock: vi.fn(),
-    refetchSessionMock: vi.fn(),
+    navigateMock: vi.fn(),
     routerMock: {
-      history: { push: vi.fn() },
       invalidate: vi.fn(),
     },
   }));
@@ -26,11 +25,8 @@ vi.mock("@tanstack/react-router", () => ({
   Link: ({ children, to }: { children: ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
+  useNavigate: () => navigateMock,
   useRouter: () => routerMock,
-}));
-
-vi.mock("@/lib/auth-client", () => ({
-  useSession: () => ({ refetch: refetchSessionMock }),
 }));
 
 import { LoginForm } from "@/features/auth/components/login-form";
@@ -99,9 +95,11 @@ describe("LoginForm", () => {
     loginResult.resolve();
 
     await waitFor(() => {
-      expect(refetchSessionMock).toHaveBeenCalledOnce();
       expect(routerMock.invalidate).toHaveBeenCalledOnce();
-      expect(routerMock.history.push).toHaveBeenCalledWith("/dashboard");
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: "/dashboard",
+        replace: true,
+      });
     });
   });
 
@@ -118,7 +116,10 @@ describe("LoginForm", () => {
     await user.click(screen.getByRole("button", { name: "Ingresar" }));
 
     await waitFor(() =>
-      expect(routerMock.history.push).toHaveBeenCalledWith("/courses/7"),
+      expect(navigateMock).toHaveBeenCalledWith({
+        to: "/courses/7",
+        replace: true,
+      }),
     );
   });
 
@@ -139,6 +140,6 @@ describe("LoginForm", () => {
     expect(
       await screen.findByText("Correo o contraseña incorrectos."),
     ).toHaveAttribute("role", "alert");
-    expect(routerMock.history.push).not.toHaveBeenCalled();
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 });

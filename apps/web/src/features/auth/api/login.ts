@@ -3,16 +3,17 @@ import { signIn } from "@/lib/auth-client";
 import { AuthError, toAuthError } from "@/features/auth/errors/auth-error";
 import type { LoginCredentials } from "@/features/auth/schemas/login-schema";
 
-export async function login(credentials: LoginCredentials): Promise<void> {
+export async function login(credentials: LoginCredentials) {
   try {
-    const { error } = await signIn.email({
+    const { data, error } = await signIn.email({
       email: credentials.email,
       password: credentials.password,
     });
-
     if (error) {
       throw toAuthError(error, "No fue posible iniciar sesión.");
     }
+
+    return data;
   } catch (error) {
     if (error instanceof AuthError) {
       throw error;

@@ -12,6 +12,9 @@ import { env } from "@/config/env";
 import { siteContent } from "@/config/static-content";
 import appCss from "@/styles/app.css?url";
 import { QueryClient } from "@tanstack/react-query";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 const title = `${siteContent.brandName} | Talleres para profesionales de la psicología`;
 const description =
@@ -67,6 +70,18 @@ function RootDocument() {
       <body className="flex min-h-full flex-col">
         <Outlet />
         <Scripts />
+        <TanStackDevtools
+          plugins={[
+            {
+              name: "TanStack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
+            {
+              name: "TanStack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
       </body>
     </html>
   );
