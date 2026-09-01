@@ -13,7 +13,7 @@ Use development-only credentials locally. Production secrets must be supplied by
 ## Cross-subdomain sessions
 
 Production deployments whose frontend and API use sibling subdomains must set
-`BETTER_AUTH_COOKIE_DOMAIN` to their shared parent hostname. Use a hostname only,
+`DOMAIN` to their shared parent hostname. Use a hostname only,
 without a protocol, port, or path. Local development should leave the variable
 unset so Better Auth continues to issue host-only cookies.
 

@@ -21,7 +21,6 @@ export const envSchema = z
     FRONTEND_URL: z.url().default('http://localhost:3001'),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
-    BETTER_AUTH_COOKIE_DOMAIN: hostnameSchema.optional(),
     DOMAIN: hostnameSchema.optional(),
 
     GOOGLE_CLIENT_ID: z.string().min(1),
@@ -52,16 +51,11 @@ export const envSchema = z
       });
     }
 
-    if (
-      values.NODE_ENV === 'production' &&
-      !values.BETTER_AUTH_COOKIE_DOMAIN &&
-      !values.DOMAIN
-    ) {
+    if (values.NODE_ENV === 'production' && !values.DOMAIN) {
       ctx.addIssue({
         code: 'custom',
-        path: ['BETTER_AUTH_COOKIE_DOMAIN'],
-        message:
-          'BETTER_AUTH_COOKIE_DOMAIN o DOMAIN es obligatorio en producción',
+        path: ['DOMAIN'],
+        message: 'DOMAIN es obligatorio en producción',
       });
     }
 

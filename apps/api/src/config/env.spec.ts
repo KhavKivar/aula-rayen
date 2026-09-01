@@ -17,17 +17,17 @@ describe('environment configuration', () => {
     const result = envSchema.parse({
       ...validEnvironment,
       NODE_ENV: 'production',
-      BETTER_AUTH_COOKIE_DOMAIN: 'Example.COM',
+      DOMAIN: 'Example.COM',
     });
 
-    expect(result.BETTER_AUTH_COOKIE_DOMAIN).toBe('example.com');
+    expect(result.DOMAIN).toBe('example.com');
   });
 
   it('allows local development to omit the cookie domain', () => {
     const result = envSchema.parse(validEnvironment);
 
     expect(result.NODE_ENV).toBe('development');
-    expect(result.BETTER_AUTH_COOKIE_DOMAIN).toBeUndefined();
+    expect(result.DOMAIN).toBeUndefined();
   });
 
   it('accepts an auth URL whose path matches the mounted path', () => {
@@ -65,7 +65,7 @@ describe('environment configuration', () => {
     if (!result.success) {
       expect(result.error.issues).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ path: ['BETTER_AUTH_COOKIE_DOMAIN'] }),
+          expect.objectContaining({ path: ['DOMAIN'] }),
         ]),
       );
     }
@@ -80,7 +80,7 @@ describe('environment configuration', () => {
   ])('rejects invalid cookie domain %s', (domain) => {
     const result = envSchema.safeParse({
       ...validEnvironment,
-      BETTER_AUTH_COOKIE_DOMAIN: domain,
+      DOMAIN: domain,
     });
 
     expect(result.success).toBe(false);

@@ -38,11 +38,11 @@ export const auth = betterAuth({
   basePath: env.BASE_PATH,
   trustedOrigins: [env.FRONTEND_URL, 'http://localhost:3001'],
   advanced: {
-    ...((env.DOMAIN ?? env.BETTER_AUTH_COOKIE_DOMAIN)
+    ...(env.DOMAIN
       ? {
           crossSubDomainCookies: {
             enabled: true,
-            domain: env.DOMAIN ?? env.BETTER_AUTH_COOKIE_DOMAIN,
+            domain: env.DOMAIN,
           },
         }
       : {}),
