@@ -50,24 +50,25 @@ export class WebPayRepository {
       | 'installmentsNumber'
     >,
   ): Promise<WebPaySession | null> {
-    await this.db.batch([
-      this.db
+    return this.db.transaction(async (tx) => {
+      const [webPaySession] = await tx
         .update(webpay_sessions)
         .set({
           ...response,
           committedAt: new Date(),
         })
         .where(eq(webpay_sessions.buyOrderId, buyOrderId))
-        .returning({ buyOrderId: webpay_sessions.buyOrderId }),
-      this.db
+        .returning();
+
+      await tx
         .insert(course_purchases)
         .values({
           userId,
           courseId,
         })
-        .onConflictDoNothing(),
-    ]);
+        .onConflictDoNothing();
 
-    return this.findById(buyOrderId);
+      return webPaySession ?? null;
+    });
   }
 }

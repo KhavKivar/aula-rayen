@@ -13,6 +13,7 @@ async function bootstrap() {
   });
   app.use(helmet());
   app.useLogger(app.get(Logger));
+  app.enableShutdownHooks();
 
   app.enableCors({
     origin: [env.FRONTEND_URL, 'http://localhost:3001'],

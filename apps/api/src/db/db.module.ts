@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, type OnApplicationShutdown } from '@nestjs/common';
 
-import { db, DRIZZLE } from './index';
+import { db, DRIZZLE, pool } from './index';
 
 @Global()
 @Module({
@@ -12,4 +12,8 @@ import { db, DRIZZLE } from './index';
   ],
   exports: [DRIZZLE],
 })
-export class DbModule {}
+export class DbModule implements OnApplicationShutdown {
+  async onApplicationShutdown() {
+    await pool.end();
+  }
+}

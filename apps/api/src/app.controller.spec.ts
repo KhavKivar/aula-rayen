@@ -24,4 +24,10 @@ describe('AppController', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
   });
+
+  describe('health', () => {
+    it('should report that the API is available', () => {
+      expect(appController.health()).toEqual({ status: 'ok' });
+    });
+  });
 });

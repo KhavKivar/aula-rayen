@@ -25,6 +25,7 @@ ENV NODE_ENV=production
 
 COPY --from=build /prod ./
 COPY --from=build /app/apps/api/dist ./dist
+COPY --from=build /app/apps/api/drizzle ./drizzle
 
 EXPOSE 3000
 

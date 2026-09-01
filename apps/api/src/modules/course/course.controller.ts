@@ -75,10 +75,7 @@ export class CourseController {
   }
 
   @Delete(':id')
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-    @Session() _session: UserSession,
-  ): Promise<CourseDetail> {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<CourseDetail> {
     const course = await this.courseService.remove(id);
 
     return toCourseDetail(course);
