@@ -57,14 +57,12 @@ pnpm test
 pnpm build
 ```
 
-This repository is a portfolio snapshot. Deployment credentials, production environment values, and third-party secrets are intentionally excluded.
+Deployment credentials, private environment values, and third-party secrets are intentionally excluded from this public repository.
 
 ## Production content
 
-The public repository ships with a fictional professional profile in
-`apps/web/src/config/site-content.json`. Production replaces that single file
-during CI with validated content from a separate private deployment repository.
-
-This keeps names, biographies, social profiles, and profile assets out of the
-public Git history while preserving a reproducible build. Runtime credentials
-remain deployment secrets and are never stored in either content file.
+Public production copy and metadata live in
+`apps/web/src/config/site-content.json`, with its JSON Schema beside it. GitHub
+Actions builds that content directly from this monorepo. Runtime credentials and
+private environment values remain deployment secrets and are never stored in the
+content file.

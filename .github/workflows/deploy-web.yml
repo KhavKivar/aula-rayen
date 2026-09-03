@@ -46,30 +46,13 @@ jobs:
     environment: production
     timeout-minutes: 20
     steps:
-      - name: Check out public application
+      - name: Check out application
         uses: actions/checkout@v5
-
-      - name: Check out private production content
-        uses: actions/checkout@v5
-        with:
-          repository: KhavKivar/fullstack-learning-platform-deploy
-          ref: main
-          path: .private-deployment
-          ssh-key: ${{ secrets.PRIVATE_DEPLOY_REPO_SSH_KEY }}
-          persist-credentials: false
 
       - uses: actions/setup-node@v5
         with:
           node-version: 24
           package-manager-cache: false
-
-      - name: Validate private content
-        working-directory: .private-deployment
-        run: npm run validate
-
-      - name: Materialize production content
-        working-directory: .private-deployment
-        run: npm run materialize -- "$GITHUB_WORKSPACE"
 
       - name: Validate deployment configuration
         env:

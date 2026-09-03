@@ -1,30 +1,31 @@
 {
+  "$schema": "./site-content.schema.json",
   "version": 1,
-  "isDemo": true,
+  "isDemo": false,
   "brand": {
     "name": "Aula Rayen"
   },
   "professional": {
-    "name": "Elena Montes",
-    "shortName": "Elena",
-    "title": "Profesional de demostración",
+    "name": "Pamela Rayen Calderón",
+    "shortName": "Pamela",
+    "title": "Psicóloga y tallerista",
     "biography": [
-      "Profesional ficticia especializada en experiencias educativas y recursos creativos para el trabajo con grupos.",
-      "Este perfil utiliza contenido demostrativo para presentar la arquitectura y el diseño de la plataforma sin exponer datos personales."
+      "Psicóloga y Magíster en Salud y Arteterapia, con experiencia en atención clínica infantojuvenil y familiar.",
+      "Su trabajo integra psicoterapia, psicoeducación y recursos creativos desde un enfoque inclusivo, respetuoso y atento a cada etapa del desarrollo."
     ],
     "credentials": [
-      "Perfil profesional ficticio",
-      "Formación de posgrado de demostración",
-      "Experiencia educativa simulada",
-      "Contenido creado exclusivamente para este repositorio"
+      "Psicóloga, Universidad de Tarapacá",
+      "Magíster en Salud y Arteterapia",
+      "Experiencia clínica infantojuvenil y familiar",
+      "Formación en psicoterapia grupal psicodramática"
     ]
   },
   "social": {
-    "instagramUrl": null,
-    "instagramHandle": null
+    "instagramUrl": "https://www.instagram.com/psicologa_rayen/",
+    "instagramHandle": "@psicologa_rayen"
   },
   "assets": {
-    "profileImageUrl": "/profile-placeholder.svg",
-    "profileImageAlt": "Ilustración abstracta de una profesional ficticia"
+    "profileImageUrl": "https://pixel-p1.s3.sa-east-1.amazonaws.com/doctor/avatar/7b3083e4/7b3083e4-e03c-4559-8d7f-e36d6a781454_large.jpg",
+    "profileImageAlt": "Retrato profesional de la psicóloga Pamela Rayen Calderón"
   }
 }
