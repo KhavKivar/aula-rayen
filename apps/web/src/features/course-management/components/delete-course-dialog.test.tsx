@@ -60,6 +60,6 @@ describe("DeleteCourseDialog", () => {
 
     await user.click(screen.getByRole("button", { name: "Eliminar" }));
     expect(await screen.findByRole("alert")).toBeVisible();
-    expect(screen.getByRole("dialog", { name: "Confirmar eliminación" })).toBeVisible();
+    expect(screen.getByRole("dialog", { name: "¿Eliminar curso?" })).toBeVisible();
   });
 });

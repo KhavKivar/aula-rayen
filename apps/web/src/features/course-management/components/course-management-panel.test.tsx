@@ -74,7 +74,7 @@ describe("CourseManagementPanel", () => {
     expect(await screen.findByText(course.title)).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: `Eliminar ${course.title}` }));
-    const dialog = await screen.findByRole("dialog", { name: "Confirmar eliminación" });
+    const dialog = await screen.findByRole("dialog", { name: "¿Eliminar curso?" });
     expect(dialog).toBeVisible();
     expect(dialog).toHaveTextContent(course.title);
   });

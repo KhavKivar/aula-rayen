@@ -2,9 +2,19 @@ import { CreditCard, FilterX, ReceiptText, Search } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogDescription,
+  DialogHeader,
+  DialogPopup,
+  DialogPortal,
+  DialogTitle,
+  DialogViewport,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { DemoBadge } from "@/features/admin-dashboard/components/demo-badge";
-import { DemoDialog } from "@/features/admin-dashboard/components/demo-dialog";
 import {
   demoTransactions,
   filterPayments,
@@ -79,33 +89,45 @@ function PaymentDetail({
     : [];
 
   return (
-    <DemoDialog
-      open={Boolean(payment)}
-      onOpenChange={onOpenChange}
-      title="Detalle de transacción"
-      description="Información ficticia para validar el flujo administrativo."
-      triggerId={payment ? `payment-trigger-${payment.orderId}` : undefined}
-    >
-      {payment ? (
-        <>
-          <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#f1f2ec] p-4">
-            <span className="font-mono text-sm font-semibold">{payment.orderId}</span>
-            <PaymentStatusBadge status={payment.status} />
-          </div>
-          <dl className="mt-5 divide-y divide-[#e4e8e3]">
-            {rows.map(([label, value]) => (
-              <div key={label} className="grid gap-1 py-3 sm:grid-cols-[170px_1fr]">
-                <dt className="text-sm font-semibold text-[#65746f]">{label}</dt>
-                <dd className="break-words text-sm font-medium">{value}</dd>
+    <Dialog open={Boolean(payment)} onOpenChange={onOpenChange}>
+      <DialogPortal>
+        <DialogBackdrop />
+        <DialogViewport className="items-end p-0 sm:items-center sm:p-5">
+          <DialogPopup className="rounded-b-none rounded-t-[1.75rem] sm:max-w-xl sm:rounded-[1.75rem] sm:p-7">
+            <DialogHeader>
+              <div>
+                <DialogTitle>Detalle de transacción</DialogTitle>
+                <DialogDescription>
+                  Información ficticia para validar el flujo administrativo.
+                </DialogDescription>
               </div>
-            ))}
-          </dl>
-          <div className="mt-5">
-            <DemoBadge />
-          </div>
-        </>
-      ) : null}
-    </DemoDialog>
+              <DialogClose />
+            </DialogHeader>
+            <div className="mt-6">
+              {payment ? (
+                <>
+                  <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#f1f2ec] p-4">
+                    <span className="font-mono text-sm font-semibold">{payment.orderId}</span>
+                    <PaymentStatusBadge status={payment.status} />
+                  </div>
+                  <dl className="mt-5 divide-y divide-[#e4e8e3]">
+                    {rows.map(([label, value]) => (
+                      <div key={label} className="grid gap-1 py-3 sm:grid-cols-[170px_1fr]">
+                        <dt className="text-sm font-semibold text-[#65746f]">{label}</dt>
+                        <dd className="break-words text-sm font-medium">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className="mt-5">
+                    <DemoBadge />
+                  </div>
+                </>
+              ) : null}
+            </div>
+          </DialogPopup>
+        </DialogViewport>
+      </DialogPortal>
+    </Dialog>
   );
 }
 

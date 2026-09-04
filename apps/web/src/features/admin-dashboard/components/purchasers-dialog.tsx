@@ -3,7 +3,17 @@ import { AlertCircle, LoaderCircle, Search, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
-import { DemoDialog } from "@/features/admin-dashboard/components/demo-dialog";
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogDescription,
+  DialogHeader,
+  DialogPopup,
+  DialogPortal,
+  DialogTitle,
+  DialogViewport,
+} from "@/components/ui/dialog";
 import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 import { useDeferredSearch } from "@/hooks/use-deferred-search";
 
@@ -32,19 +42,31 @@ export function PurchasersDialog({
   );
 
   return (
-    <DemoDialog
+    <Dialog
       open={isOpen}
       onOpenChange={(open) => {
         if (!open) setQuery("");
         onOpenChange(open);
       }}
-      title={`Compradores de ${course?.title ?? "curso"}`}
-      description="Personas que compraron este curso y la fecha de su compra."
-      triggerId={course ? `purchasers-trigger-${course.id}` : undefined}
-      wide
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <label className="relative block w-full sm:max-w-xs">
+      <DialogPortal>
+        <DialogBackdrop />
+        <DialogViewport className="items-end p-0 sm:items-center sm:p-5">
+          <DialogPopup className="rounded-b-none rounded-t-[1.75rem] sm:max-w-3xl sm:rounded-[1.75rem] sm:p-7">
+            <DialogHeader>
+              <div>
+                <DialogTitle>
+                  {`Compradores de ${course?.title ?? "curso"}`}
+                </DialogTitle>
+                <DialogDescription>
+                  Personas que compraron este curso y la fecha de su compra.
+                </DialogDescription>
+              </div>
+              <DialogClose />
+            </DialogHeader>
+            <div className="mt-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <label className="relative block w-full sm:max-w-xs">
           <span className="sr-only">Buscar comprador</span>
           <Search
             aria-hidden="true"
@@ -54,10 +76,11 @@ export function PurchasersDialog({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Nombre o correo"
-            className="bg-[#f1f2ec] pl-9"
-          />
-        </label>
-      </div>
+                className="bg-[#f1f2ec] pl-9"
+              />
+                </label>
+              </div>
+            </div>
 
       {purchasersQuery.isPending ? (
         <div
@@ -133,6 +156,9 @@ export function PurchasersDialog({
           </ul>
         </div>
       )}
-    </DemoDialog>
+          </DialogPopup>
+        </DialogViewport>
+      </DialogPortal>
+    </Dialog>
   );
 }
