@@ -1,5 +1,4 @@
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -11,9 +10,10 @@ import {
   updateCourseRequestSchema,
 } from "@aula-rayen/contracts/course";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
-import { createCourse } from "@/features/course-management/api/create-course";
-import { updateCourse } from "@/features/course-management/api/update-course";
-import { queryKeys } from "@/config/query-keys";
+import {
+  useCreateCourse,
+  useUpdateCourse,
+} from "@/features/course-management/api/use-course-mutations";
 
 type CourseFormDialogProps = {
   open: boolean;
@@ -30,23 +30,17 @@ export function CourseFormDialog({
   onOpenChange,
   onSuccess,
 }: CourseFormDialogProps) {
-  const queryClient = useQueryClient();
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const createMutation = useMutation({
-    mutationFn: createCourse,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
+  const createMutation = useCreateCourse({
+    onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (data: { id: number; data: Record<string, unknown> }) =>
-      updateCourse(data as never),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
+  const updateMutation = useUpdateCourse({
+    onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
     },

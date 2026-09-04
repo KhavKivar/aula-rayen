@@ -1,4 +1,5 @@
 import { signIn } from "@/lib/auth-client";
+import { env } from "@/config/env";
 
 import { AuthError, toAuthError } from "@/features/auth/errors/auth-error";
 import type { LoginCredentials } from "@/features/auth/schemas/login-schema";
@@ -27,10 +28,10 @@ export async function loginWithGoogle(redirectTo: string): Promise<void> {
   try {
     const { error } = await signIn.social({
       provider: "google",
-      callbackURL: new URL(redirectTo, window.location.origin).toString(),
+      callbackURL: new URL(redirectTo, env.VITE_PUBLIC_SITE_URL).toString(),
       errorCallbackURL: new URL(
         `/login?redirect=${encodeURIComponent(redirectTo)}`,
-        window.location.origin,
+        env.VITE_PUBLIC_SITE_URL,
       ).toString(),
     });
 

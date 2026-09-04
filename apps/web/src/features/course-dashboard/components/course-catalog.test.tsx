@@ -24,6 +24,7 @@ vi.mock("@/features/course-dashboard/api/create-webpay", () => ({
 }));
 
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
+import { createWebPay } from "@/features/course-dashboard/api/create-webpay";
 import type { Course } from "@/features/course-dashboard/types/course";
 import { render } from "@/testing/test-utils";
 
@@ -80,6 +81,22 @@ describe("CourseCatalog", () => {
 
     await waitFor(() => expect(submit).toHaveBeenCalled());
     submit.mockRestore();
+  });
+
+  it("shows an error when Webpay checkout fails", async () => {
+    const user = userEvent.setup();
+    vi.mocked(createWebPay).mockRejectedValueOnce(new Error("Webpay caído"));
+    render(<CourseCatalog courses={[course]} />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: `Pagar ${course.title} con Webpay`,
+      }),
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "No fue posible iniciar el pago",
+    );
   });
 
   it("shows the course link instead of Webpay when the user has access", () => {

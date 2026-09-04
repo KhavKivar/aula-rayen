@@ -1,11 +1,8 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { LoaderCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
-import { deleteCourse } from "@/features/course-management/api/delete-course";
-import { AxiosError } from "axios";
-import { queryKeys } from "@/config/query-keys";
+import { useDeleteCourse } from "@/features/course-management/api/use-course-mutations";
 
 type Props = {
   open: boolean;
@@ -14,27 +11,17 @@ type Props = {
   onSuccess?: () => void;
 };
 
-
-type ApiError = {
-  message: string;
-  error: string;
-  statusCode: number;
-};
-
 export function DeleteCourseDialog({
   open,
   course,
   onOpenChange,
   onSuccess,
 }: Props) {
-  const queryClient = useQueryClient();
-  const mutation = useMutation<unknown,AxiosError<ApiError>,{id:number}>({
-    mutationFn: deleteCourse,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
+  const mutation = useDeleteCourse({
+    onSuccess: () => {
       onOpenChange(false);
       onSuccess?.();
-    }
+    },
   });
 
   if (!open || !course) return null;
@@ -57,8 +44,7 @@ export function DeleteCourseDialog({
 
         {mutation.isError ? (
           <p role="alert" className="mt-4 text-sm text-destructive">
-            {mutation.error .response?.data.message ??
-              "No se pudo eliminar el curso"}
+            {mutation.error.message || "No se pudo eliminar el curso"}
           </p>
         ) : null}
 
