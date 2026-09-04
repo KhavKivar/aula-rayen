@@ -1,5 +1,6 @@
-import { CreditCard, FilterX, FlaskConical, ReceiptText, Search } from "lucide-react";
+import { CreditCard, FilterX, FlaskConical, LoaderCircle, ReceiptText, Search } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +22,9 @@ import {
   filterPayments,
   getPaymentMetrics,
 } from "@/features/admin-dashboard/data";
+import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 import type {
-  DemoTransaction,
+  AdminPayment,
   PaymentFilters,
   PaymentStatus,
 } from "@/features/admin-dashboard/types";
@@ -79,9 +81,11 @@ function DemoDataBadge() {
 function PaymentDetail({
   payment,
   onOpenChange,
+  isLive,
 }: {
-  payment: DemoTransaction | null;
+  payment: AdminPayment | null;
   onOpenChange: (open: boolean) => void;
+  isLive: boolean;
 }) {
   const rows = payment
     ? [
@@ -106,7 +110,9 @@ function PaymentDetail({
               <div>
                 <DialogTitle>Detalle de transacción</DialogTitle>
                 <DialogDescription>
-                  Información ficticia para validar el flujo administrativo.
+                  {isLive
+                    ? "Información registrada del pago."
+                    : "Información ficticia para validar el flujo administrativo."}
                 </DialogDescription>
               </div>
               <DialogClose />
@@ -126,9 +132,7 @@ function PaymentDetail({
                       </div>
                     ))}
                   </dl>
-                  <div className="mt-5">
-                    <DemoDataBadge />
-                  </div>
+                  <DemoFallback isLive={isLive} />
                 </>
               ) : null}
             </div>
@@ -139,12 +143,26 @@ function PaymentDetail({
   );
 }
 
+function DemoFallback({ isLive }: { isLive: boolean }) {
+  if (isLive) return null;
+
+  return (
+    <div className="mt-5">
+      <DemoDataBadge />
+    </div>
+  );
+}
+
 export function PaymentsPanel() {
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
   const deferredQuery = useDeferredSearch(filters.query);
+  const paymentsQuery = useQuery(adminDashboardQueries.payments);
+  const isLive =
+    paymentsQuery.data !== undefined && !paymentsQuery.isError;
+  const payments = paymentsQuery.data ?? demoTransactions;
   const [selectedPayment, setSelectedPayment] =
-    useState<DemoTransaction | null>(null);
-  const visiblePayments = filterPayments(demoTransactions, {
+    useState<AdminPayment | null>(null);
+  const visiblePayments = filterPayments(payments, {
     ...filters,
     query: deferredQuery,
   });
@@ -171,13 +189,27 @@ export function PaymentsPanel() {
             Pagos
           </h1>
           <p className="mt-2 max-w-2xl leading-7 text-[#65746f]">
-            Explora una muestra de transacciones antes de conectar la conciliación real.
+            {isLive
+              ? "Transacciones registradas por la pasarela de pago."
+              : "Explora una muestra de transacciones antes de conectar la conciliación real."}
           </p>
         </div>
-        <DemoDataBadge />
+        {isLive ? null : <DemoDataBadge />}
       </div>
 
-      <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {paymentsQuery.isPending ? (
+        <div
+          role="status"
+          className="mt-7 flex items-center justify-center gap-3 rounded-2xl border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+        >
+          <LoaderCircle className="animate-spin" aria-hidden="true" />
+          Cargando pagos…
+        </div>
+      ) : null}
+
+      {paymentsQuery.isPending ? null : (
+        <>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards.map(({ label, value }, index) => (
           <article
             key={label}
@@ -317,9 +349,12 @@ export function PaymentsPanel() {
           </ul>
         </div>
       )}
+        </>
+      )}
 
       <PaymentDetail
         payment={selectedPayment}
+        isLive={isLive}
         onOpenChange={(open) => {
           if (!open) setSelectedPayment(null);
         }}

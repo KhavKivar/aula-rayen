@@ -1,13 +1,13 @@
 import type {
   CoursePurchaser,
-  DemoTransaction,
+  AdminPayment,
   PaymentFilters,
   PaymentMetrics,
 } from "@/features/admin-dashboard/types";
 
 export const DEMO_TODAY = "2026-09-03";
 
-export const demoTransactions: readonly DemoTransaction[] = [
+export const demoTransactions: readonly AdminPayment[] = [
   {
     orderId: "AR-1048",
     userId: "user-camila",
@@ -75,7 +75,7 @@ export const demoTransactions: readonly DemoTransaction[] = [
 
 export function getCoursePurchasers(
   courseId: number,
-  transactions: readonly DemoTransaction[] = demoTransactions,
+  transactions: readonly AdminPayment[] = demoTransactions,
 ): CoursePurchaser[] {
   return transactions
     .filter(
@@ -93,9 +93,9 @@ export function getCoursePurchasers(
 }
 
 export function filterPayments(
-  transactions: readonly DemoTransaction[],
+  transactions: readonly AdminPayment[],
   filters: PaymentFilters,
-): DemoTransaction[] {
+): AdminPayment[] {
   const query = filters.query.trim().toLocaleLowerCase("es-CL");
   const today = new Date(`${DEMO_TODAY}T23:59:59.999Z`).getTime();
   const periodDays = filters.period === "7d" ? 7 : 30;
@@ -118,7 +118,7 @@ export function filterPayments(
 }
 
 export function getPaymentMetrics(
-  transactions: readonly DemoTransaction[],
+  transactions: readonly AdminPayment[],
 ): PaymentMetrics {
   return transactions.reduce<PaymentMetrics>(
     (metrics, transaction) => {

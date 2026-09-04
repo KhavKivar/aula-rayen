@@ -1,6 +1,6 @@
 export type PaymentStatus = "approved" | "pending" | "rejected";
 
-export interface DemoTransaction {
+export interface AdminPayment {
   orderId: string;
   userId: string;
   buyerName: string;

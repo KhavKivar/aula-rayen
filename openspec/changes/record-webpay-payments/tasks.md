@@ -18,10 +18,10 @@
 
 ## 4. Panel Pagos con datos reales
 
-- [ ] 4.1 Crear query `payments` en `admin-dashboard` y consumirla en `PaymentsPanel`, manteniendo filtros, métricas y detalle.
-- [ ] 4.2 Retirar el badge demo cuando hay datos reales; mantener fixtures solo como fallback sin datos o ante error.
-- [ ] 4.3 Actualizar/añadir tests de panel (lista real, filtros, vacío, detalle enmascarado).
-- [ ] 4.4 Ejecutar `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm test:run` y `pnpm build` en `apps/web`.
+- [x] 4.1 Crear query `payments` en `admin-dashboard` y consumirla en `PaymentsPanel`, manteniendo filtros, métricas y detalle.
+- [x] 4.2 Retirar el badge demo cuando hay datos reales; mantener fixtures solo como fallback sin datos o ante error.
+- [x] 4.3 Actualizar/añadir tests de panel (lista real, filtros, vacío, detalle enmascarado).
+- [x] 4.4 Ejecutar `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm test:run` y `pnpm build` en `apps/web`.
 
 ## 5. QA y despliegue
 

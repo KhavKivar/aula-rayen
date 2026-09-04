@@ -4,6 +4,7 @@ import { paymentsResponseSchema } from "./payment.js";
 
 const basePayment = {
   orderId: "AR-1048",
+  userId: "user-camila",
   buyerName: "Camila Rojas",
   buyerEmail: "camila@ejemplo.cl",
   courseId: 1,

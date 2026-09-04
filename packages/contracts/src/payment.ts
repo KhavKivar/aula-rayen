@@ -5,6 +5,7 @@ export const paymentStatusSchema = z.enum(["approved", "pending", "rejected"]);
 export const paymentSchema = z
   .object({
     orderId: z.string().trim().min(1),
+    userId: z.string().trim().min(1),
     buyerName: z.string().trim().min(1),
     buyerEmail: z.email(),
     courseId: z.number().int().positive(),

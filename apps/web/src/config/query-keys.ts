@@ -3,4 +3,5 @@ export const queryKeys = {
   courses: ["courses"],
   course: (courseId: number) => ["course", courseId],
   courseBuyers: (courseId: number | null) => ["course-buyers", courseId],
+  payments: ["payments"],
 } as const;
