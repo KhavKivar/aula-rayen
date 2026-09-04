@@ -1,12 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { registerAccount } from "@/features/auth/api/register";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
@@ -17,20 +16,6 @@ import {
 export function RegisterForm() {
   const navigate = useNavigate();
   const router = useRouter();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterCredentials>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-  });
 
   const registerMutation = useMutation<
     void,
@@ -44,93 +29,138 @@ export function RegisterForm() {
     },
   });
 
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validators: {
+      onSubmit: registerSchema,
+    },
+    onSubmit: async ({ value }) => {
+      registerMutation.mutate(value);
+    },
+  });
+
   return (
     <form
       className="space-y-6"
-      onSubmit={handleSubmit((credentials) =>
-        registerMutation.mutate(credentials),
-      )}
+      onSubmit={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        void form.handleSubmit();
+      }}
       noValidate
     >
-      <div className="space-y-2.5">
-        <Label htmlFor="name">Nombre</Label>
-        <Input
-          id="name"
-          type="text"
-          placeholder="Tu nombre"
-          autoComplete="name"
-          aria-invalid={Boolean(errors.name)}
-          aria-describedby={errors.name ? "name-error" : undefined}
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("name")}
-        />
-        {errors.name?.message ? (
-          <p id="name-error" className="text-xs text-destructive">
-            {errors.name.message}
-          </p>
-        ) : null}
-      </div>
+      <form.Field name="name">
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
 
-      <div className="space-y-2.5">
-        <Label htmlFor="register-email">Correo electrónico</Label>
-        <Input
-          id="register-email"
-          type="email"
-          placeholder="nombre@ejemplo.com"
-          autoComplete="email"
-          aria-invalid={Boolean(errors.email)}
-          aria-describedby={errors.email ? "register-email-error" : undefined}
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("email")}
-        />
-        {errors.email?.message ? (
-          <p id="register-email-error" className="text-xs text-destructive">
-            {errors.email.message}
-          </p>
-        ) : null}
-      </div>
+          return (
+            <FormField inputId="name" label="Nombre" error={error}>
+              <Input
+                id="name"
+                name={field.name}
+                type="text"
+                placeholder="Tu nombre"
+                autoComplete="name"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "name-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+            </FormField>
+          );
+        }}
+      </form.Field>
 
-      <div className="space-y-2.5">
-        <Label htmlFor="register-password">Contraseña</Label>
-        <Input
-          id="register-password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          aria-invalid={Boolean(errors.password)}
-          aria-describedby={
-            errors.password ? "register-password-error" : undefined
-          }
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("password")}
-        />
-        {errors.password?.message ? (
-          <p id="register-password-error" className="text-xs text-destructive">
-            {errors.password.message}
-          </p>
-        ) : null}
-      </div>
+      <form.Field name="email">
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
 
-      <div className="space-y-2.5">
-        <Label htmlFor="confirm-password">Confirmar contraseña</Label>
-        <Input
-          id="confirm-password"
-          type="password"
-          placeholder="••••••••"
-          autoComplete="new-password"
-          aria-invalid={Boolean(errors.confirmPassword)}
-          aria-describedby={
-            errors.confirmPassword ? "confirm-password-error" : undefined
-          }
-          className="h-11 bg-muted/80 px-4 shadow-none"
-          {...register("confirmPassword")}
-        />
-        {errors.confirmPassword?.message ? (
-          <p id="confirm-password-error" className="text-xs text-destructive">
-            {errors.confirmPassword.message}
-          </p>
-        ) : null}
-      </div>
+          return (
+            <FormField
+              inputId="register-email"
+              label="Correo electrónico"
+              error={error}
+            >
+              <Input
+                id="register-email"
+                name={field.name}
+                type="email"
+                placeholder="nombre@ejemplo.com"
+                autoComplete="email"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "register-email-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+            </FormField>
+          );
+        }}
+      </form.Field>
+
+      <form.Field name="password">
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
+
+          return (
+            <FormField
+              inputId="register-password"
+              label="Contraseña"
+              error={error}
+            >
+              <Input
+                id="register-password"
+                name={field.name}
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "register-password-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+            </FormField>
+          );
+        }}
+      </form.Field>
+
+      <form.Field name="confirmPassword">
+        {(field) => {
+          const error = field.state.meta.errors[0]?.message;
+
+          return (
+            <FormField
+              inputId="confirm-password"
+              label="Confirmar contraseña"
+              error={error}
+            >
+              <Input
+                id="confirm-password"
+                name={field.name}
+                type="password"
+                placeholder="••••••••"
+                autoComplete="new-password"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(event) => field.handleChange(event.target.value)}
+                aria-invalid={Boolean(error)}
+                aria-describedby={error ? "confirm-password-error" : undefined}
+                className="h-11 bg-muted/80 px-4 shadow-none"
+              />
+            </FormField>
+          );
+        }}
+      </form.Field>
 
       {registerMutation.isError ? (
         <p role="alert" className="text-sm text-destructive">

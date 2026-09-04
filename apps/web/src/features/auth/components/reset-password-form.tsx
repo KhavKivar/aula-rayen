@@ -5,8 +5,8 @@ import { KeyRound } from "lucide-react";
 import { useRef } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { resetPassword } from "@/features/auth/api/password-recovery";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
@@ -70,8 +70,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
           const error = field.state.meta.errors[0]?.message;
 
           return (
-            <div className="space-y-2.5">
-              <Label htmlFor={field.name}>Nueva contraseña</Label>
+            <FormField
+              inputId={field.name}
+              label="Nueva contraseña"
+              error={error}
+              errorId="new-password-error"
+            >
               <Input
                 id={field.name}
                 name={field.name}
@@ -84,12 +88,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 aria-describedby={error ? "new-password-error" : undefined}
                 className="h-11 bg-muted/80 px-4 shadow-none"
               />
-              {error ? (
-                <p id="new-password-error" className="text-xs text-destructive">
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           );
         }}
       </form.Field>
@@ -99,8 +98,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
           const error = field.state.meta.errors[0]?.message;
 
           return (
-            <div className="space-y-2.5">
-              <Label htmlFor={field.name}>Confirmar nueva contraseña</Label>
+            <FormField
+              inputId={field.name}
+              label="Confirmar nueva contraseña"
+              error={error}
+              errorId="confirm-password-error"
+            >
               <Input
                 id={field.name}
                 name={field.name}
@@ -113,15 +116,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 aria-describedby={error ? "confirm-password-error" : undefined}
                 className="h-11 bg-muted/80 px-4 shadow-none"
               />
-              {error ? (
-                <p
-                  id="confirm-password-error"
-                  className="text-xs text-destructive"
-                >
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           );
         }}
       </form.Field>

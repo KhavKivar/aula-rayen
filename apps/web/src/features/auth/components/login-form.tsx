@@ -4,8 +4,8 @@ import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { login, loginWithGoogle } from "@/features/auth/api/login";
 import { GoogleIcon } from "@/features/auth/components/google-icon";
 import { AuthError } from "@/features/auth/errors/auth-error";
@@ -108,8 +108,11 @@ export function LoginForm({
           const error = field.state.meta.errors[0]?.message;
 
           return (
-            <div className="space-y-2.5">
-              <Label htmlFor={field.name}>Correo electrónico</Label>
+            <FormField
+              inputId={field.name}
+              label="Correo electrónico"
+              error={error}
+            >
               <Input
                 id={field.name}
                 name={field.name}
@@ -123,12 +126,7 @@ export function LoginForm({
                 aria-describedby={error ? "email-error" : undefined}
                 className="h-11 bg-muted/80 px-4 shadow-none"
               />
-              {error ? (
-                <p id="email-error" className="text-xs text-destructive">
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           );
         }}
       </form.Field>
@@ -138,16 +136,19 @@ export function LoginForm({
           const error = field.state.meta.errors[0]?.message;
 
           return (
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between gap-4">
-                <Label htmlFor={field.name}>Contraseña</Label>
+            <FormField
+              inputId={field.name}
+              label="Contraseña"
+              error={error}
+              labelAction={
                 <Link
                   to="/forgot-password"
                   className="text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
                 >
                   ¿La olvidaste?
                 </Link>
-              </div>
+              }
+            >
               <Input
                 id={field.name}
                 name={field.name}
@@ -161,12 +162,7 @@ export function LoginForm({
                 aria-describedby={error ? "password-error" : undefined}
                 className="h-11 bg-muted/80 px-4 shadow-none"
               />
-              {error ? (
-                <p id="password-error" className="text-xs text-destructive">
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           );
         }}
       </form.Field>

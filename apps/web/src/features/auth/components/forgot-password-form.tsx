@@ -5,8 +5,8 @@ import { Mail } from "lucide-react";
 import { useRef } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { requestPasswordReset } from "@/features/auth/api/password-recovery";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
@@ -68,8 +68,12 @@ export function ForgotPasswordForm() {
           const error = field.state.meta.errors[0]?.message;
 
           return (
-            <div className="space-y-2.5">
-              <Label htmlFor={field.name}>Correo electrónico</Label>
+            <FormField
+              inputId={field.name}
+              label="Correo electrónico"
+              error={error}
+              errorId="reset-email-error"
+            >
               <Input
                 id={field.name}
                 name={field.name}
@@ -83,12 +87,7 @@ export function ForgotPasswordForm() {
                 aria-describedby={error ? "reset-email-error" : undefined}
                 className="h-11 bg-muted/80 px-4 shadow-none"
               />
-              {error ? (
-                <p id="reset-email-error" className="text-xs text-destructive">
-                  {error}
-                </p>
-              ) : null}
-            </div>
+            </FormField>
           );
         }}
       </form.Field>
