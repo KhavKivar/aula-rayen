@@ -30,9 +30,7 @@ export function CourseManagementPanel({
   const coursesQuery = useQuery(coursesQueryOptions);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editCourse, setEditCourse] = useState<
-    (CourseCatalogItem & { videoLink: string; fileLink: string }) | null
-  >(null);
+  const [editCourse, setEditCourse] = useState<CourseDetail | null>(null);
   const [deleteCourse, setDeleteCourse] = useState<CourseCatalogItem | null>(
     null,
   );
@@ -44,14 +42,14 @@ export function CourseManagementPanel({
         queryKey: queryKeys.course(course.id),
         queryFn: () => fetchCourseDetail(course.id),
       });
-      setEditCourse(detail as never);
+      setEditCourse(detail);
     } catch {
       // Fallback to catalog data with empty links if detail fails (e.g., no access)
       setEditCourse({
         ...course,
         videoLink: "",
         fileLink: "",
-      } as never);
+      });
     }
   };
 
@@ -215,25 +213,30 @@ export function CourseManagementPanel({
         </div>
       )}
 
-      <CourseFormDialog
-        open={createOpen}
-        mode="create"
-        onOpenChange={setCreateOpen}
-        onSuccess={() => setFeedback("Curso creado correctamente")}
-      />
+      {createOpen ? (
+        <CourseFormDialog
+          open
+          mode="create"
+          onOpenChange={setCreateOpen}
+          onSuccess={() => setFeedback("Curso creado correctamente")}
+        />
+      ) : null}
 
-      <CourseFormDialog
-        open={Boolean(editCourse)}
-        mode="edit"
-        course={editCourse ?? undefined}
-        onOpenChange={(open) => {
-          if (!open) setEditCourse(null);
-        }}
-        onSuccess={() => {
-          setEditCourse(null);
-          setFeedback("Curso actualizado correctamente");
-        }}
-      />
+      {editCourse ? (
+        <CourseFormDialog
+          key={editCourse.id}
+          open
+          mode="edit"
+          course={editCourse}
+          onOpenChange={(open) => {
+            if (!open) setEditCourse(null);
+          }}
+          onSuccess={() => {
+            setEditCourse(null);
+            setFeedback("Curso actualizado correctamente");
+          }}
+        />
+      ) : null}
 
       <DeleteCourseDialog
         open={Boolean(deleteCourse)}

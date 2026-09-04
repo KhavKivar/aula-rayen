@@ -1,24 +1,16 @@
-import { useForm } from "@tanstack/react-form";
 import { LoaderCircle } from "lucide-react";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { CourseFormFields } from "@/features/course-management/components/course-form-fields";
 import {
-  createCourseRequestSchema,
-  updateCourseRequestSchema,
-} from "@aula-rayen/contracts/course";
-import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
-import {
-  useCreateCourse,
-  useUpdateCourse,
-} from "@/features/course-management/api/use-course-mutations";
+  useCourseForm,
+  type EditableCourse,
+} from "@/features/course-management/components/use-course-form";
 
 type CourseFormDialogProps = {
   open: boolean;
   mode: "create" | "edit";
-  course?: CourseCatalogItem & { videoLink?: string; fileLink?: string };
+  course?: EditableCourse;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 };
@@ -30,88 +22,12 @@ export function CourseFormDialog({
   onOpenChange,
   onSuccess,
 }: CourseFormDialogProps) {
-  const [validationError, setValidationError] = useState<string | null>(null);
-
-  const createMutation = useCreateCourse({
-    onSuccess: () => {
-      onOpenChange(false);
-      onSuccess?.();
-    },
+  const { form, isPending, errorMessage } = useCourseForm({
+    mode,
+    course,
+    onClose: () => onOpenChange(false),
+    onSuccess,
   });
-
-  const updateMutation = useUpdateCourse({
-    onSuccess: () => {
-      onOpenChange(false);
-      onSuccess?.();
-    },
-  });
-
-  const isPending = createMutation.isPending || updateMutation.isPending;
-  const errorMessage =
-    validationError ??
-    (createMutation.error as Error | undefined)?.message ??
-    (updateMutation.error as Error | undefined)?.message;
-
-  // For edit, we need full details including video/file links.
-  // Catalog item doesn't have them, so we fetch details if needed.
-  // For simplicity, we expect course to contain videoLink/fileLink if edit,
-  // otherwise we fallback to empty. The parent panel should provide full detail.
-  const defaultValues = {
-    title: course?.title ?? "",
-    description: course?.description ?? "",
-    videoLink: (course as unknown as { videoLink?: string })?.videoLink ?? "",
-    fileLink: (course as unknown as { fileLink?: string })?.fileLink ?? "",
-    duration: course?.duration ?? "",
-    price: course?.price ?? 0,
-  };
-
-  const form = useForm({
-    defaultValues,
-    validators:
-      mode === "create"
-        ? {
-            onSubmit: createCourseRequestSchema,
-          }
-        : undefined,
-    onSubmit: async ({ value }) => {
-      setValidationError(null);
-      if (mode === "create") {
-        await createMutation.mutateAsync(value);
-        return;
-      }
-      if (!course) return;
-      const diff = Object.fromEntries(
-        Object.entries(value).filter(
-          ([k, v]) => (defaultValues as Record<string, unknown>)[k] !== v,
-        ),
-      ) as Record<string, unknown>;
-
-      const parsed = updateCourseRequestSchema.safeParse(diff);
-      if (!parsed.success) {
-        const msg =
-          parsed.error.issues[0]?.message ??
-          "Debes enviar al menos un campo para actualizar";
-        setValidationError(msg);
-        return;
-      }
-      await updateMutation.mutateAsync({
-        id: course.id,
-        data: parsed.data,
-      });
-    },
-  });
-
-  // Reset form when course changes or dialog opens
-  useEffect(() => {
-    if (open) {
-      form.reset(defaultValues as never);
-      createMutation.reset();
-      updateMutation.reset();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setValidationError(null);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, course?.id]);
 
   if (!open) return null;
 
@@ -134,164 +50,14 @@ export function CourseFormDialog({
 
         <form
           className="mt-6 space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
+          onSubmit={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
             void form.handleSubmit();
           }}
           noValidate
         >
-          <form.Field name="title">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Título</Label>
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={Boolean(err)}
-                    placeholder="Ej: Arteterapia para infancias"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="description">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Descripción</Label>
-                  <textarea
-                    id={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={Boolean(err)}
-                    placeholder="Descripción del curso"
-                    className="min-h-24 w-full rounded-xl border border-input bg-muted/50 px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="videoLink">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Link del video</Label>
-                  <Input
-                    id={field.name}
-                    type="url"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={Boolean(err)}
-                    placeholder="https://example.com/video"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="fileLink">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Link del material</Label>
-                  <Input
-                    id={field.name}
-                    type="url"
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={Boolean(err)}
-                    placeholder="https://example.com/file"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="duration">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Duración</Label>
-                  <Input
-                    id={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    aria-invalid={Boolean(err)}
-                    placeholder="Ej: 2 horas"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
-
-          <form.Field name="price">
-            {(field) => {
-              const err = field.state.meta.errors[0]?.message as
-                | string
-                | undefined;
-              return (
-                <div className="space-y-2">
-                  <Label htmlFor={field.name}>Precio (CLP)</Label>
-                  <Input
-                    id={field.name}
-                    type="number"
-                    min={0}
-                    step={1000}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) =>
-                      field.handleChange(Number(e.target.value))
-                    }
-                    aria-invalid={Boolean(err)}
-                    placeholder="25000"
-                  />
-                  {err ? (
-                    <p className="text-xs text-destructive">{err}</p>
-                  ) : null}
-                </div>
-              );
-            }}
-          </form.Field>
+          <CourseFormFields form={form} />
 
           {errorMessage ? (
             <p role="alert" className="text-sm text-destructive">
