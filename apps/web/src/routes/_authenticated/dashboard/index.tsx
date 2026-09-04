@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { queries } from "@/config/queries";
+import { AccountMenu } from "@/features/auth/components/account-menu";
 import { CourseDashboard } from "@/features/course-dashboard/components/course-dashboard";
 
 export const Route = createFileRoute("/_authenticated/dashboard/")({
@@ -15,5 +16,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
 
 function DashboardPage() {
   const { user } = Route.useRouteContext();
-  return <CourseDashboard isAdmin={user.role === "admin"} />;
+  return (
+    <CourseDashboard
+      isAdmin={user.role === "admin"}
+      accountMenu={<AccountMenu />}
+    />
+  );
 }

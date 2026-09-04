@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { deleteCourse } from "@/features/course-management/api/delete-course";
 import { AxiosError } from "axios";
+import { queryKeys } from "@/config/query-keys";
 
 type Props = {
   open: boolean;
@@ -30,7 +31,7 @@ export function DeleteCourseDialog({
   const mutation = useMutation<unknown,AxiosError<ApiError>,{id:number}>({
     mutationFn: deleteCourse,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
       onOpenChange(false);
       onSuccess?.();
     }

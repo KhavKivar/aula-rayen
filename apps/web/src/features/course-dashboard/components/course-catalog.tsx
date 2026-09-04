@@ -1,13 +1,17 @@
+import { useMutation } from "@tanstack/react-query";
 import { BookOpen } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { CourseCard } from "@/features/course-dashboard/components/course-card";
 import type { Course } from "@/features/course-dashboard/types/course";
-import { useMutation } from "@tanstack/react-query";
-import { createWebPay, CreateWebPayDto } from "../api/create-webpay";
+import {
+  createWebPay,
+  type CreateWebPayDto,
+} from "@/features/course-dashboard/api/create-webpay";
 
 export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: createWebPay,
@@ -15,7 +19,9 @@ export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
     onSuccess: (data) => {
       const form = formRef.current;
       if (!form) {
-        console.error("Webpay form not found");
+        setCheckoutError(
+          "No fue posible iniciar el pago. Inténtalo nuevamente.",
+        );
         return;
       }
       form.action = data.url;
@@ -23,19 +29,22 @@ export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
       const input = form.elements.namedItem("token_ws") as HTMLInputElement;
 
       if (!(input instanceof HTMLInputElement)) {
-        console.error("token_ws input not found");
+        setCheckoutError(
+          "No fue posible iniciar el pago. Inténtalo nuevamente.",
+        );
         return;
       }
       input.value = data.token;
-      console.log(form);
+      setCheckoutError(null);
       form.submit();
     },
 
-    onError: (error) => {
-      console.error(error);
+    onError: () => {
+      setCheckoutError("No fue posible iniciar el pago. Inténtalo nuevamente.");
     },
   });
   const onSubmit = (courseId: number) => {
+    setCheckoutError(null);
     mutation.mutate({ course_id: courseId } as CreateWebPayDto);
   };
   if (courses.length === 0) {
@@ -64,6 +73,11 @@ export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
 
   return (
     <>
+      {checkoutError ? (
+        <p role="alert" className="mb-6 text-sm text-destructive">
+          {checkoutError}
+        </p>
+      ) : null}
       <section
         aria-label="Cursos disponibles"
         className="grid min-w-0 gap-6 md:grid-cols-2 xl:grid-cols-3"

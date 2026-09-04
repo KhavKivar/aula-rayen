@@ -3,9 +3,11 @@ import { getCourses } from "@/features/course-dashboard/api/get-courses";
 import { authClient } from "@/lib/auth-client";
 import { queryOptions } from "@tanstack/react-query";
 
+import { queryKeys } from "@/config/query-keys";
+
 export const queries = {
   session: queryOptions({
-    queryKey: ["session"],
+    queryKey: queryKeys.session,
     queryFn: async () => {
       const session = await authClient.getSession();
       if (!session.data?.session || !session.data?.user) {
@@ -21,23 +23,16 @@ export const queries = {
     gcTime: 1000 * 60 * 30,
   }),
   courses: queryOptions({
-    queryKey: ["courses"],
+    queryKey: queryKeys.courses,
     queryFn: getCourses,
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   }),
   courseBuyers: (courseId: number | null) =>
     queryOptions({
-      queryKey: ["course-buyers", courseId],
+      queryKey: queryKeys.courseBuyers(courseId),
       queryFn: () => getCourseBuyers(courseId),
       staleTime: 1000 * 60 * 5,
       gcTime: 1000 * 60 * 30,
     }),
 };
-
-
-// {
-//   queryKey: ["course-buyers", course?.id],
-//   queryFn: () => (course ? getCourseBuyers(course.id) : Promise.resolve([])),
-//   enabled: course !== null,
-// }

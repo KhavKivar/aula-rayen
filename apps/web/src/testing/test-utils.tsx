@@ -83,5 +83,3 @@ export async function renderWithRouter(
 
   return { ...result, queryClient, router };
 }
-
-export * from "@testing-library/react";

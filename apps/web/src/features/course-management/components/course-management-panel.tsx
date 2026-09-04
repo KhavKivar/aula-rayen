@@ -3,15 +3,20 @@ import { AlertCircle, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { getCourse } from "@/features/course-dashboard/api/get-course";
 import { queries } from "@/config/queries";
+import { queryKeys } from "@/config/query-keys";
 import { CourseFormDialog } from "@/features/course-management/components/course-form-dialog";
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
-import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
+import type {
+  CourseCatalogItem,
+  CourseDetail,
+} from "@aula-rayen/contracts/course";
 
 export function CourseManagementPanel({
+  fetchCourseDetail,
   onViewPurchasers,
 }: {
+  fetchCourseDetail: (courseId: number) => Promise<CourseDetail>;
   onViewPurchasers?: (course: CourseCatalogItem) => void;
 }) {
   const queryClient = useQueryClient();
@@ -29,8 +34,8 @@ export function CourseManagementPanel({
   const handleEdit = async (course: CourseCatalogItem) => {
     try {
       const detail = await queryClient.fetchQuery({
-        queryKey: ["course", course.id],
-        queryFn: () => getCourse(course.id),
+        queryKey: queryKeys.course(course.id),
+        queryFn: () => fetchCourseDetail(course.id),
       });
       setEditCourse(detail as never);
     } catch {

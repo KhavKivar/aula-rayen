@@ -26,23 +26,22 @@ const mockGetCourses = vi.fn();
 vi.mock("@/features/course-dashboard/api/get-courses", () => ({
   getCourses: () => mockGetCourses(),
 }));
-vi.mock("@/features/course-dashboard/api/get-course", () => ({
-  getCourse: vi.fn().mockResolvedValue({
-    id: 1,
-    title: "Curso demo",
-    description: "Descripción breve",
-    createdAt: "2026-08-17T00:00:00.000Z",
-    duration: "2 horas",
-    price: 25000,
-    videoLink: "https://example.com/video",
-    fileLink: "https://example.com/file",
-  }),
-}));
+
+const fetchCourseDetail = vi.fn().mockResolvedValue({
+  id: 1,
+  title: "Curso demo",
+  description: "Descripción breve",
+  createdAt: "2026-08-17T00:00:00.000Z",
+  duration: "2 horas",
+  price: 25000,
+  videoLink: "https://example.com/video",
+  fileLink: "https://example.com/file",
+});
 
 describe("CourseManagementPanel", () => {
   it("shows gestion header and crear button", async () => {
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel />);
+    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
 
     expect(await screen.findByRole("heading", { name: "Gestionar cursos" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Crear curso" })).toBeVisible();
@@ -50,7 +49,7 @@ describe("CourseManagementPanel", () => {
 
   it("shows empty state when no courses", async () => {
     mockGetCourses.mockResolvedValue([]);
-    render(<CourseManagementPanel />);
+    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
 
     expect(await screen.findByText("No hay cursos aún")).toBeVisible();
     expect(screen.getByRole("button", { name: "Crear tu primer curso" })).toBeVisible();
@@ -59,7 +58,7 @@ describe("CourseManagementPanel", () => {
   it("renders cursos and opens delete dialog", async () => {
     const user = userEvent.setup();
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel />);
+    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
 
     expect(await screen.findByText(course.title)).toBeVisible();
 
@@ -72,7 +71,7 @@ describe("CourseManagementPanel", () => {
   it("opens create dialog", async () => {
     const user = userEvent.setup();
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel />);
+    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
 
     await screen.findByText(course.title);
     await user.click(screen.getByRole("button", { name: "Crear curso" }));
@@ -83,7 +82,12 @@ describe("CourseManagementPanel", () => {
     const user = userEvent.setup();
     const onViewPurchasers = vi.fn();
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel onViewPurchasers={onViewPurchasers} />);
+    render(
+      <CourseManagementPanel
+        fetchCourseDetail={fetchCourseDetail}
+        onViewPurchasers={onViewPurchasers}
+      />,
+    );
 
     await user.click(
       await screen.findByRole("button", {

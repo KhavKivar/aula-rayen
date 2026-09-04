@@ -38,19 +38,110 @@ export default defineConfig([
       },
     },
     rules: {
+      "no-console": "error",
       "import/no-restricted-paths": [
         "error",
         {
           zones: [
             {
               target: "./src/features/admin-dashboard",
+              from: "./src/features/auth",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/admin-dashboard",
               from: "./src/features/course-dashboard",
-              message: "Compose course features from routes, not from admin-dashboard.",
+              message: "No importes entre features. Compón desde routes.",
             },
             {
               target: "./src/features/admin-dashboard",
               from: "./src/features/course-management",
-              message: "Compose course features from routes, not from admin-dashboard.",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/admin-dashboard",
+              from: "./src/features/landing",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/auth",
+              from: "./src/features/admin-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/auth",
+              from: "./src/features/course-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/auth",
+              from: "./src/features/course-management",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/auth",
+              from: "./src/features/landing",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-dashboard",
+              from: "./src/features/admin-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-dashboard",
+              from: "./src/features/auth",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-dashboard",
+              from: "./src/features/course-management",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-dashboard",
+              from: "./src/features/landing",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-management",
+              from: "./src/features/admin-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-management",
+              from: "./src/features/auth",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-management",
+              from: "./src/features/course-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/course-management",
+              from: "./src/features/landing",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/landing",
+              from: "./src/features/admin-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/landing",
+              from: "./src/features/auth",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/landing",
+              from: "./src/features/course-dashboard",
+              message: "No importes entre features. Compón desde routes.",
+            },
+            {
+              target: "./src/features/landing",
+              from: "./src/features/course-management",
+              message: "No importes entre features. Compón desde routes.",
             },
           ],
         },

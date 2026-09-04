@@ -13,6 +13,7 @@ import {
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { createCourse } from "@/features/course-management/api/create-course";
 import { updateCourse } from "@/features/course-management/api/update-course";
+import { queryKeys } from "@/config/query-keys";
 
 type CourseFormDialogProps = {
   open: boolean;
@@ -35,7 +36,7 @@ export function CourseFormDialog({
   const createMutation = useMutation({
     mutationFn: createCourse,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
       onOpenChange(false);
       onSuccess?.();
     },
@@ -45,7 +46,7 @@ export function CourseFormDialog({
     mutationFn: (data: { id: number; data: Record<string, unknown> }) =>
       updateCourse(data as never),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["courses"] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.courses });
       onOpenChange(false);
       onSuccess?.();
     },

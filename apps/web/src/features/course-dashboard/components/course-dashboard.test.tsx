@@ -21,27 +21,26 @@ vi.mock("@/features/course-dashboard/api/get-courses", () => ({
   getCourses: vi.fn().mockResolvedValue([]),
 }));
 
-vi.mock("@/lib/auth-client", () => ({
-  signOut: vi.fn(),
-}));
-
 import { CourseDashboard } from "@/features/course-dashboard/components/course-dashboard";
 import { render } from "@/testing/test-utils";
 
+const accountMenu = (
+  <button type="button" aria-label="Abrir menú de cuenta">
+    Cuenta
+  </button>
+);
+
 describe("CourseDashboard", () => {
-  it("shows the circular account menu trigger in its header", () => {
-    render(<CourseDashboard />);
+  it("renders the account menu provided by the route", () => {
+    render(<CourseDashboard accountMenu={accountMenu} />);
 
     expect(
       screen.getByRole("button", { name: "Abrir menú de cuenta" }),
     ).toBeVisible();
-    expect(
-      screen.queryByRole("menuitem", { name: "Cerrar sesión" }),
-    ).not.toBeInTheDocument();
   });
 
   it("keeps course management out of the learner dashboard", async () => {
-    render(<CourseDashboard />);
+    render(<CourseDashboard accountMenu={accountMenu} />);
 
     expect(
       await screen.findByText("No hay cursos disponibles por ahora"),
@@ -51,7 +50,7 @@ describe("CourseDashboard", () => {
   });
 
   it("shows the admin entry point only when requested by the route", () => {
-    render(<CourseDashboard isAdmin />);
+    render(<CourseDashboard isAdmin accountMenu={accountMenu} />);
 
     expect(screen.getByRole("link", { name: "Administrar" })).toHaveAttribute(
       "href",

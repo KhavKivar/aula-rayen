@@ -7,10 +7,9 @@ import {
 } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
-import { AccountMenu } from "@/features/auth/components/account-menu";
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
 import { queries } from "@/config/queries";
 
@@ -20,7 +19,13 @@ function CatalogContent() {
   return <CourseCatalog courses={courses} />;
 }
 
-export function CourseDashboard({ isAdmin = false }: { isAdmin?: boolean }) {
+export function CourseDashboard({
+  accountMenu,
+  isAdmin = false,
+}: {
+  accountMenu: ReactNode;
+  isAdmin?: boolean;
+}) {
   return (
     <main className="min-h-svh overflow-x-clip bg-[#f7f4ec] text-[#294944]">
       <header className="border-b border-[#d9dfd8] bg-[#fffdf8]/95">
@@ -43,7 +48,7 @@ export function CourseDashboard({ isAdmin = false }: { isAdmin?: boolean }) {
             <span className="hidden items-center gap-2 rounded-full bg-[#e7efe9] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3d655d] sm:inline-flex">
               <BookOpenCheck size={15} aria-hidden="true" /> Mi espacio
             </span>
-            <AccountMenu />
+            {accountMenu}
           </div>
         </div>
       </header>

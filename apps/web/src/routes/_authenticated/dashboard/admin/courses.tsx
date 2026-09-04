@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { PurchasersDialog } from "@/features/admin-dashboard/components/purchasers-dialog";
+import { getCourse } from "@/features/course-dashboard/api/get-course";
 import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
 
 export const Route = createFileRoute("/_authenticated/dashboard/admin/courses")(
@@ -14,7 +15,7 @@ function AdminCoursesPage() {
     title: string;
   } | null>(null);
   const [open, setOpen] = useState<boolean>(false);
- console.log(open)
+
   return (
     <section aria-labelledby="admin-courses-title">
       <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -32,28 +33,16 @@ function AdminCoursesPage() {
         </div>
       </div>
       <CourseManagementPanel
-        onViewPurchasers={(course) =>{
+        fetchCourseDetail={getCourse}
+        onViewPurchasers={(course) => {
           setSelectedCourse({ id: course.id, title: course.title });
-          setOpen(!open);
-        }
-        }
+          setOpen(true);
+        }}
       />
       <PurchasersDialog
-        course={selectedCourse ?? {id:0,title:"error"}}
+        course={selectedCourse}
         isOpen={open}
-        onOpenChange={(open) => {
-
-          console.log(open);
-          setOpen(open)
-        
-        
-         
-        }}
-        
-        // onOpenChange={(open)=>{
-        //   if(selectedCourse)return true
-        //   return false
-        // }}
+        onOpenChange={setOpen}
       />
     </section>
   );

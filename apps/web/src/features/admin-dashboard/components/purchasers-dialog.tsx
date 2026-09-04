@@ -4,7 +4,6 @@ import { useDeferredValue, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { DemoDialog } from "@/features/admin-dashboard/components/demo-dialog";
-import { getCourseBuyers } from "@/features/admin-dashboard/api/get-course-buyers";
 import { queries } from "@/config/queries";
 
 export function PurchasersDialog({
@@ -20,13 +19,8 @@ export function PurchasersDialog({
   const deferredQuery = useDeferredValue(
     query.trim().toLocaleLowerCase("es-CL"),
   );
-  // const purchasersQuery = useQuery({
-  //   queryKey: ["course-buyers", course?.id],
-  //   queryFn: () => (course ? getCourseBuyers(course.id) : Promise.resolve([])),
-  //   enabled: course !== null,
-  // });
 
-  const purchasersQuery = useQuery(queries.courseBuyers(course?.id ?? null ))
+  const purchasersQuery = useQuery(queries.courseBuyers(course?.id ?? null))
 
   const purchasers = purchasersQuery.data ?? [];
   const visiblePurchasers = purchasers.filter(
@@ -35,17 +29,13 @@ export function PurchasersDialog({
       name.toLocaleLowerCase("es-CL").includes(deferredQuery) ||
       email.toLocaleLowerCase("es-CL").includes(deferredQuery),
   );
- 
-  
+
   return (
     <DemoDialog
       open={isOpen}
       onOpenChange={(open) => {
-       
         if (!open) setQuery("");
         onOpenChange(open);
-
-       
       }}
       title={`Compradores de ${course?.title ?? "curso"}`}
       description="Personas que compraron este curso y la fecha de su compra."
