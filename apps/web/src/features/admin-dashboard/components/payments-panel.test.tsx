@@ -1,10 +1,10 @@
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PaymentsPanel } from "@/features/admin-dashboard/components/payments-panel";
 import { demoTransactions } from "@/features/admin-dashboard/data";
-import { render } from "@/testing/test-utils";
+import { createTestQueryClient, render } from "@/testing/test-utils";
 
 const mockGetPayments = vi.fn();
 vi.mock("@/features/admin-dashboard/api/get-payments", () => ({
@@ -56,5 +56,22 @@ describe("PaymentsPanel", () => {
 
     expect(await screen.findByText("$119.000")).toBeVisible();
     expect(screen.getAllByText("Datos de demostración").length).toBeGreaterThan(0);
+  });
+
+  it("keeps live labeling when a background refetch fails with cached data", async () => {
+    const live = [{ ...demoTransactions[0], orderId: "AR-REAL" }];
+    mockGetPayments.mockResolvedValueOnce(live).mockRejectedValue(new Error("caída"));
+    const queryClient = createTestQueryClient();
+    render(<PaymentsPanel />, { queryClient });
+
+    expect((await screen.findAllByText("AR-REAL"))[0]).toBeVisible();
+    expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
+
+    await act(async () => {
+      await queryClient.invalidateQueries({ queryKey: ["payments"] });
+    });
+
+    expect(screen.getAllByText("AR-REAL")[0]).toBeVisible();
+    expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
   });
 });

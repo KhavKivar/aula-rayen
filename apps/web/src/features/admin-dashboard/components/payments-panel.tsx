@@ -157,8 +157,9 @@ export function PaymentsPanel() {
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
   const deferredQuery = useDeferredSearch(filters.query);
   const paymentsQuery = useQuery(adminDashboardQueries.payments);
-  const isLive =
-    paymentsQuery.data !== undefined && !paymentsQuery.isError;
+  // Hay datos reales aunque un refetch en background falle (React Query
+  // conserva la caché con isError en true). Solo se usa demo sin datos.
+  const isLive = paymentsQuery.data !== undefined;
   const payments = paymentsQuery.data ?? demoTransactions;
   const [selectedPayment, setSelectedPayment] =
     useState<AdminPayment | null>(null);
