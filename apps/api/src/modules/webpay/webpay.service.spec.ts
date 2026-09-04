@@ -212,6 +212,7 @@ describe('WebPayService', () => {
     expect(payments).toEqual([
       expect.objectContaining({
         orderId: 'order-approved',
+        userId: 'user-id',
         status: 'approved',
         maskedCard: '•••• 8034',
         authorizationCode: '872193',

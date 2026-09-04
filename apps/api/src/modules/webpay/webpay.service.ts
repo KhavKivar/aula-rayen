@@ -109,6 +109,7 @@ export class WebPayService {
 
         return {
           orderId: row.buyOrderId,
+          userId: row.userId,
           buyerName: row.buyerName ?? 'Sin nombre',
           buyerEmail: row.buyerEmail,
           courseId: row.courseId,
