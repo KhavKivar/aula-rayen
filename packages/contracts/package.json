@@ -18,6 +18,11 @@
       "types": "./dist/api-error.d.ts",
       "import": "./dist/api-error.js",
       "require": "./dist-cjs/api-error.js"
+    },
+    "./payment": {
+      "types": "./dist/payment.d.ts",
+      "import": "./dist/payment.js",
+      "require": "./dist-cjs/payment.js"
     }
   },
   "files": [

@@ -3,6 +3,10 @@ import { WebPayRepository } from './webpay.repository';
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { nanoid } from 'nanoid';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
+import {
+  paymentsResponseSchema,
+  type PaymentsResponse,
+} from '@aula-rayen/contracts/payment';
 
 import { badRequestError, notFoundError } from '@/common/errors/http-error';
 
@@ -90,6 +94,39 @@ export class WebPayService {
     return this.repository.findAll();
   }
 
+  async getPayments(limit = 100): Promise<PaymentsResponse> {
+    const rows = await this.repository.findPayments(
+      Math.min(Math.max(limit, 1), 200),
+    );
+
+    return paymentsResponseSchema.parse(
+      rows.map((row) => {
+        const approved =
+          row.committedAt !== null &&
+          row.responseCode === 0 &&
+          row.tbStatus === 'AUTHORIZED';
+        const attempted = row.responseCode !== null || row.tbStatus !== null;
+
+        return {
+          orderId: row.buyOrderId,
+          buyerName: row.buyerName ?? 'Sin nombre',
+          buyerEmail: row.buyerEmail,
+          courseId: row.courseId,
+          courseTitle: row.courseTitle,
+          amount: row.amount,
+          date: (row.committedAt ?? row.createdAt ?? new Date()).toISOString(),
+          status: approved ? 'approved' : attempted ? 'rejected' : 'pending',
+          maskedCard: row.cardNumber
+            ? `•••• ${row.cardNumber.slice(-4)}`
+            : 'No registrada',
+          ...(row.authorizationCode
+            ? { authorizationCode: row.authorizationCode }
+            : {}),
+        } as const;
+      }),
+    );
+  }
+
   async create(
     createWebpayDto: CreateWebpayDto,
     userId: string,
@@ -139,6 +176,12 @@ export class WebPayService {
       );
     }
 
+    // Reintento de un pago ya confirmado: éxito idempotente sin
+    // volver a llamar a Transbank ni reescribir la fila.
+    if (webpaySession.committedAt) {
+      return { payment: true };
+    }
+
     const parsedCommit = CommitResponseSchema.safeParse(
       await webpayTransaction.commit(tokenNormal),
     );
@@ -160,6 +203,7 @@ export class WebPayService {
       committedBuyOrderId !== webpaySession.buyOrderId ||
       commitDetails.tbAmount !== webpaySession.amount
     ) {
+      await this.repository.recordAttempt(buyOrderId, commitDetails);
       return { payment: false };
     }
 

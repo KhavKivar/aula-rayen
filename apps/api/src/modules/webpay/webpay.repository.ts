@@ -1,9 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { DRIZZLE } from '@/db';
-import { course_purchases, webpay_sessions } from '@/db/schema';
+import { course_purchases, courses, user, webpay_sessions } from '@/db/schema';
 import type { Database, NewWebPaySession, WebPaySession } from '@/db/types';
-import { eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
+
+type CommitDetails = Pick<
+  NewWebPaySession,
+  | 'vci'
+  | 'tbAmount'
+  | 'tbStatus'
+  | 'cardNumber'
+  | 'accountingDate'
+  | 'transactionDate'
+  | 'authorizationCode'
+  | 'paymentTypeCode'
+  | 'responseCode'
+  | 'installmentsAmount'
+  | 'installmentsNumber'
+>;
 
 @Injectable()
 export class WebPayRepository {
@@ -20,6 +35,30 @@ export class WebPayRepository {
       .where(eq(webpay_sessions.buyOrderId, buyOrderId));
     return session ?? null;
   }
+
+  async findPayments(limit: number) {
+    return this.db
+      .select({
+        buyOrderId: webpay_sessions.buyOrderId,
+        amount: webpay_sessions.amount,
+        createdAt: webpay_sessions.createdAt,
+        committedAt: webpay_sessions.committedAt,
+        responseCode: webpay_sessions.responseCode,
+        tbStatus: webpay_sessions.tbStatus,
+        cardNumber: webpay_sessions.cardNumber,
+        authorizationCode: webpay_sessions.authorizationCode,
+        userId: user.id,
+        buyerName: user.name,
+        buyerEmail: user.email,
+        courseId: courses.id,
+        courseTitle: courses.title,
+      })
+      .from(webpay_sessions)
+      .innerJoin(user, eq(webpay_sessions.userId, user.id))
+      .innerJoin(courses, eq(webpay_sessions.courseId, courses.id))
+      .orderBy(desc(webpay_sessions.createdAt))
+      .limit(limit);
+  }
   async create(
     newWebPaySession: NewWebPaySession,
   ): Promise<WebPaySession | null> {
@@ -35,20 +74,7 @@ export class WebPayRepository {
     buyOrderId: string,
     userId: string,
     courseId: number,
-    response: Pick<
-      NewWebPaySession,
-      | 'vci'
-      | 'tbAmount'
-      | 'tbStatus'
-      | 'cardNumber'
-      | 'accountingDate'
-      | 'transactionDate'
-      | 'authorizationCode'
-      | 'paymentTypeCode'
-      | 'responseCode'
-      | 'installmentsAmount'
-      | 'installmentsNumber'
-    >,
+    response: CommitDetails,
   ): Promise<WebPaySession | null> {
     return this.db.transaction(async (tx) => {
       const [webPaySession] = await tx
@@ -70,5 +96,28 @@ export class WebPayRepository {
 
       return webPaySession ?? null;
     });
+  }
+
+  /**
+   * Persists a non-authorized gateway response for audit without
+   * completing the payment. Never touches already completed rows and
+   * never grants course access.
+   */
+  async recordAttempt(
+    buyOrderId: string,
+    response: CommitDetails,
+  ): Promise<WebPaySession | null> {
+    const [webPaySession] = await this.db
+      .update(webpay_sessions)
+      .set({ ...response })
+      .where(
+        and(
+          eq(webpay_sessions.buyOrderId, buyOrderId),
+          isNull(webpay_sessions.committedAt),
+        ),
+      )
+      .returning();
+
+    return webPaySession ?? null;
   }
 }
