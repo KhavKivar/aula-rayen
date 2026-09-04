@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const courseMutableFieldsSchema = z
   .object({
@@ -38,11 +38,27 @@ export const createCourseRequestSchema = courseMutableFieldsSchema;
 export const updateCourseRequestSchema = courseMutableFieldsSchema
   .partial()
   .refine((value) => Object.keys(value).length > 0, {
-    message: 'Debes enviar al menos un campo para actualizar',
+    message: "Debes enviar al menos un campo para actualizar",
   });
 
+export const userPublicResponseSchema = z.object({
+  id: z.string().trim().min(1),
+  email: z.email(),
+  name: z.string().trim().min(1),
+});
+
+export const courseBuyerResponseSchema = userPublicResponseSchema
+  .extend({
+    purchasedAt: z.iso.datetime(),
+  })
+  .strict();
+
+export const courseBuyersResponseSchema = z.array(courseBuyerResponseSchema);
 export const courseMutationResponseSchema = courseDetailSchema;
 
+export type UserPublicResponse = z.infer<typeof userPublicResponseSchema>;
+export type CourseBuyerResponse = z.infer<typeof courseBuyerResponseSchema>;
+export type CourseBuyersResponse = z.infer<typeof courseBuyersResponseSchema>;
 export type CourseCatalogItem = z.infer<typeof courseCatalogItemSchema>;
 export type CourseCatalog = z.infer<typeof courseCatalogSchema>;
 export type CourseDetail = z.infer<typeof courseDetailSchema>;

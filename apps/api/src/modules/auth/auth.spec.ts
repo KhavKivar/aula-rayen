@@ -1,6 +1,7 @@
 const sendMock = jest.fn();
 const loggerErrorMock = jest.fn();
 const betterAuthMock = jest.fn((options: unknown) => options);
+const adminPlugin = { id: 'admin' };
 
 jest.mock('@/config/env', () => ({
   env: {
@@ -16,6 +17,9 @@ jest.mock('@/config/env', () => ({
 }));
 jest.mock('@/db', () => ({ db: {} }));
 jest.mock('better-auth', () => ({ betterAuth: betterAuthMock }));
+jest.mock('better-auth/plugins', () => ({
+  admin: jest.fn(() => adminPlugin),
+}));
 jest.mock('better-auth/adapters/drizzle', () => ({
   drizzleAdapter: jest.fn(() => ({ id: 'drizzle-adapter' })),
 }));
@@ -61,6 +65,12 @@ describe('password recovery auth settings', () => {
 
   it('mounts Better Auth at the configured backend path', () => {
     expect((auth as unknown as { basePath: string }).basePath).toBe('/auth');
+  });
+
+  it('registers the admin role plugin', () => {
+    expect((auth as unknown as { plugins: unknown[] }).plugins).toContain(
+      adminPlugin,
+    );
   });
 
   it('shares cookies with the configured parent domain', () => {

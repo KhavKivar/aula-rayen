@@ -1,10 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { UpdateCourseRequest } from '@aula-rayen/contracts/course';
+import type {
+  CourseBuyerResponse,
+  UpdateCourseRequest,
+} from '@aula-rayen/contracts/course';
 import { and, eq } from 'drizzle-orm';
 
 import { DRIZZLE } from '@/db';
-import { course_purchases, courses } from '@/db/schema';
-import type { Course, CoursePurchase, Database, NewCourse } from '@/db/types';
+import { course_purchases, courses, user } from '@/db/schema';
+import type { Course, Database, NewCourse } from '@/db/types';
 
 export type CourseCatalogItem = Pick<
   Course,
@@ -12,8 +15,6 @@ export type CourseCatalogItem = Pick<
 > & {
   hasAccess: boolean;
 };
-
-export type CoursePurchaser = Pick<CoursePurchase, 'userId'>;
 
 @Injectable()
 export class CourseRepository {
@@ -23,11 +24,31 @@ export class CourseRepository {
     return this.db.select().from(courses);
   }
 
-  findPurchasersByCourseId(courseId: number): Promise<CoursePurchaser[]> {
-    return this.db
+  async findPurchasersByCourseId(courseId: number) {
+    const [purchasers] = await this.db
       .select({ userId: course_purchases.userId })
       .from(course_purchases)
       .where(eq(course_purchases.courseId, courseId));
+
+    return purchasers ?? [];
+  }
+
+  async findBuyers(courseId: number): Promise<CourseBuyerResponse[]> {
+    const buyers = await this.db
+      .select({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        purchasedAt: course_purchases.createdAt,
+      })
+      .from(course_purchases)
+      .innerJoin(user, eq(course_purchases.userId, user.id))
+      .where(eq(course_purchases.courseId, courseId));
+
+    return buyers.map((buyer) => ({
+      ...buyer,
+      purchasedAt: buyer.purchasedAt.toISOString(),
+    }));
   }
 
   async hasPurchases(courseId: number): Promise<boolean> {

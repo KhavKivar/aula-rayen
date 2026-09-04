@@ -1,3 +1,4 @@
+import { getCourseBuyers } from "@/features/admin-dashboard/api/get-course-buyers";
 import { getCourses } from "@/features/course-dashboard/api/get-courses";
 import { authClient } from "@/lib/auth-client";
 import { queryOptions } from "@tanstack/react-query";
@@ -16,7 +17,7 @@ export const queries = {
         session: session.data.session,
       };
     },
-    staleTime: 0,
+    staleTime: 1000 * 30,
     gcTime: 1000 * 60 * 30,
   }),
   courses: queryOptions({
@@ -25,4 +26,18 @@ export const queries = {
     staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   }),
+  courseBuyers: (courseId: number | null) =>
+    queryOptions({
+      queryKey: ["course-buyers", courseId],
+      queryFn: () => getCourseBuyers(courseId),
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+    }),
 };
+
+
+// {
+//   queryKey: ["course-buyers", course?.id],
+//   queryFn: () => (course ? getCourseBuyers(course.id) : Promise.resolve([])),
+//   enabled: course !== null,
+// }

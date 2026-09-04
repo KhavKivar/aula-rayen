@@ -58,7 +58,7 @@ describe("authenticated route layout", () => {
     getSessionMock.mockResolvedValue({
       data: {
         session: { id: "session-1" },
-        user: { id: "user-1" },
+        user: { id: "user-1", role: "user" },
       },
     });
     const router = createTestRouter("/dashboard");
@@ -67,7 +67,47 @@ describe("authenticated route layout", () => {
 
     expect(router.state.location.pathname).toBe("/dashboard");
     expect(router.state.matches.at(-1)?.routeId).toBe(
-      "/_authenticated/dashboard",
+      "/_authenticated/dashboard/",
     );
+  });
+
+  it("redirects a normal user away from an admin deep link", async () => {
+    getSessionMock.mockResolvedValue({
+      data: {
+        session: { id: "session-user" },
+        user: { id: "user-1", role: "user" },
+      },
+    });
+    const router = createTestRouter("/dashboard/admin/payments");
+
+    await router.load();
+
+    expect(router.state.location.pathname).toBe("/dashboard");
+  });
+
+  it("opens courses by default for admins and preserves the admin layout", async () => {
+    getSessionMock.mockResolvedValue({
+      data: {
+        session: { id: "session-admin" },
+        user: { id: "admin-1", role: "admin" },
+      },
+    });
+    const router = createTestRouter("/dashboard/admin");
+
+    await router.load();
+    expect(router.state.location.pathname).toBe("/dashboard/admin/courses");
+    expect(
+      router.state.matches.some(
+        ({ routeId }) => routeId === "/_authenticated/dashboard/admin",
+      ),
+    ).toBe(true);
+
+    await router.navigate({ to: "/dashboard/admin/payments" });
+    expect(router.state.location.pathname).toBe("/dashboard/admin/payments");
+    expect(
+      router.state.matches.some(
+        ({ routeId }) => routeId === "/_authenticated/dashboard/admin",
+      ),
+    ).toBe(true);
   });
 });

@@ -78,4 +78,19 @@ describe("CourseManagementPanel", () => {
     await user.click(screen.getByRole("button", { name: "Crear curso" }));
     expect(await screen.findByRole("dialog", { name: "Crear curso" })).toBeVisible();
   });
+
+  it("exposes an optional purchaser action without coupling its behavior", async () => {
+    const user = userEvent.setup();
+    const onViewPurchasers = vi.fn();
+    mockGetCourses.mockResolvedValue([course]);
+    render(<CourseManagementPanel onViewPurchasers={onViewPurchasers} />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: `Ver compradores de ${course.title}`,
+      }),
+    );
+
+    expect(onViewPurchasers).toHaveBeenCalledWith(course);
+  });
 });

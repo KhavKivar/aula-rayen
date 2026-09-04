@@ -37,6 +37,24 @@ export default defineConfig([
         },
       },
     },
-    rules: {},
+    rules: {
+      "import/no-restricted-paths": [
+        "error",
+        {
+          zones: [
+            {
+              target: "./src/features/admin-dashboard",
+              from: "./src/features/course-dashboard",
+              message: "Compose course features from routes, not from admin-dashboard.",
+            },
+            {
+              target: "./src/features/admin-dashboard",
+              from: "./src/features/course-management",
+              message: "Compose course features from routes, not from admin-dashboard.",
+            },
+          ],
+        },
+      ],
+    },
   },
 ]);

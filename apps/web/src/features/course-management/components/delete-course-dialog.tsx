@@ -4,12 +4,20 @@ import { LoaderCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { deleteCourse } from "@/features/course-management/api/delete-course";
+import { AxiosError } from "axios";
 
 type Props = {
   open: boolean;
   course?: CourseCatalogItem | null;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+};
+
+
+type ApiError = {
+  message: string;
+  error: string;
+  statusCode: number;
 };
 
 export function DeleteCourseDialog({
@@ -19,13 +27,13 @@ export function DeleteCourseDialog({
   onSuccess,
 }: Props) {
   const queryClient = useQueryClient();
-  const mutation = useMutation({
+  const mutation = useMutation<unknown,AxiosError<ApiError>,{id:number}>({
     mutationFn: deleteCourse,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["courses"] });
       onOpenChange(false);
       onSuccess?.();
-    },
+    }
   });
 
   if (!open || !course) return null;
@@ -48,10 +56,11 @@ export function DeleteCourseDialog({
 
         {mutation.isError ? (
           <p role="alert" className="mt-4 text-sm text-destructive">
-            {(mutation.error as Error).message ??
+            {mutation.error .response?.data.message ??
               "No se pudo eliminar el curso"}
           </p>
         ) : null}
+
 
         <div className="mt-6 flex justify-end gap-3">
           <Button

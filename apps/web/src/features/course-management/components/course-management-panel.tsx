@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, LoaderCircle, Pencil, Trash2 } from "lucide-react";
+import { AlertCircle, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,11 @@ import { CourseFormDialog } from "@/features/course-management/components/course
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 
-export function CourseManagementPanel() {
+export function CourseManagementPanel({
+  onViewPurchasers,
+}: {
+  onViewPurchasers?: (course: CourseCatalogItem) => void;
+}) {
   const queryClient = useQueryClient();
   const coursesQuery = useQuery(queries.courses);
 
@@ -159,6 +163,18 @@ export function CourseManagementPanel() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
+                        {onViewPurchasers ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onViewPurchasers(course)}
+                            aria-label={`Ver compradores de ${course.title}`}
+                            id={`purchasers-trigger-${course.id}`}
+                          >
+                            <Eye size={14} aria-hidden="true" />
+                            Compradores
+                          </Button>
+                        ) : null}
                         <Button
                           variant="outline"
                           size="sm"

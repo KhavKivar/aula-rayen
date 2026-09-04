@@ -7,6 +7,7 @@ import {
 import type {
   CreateCourseRequest,
   UpdateCourseRequest,
+  CourseBuyerResponse,
 } from '@aula-rayen/contracts/course';
 
 import { CourseRepository } from './course.repository';
@@ -17,6 +18,10 @@ export class CourseService {
 
   getAll() {
     return this.repository.findAll();
+  }
+
+  getBuyers(courseId: number): Promise<CourseBuyerResponse[]> {
+    return this.repository.findBuyers(courseId);
   }
 
   getCatalogForUser(userId: string) {

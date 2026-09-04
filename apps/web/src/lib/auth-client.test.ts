@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createAuthClientMock } = vi.hoisted(() => ({
+const { adminPlugin, createAuthClientMock } = vi.hoisted(() => ({
+  adminPlugin: { id: "admin" },
   createAuthClientMock: vi.fn((opts: unknown) => ({
     signIn: vi.fn(),
     signUp: vi.fn(),
@@ -13,6 +14,10 @@ const { createAuthClientMock } = vi.hoisted(() => ({
 
 vi.mock("better-auth/react", () => ({
   createAuthClient: createAuthClientMock,
+}));
+
+vi.mock("better-auth/client/plugins", () => ({
+  adminClient: vi.fn(() => adminPlugin),
 }));
 
 vi.mock("@/config/env", () => ({
@@ -31,6 +36,7 @@ describe("auth-client direct transport", () => {
     expect(createAuthClientMock).toHaveBeenCalledWith(
       expect.objectContaining({
         baseURL: "https://aula-rayen.vasvani.shop/api/auth",
+        plugins: [adminPlugin],
       }),
     );
     const opts = createAuthClientMock.mock.calls[0]?.[0] as Record<string, unknown>;

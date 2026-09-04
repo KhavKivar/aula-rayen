@@ -4,6 +4,7 @@ import { Logger } from '@nestjs/common';
 import { db } from '@/db'; // your drizzle instance
 import { env } from '@/config/env';
 import { passwordResetMailer } from './password-reset-mailer';
+import { admin } from 'better-auth/plugins';
 
 export const PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS = 60 * 60;
 export const PASSWORD_RESET_RATE_LIMIT = {
@@ -50,6 +51,11 @@ export const auth = betterAuth({
       ipAddressHeaders: ['cf-connecting-ip'],
     },
   },
+  plugins: [
+    admin({
+      defaultRole: 'user',
+    }),
+  ],
   database: drizzleAdapter(db, {
     provider: 'pg', // or "mysql", "sqlite"
   }),

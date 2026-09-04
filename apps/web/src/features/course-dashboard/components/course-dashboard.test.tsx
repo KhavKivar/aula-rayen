@@ -1,5 +1,4 @@
 import { screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -41,23 +40,22 @@ describe("CourseDashboard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("switches between its real catalog and management panels", async () => {
-    const user = userEvent.setup();
+  it("keeps course management out of the learner dashboard", async () => {
     render(<CourseDashboard />);
 
     expect(
-      await screen.findByRole("tabpanel", { name: "Ver cursos" }),
+      await screen.findByText("No hay cursos disponibles por ahora"),
     ).toBeVisible();
+    expect(screen.queryByText("Gestionar cursos")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Administrar" })).not.toBeInTheDocument();
+  });
 
-    await user.click(
-      screen.getByRole("tab", { name: "Gestionar cursos" }),
+  it("shows the admin entry point only when requested by the route", () => {
+    render(<CourseDashboard isAdmin />);
+
+    expect(screen.getByRole("link", { name: "Administrar" })).toHaveAttribute(
+      "href",
+      "/dashboard/admin",
     );
-
-    expect(
-      screen.getByRole("tabpanel", { name: "Gestionar cursos" }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("heading", { name: "Gestionar cursos" }),
-    ).toBeVisible();
   });
 });

@@ -36,6 +36,7 @@ describe('CourseService', () => {
             findById: jest.fn(),
             findPurchasedById: jest.fn(),
             findPurchasersByCourseId: jest.fn(),
+            findBuyers: jest.fn(),
             create: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
@@ -69,6 +70,21 @@ describe('CourseService', () => {
       repository.findById.mockResolvedValue(course);
 
       await expect(service.getById(course.id)).resolves.toEqual(course);
+    });
+
+    it('should return buyers for a course', async () => {
+      const buyers = [
+        {
+          id: '30bde5f7-7f69-44d9-94b8-bdb75923c91e',
+          name: 'Camila Rojas',
+          email: 'camila@example.com',
+          purchasedAt: '2026-09-03T13:20:00.000Z',
+        },
+      ];
+      repository.findBuyers.mockResolvedValue(buyers);
+
+      await expect(service.getBuyers(course.id)).resolves.toEqual(buyers);
+      expect(repository.findBuyers.mock.calls).toEqual([[course.id]]);
     });
 
     it('should throw when a course does not exist', async () => {

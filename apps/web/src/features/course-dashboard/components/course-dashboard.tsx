@@ -2,19 +2,17 @@ import {
   AlertCircle,
   BookOpenCheck,
   LoaderCircle,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { AccountMenu } from "@/features/auth/components/account-menu";
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
-import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
 import { queries } from "@/config/queries";
-
-type Tab = "catalog" | "manage";
 
 function CatalogContent() {
   const { data: courses } = useSuspenseQuery(queries.courses);
@@ -22,9 +20,7 @@ function CatalogContent() {
   return <CourseCatalog courses={courses} />;
 }
 
-export function CourseDashboard() {
-  const [activeTab, setActiveTab] = useState<Tab>("catalog");
-
+export function CourseDashboard({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
     <main className="min-h-svh overflow-x-clip bg-[#f7f4ec] text-[#294944]">
       <header className="border-b border-[#d9dfd8] bg-[#fffdf8]/95">
@@ -36,6 +32,14 @@ export function CourseDashboard() {
             Aula Rayen
           </Link>
           <div className="flex items-center gap-3">
+            {isAdmin ? (
+              <Link
+                to="/dashboard/admin"
+                className="hidden min-h-10 items-center gap-2 rounded-full border border-[#cbd7cf] px-4 text-sm font-semibold text-[#294944] transition hover:bg-[#e7efe9] sm:inline-flex"
+              >
+                <ShieldCheck size={16} aria-hidden="true" /> Administrar
+              </Link>
+            ) : null}
             <span className="hidden items-center gap-2 rounded-full bg-[#e7efe9] px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#3d655d] sm:inline-flex">
               <BookOpenCheck size={15} aria-hidden="true" /> Mi espacio
             </span>
@@ -66,89 +70,31 @@ export function CourseDashboard() {
         </section>
 
         <div className="mt-10 sm:mt-12">
-          <div
-            role="tablist"
-            aria-label="Secciones del dashboard"
-            className="inline-flex rounded-full border border-[#d9dfd8] bg-[#fffdf8] p-1"
+          <ErrorBoundary
+            fallback={
+              <div
+                role="alert"
+                className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+              >
+                <AlertCircle aria-hidden="true" />
+                No fue posible cargar los cursos. Inténtalo nuevamente.
+              </div>
+            }
           >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === "catalog"}
-              aria-controls="panel-catalog"
-              id="tab-catalog"
-              onClick={() => setActiveTab("catalog")}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294944] focus-visible:ring-offset-2 ${
-                activeTab === "catalog"
-                  ? "bg-[#294944] text-white shadow"
-                  : "text-[#294944] hover:bg-[#f7f4ec]"
-              }`}
-            >
-              Ver cursos
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === "manage"}
-              aria-controls="panel-manage"
-              id="tab-manage"
-              onClick={() => setActiveTab("manage")}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#294944] focus-visible:ring-offset-2 ${
-                activeTab === "manage"
-                  ? "bg-[#294944] text-white shadow"
-                  : "text-[#294944] hover:bg-[#f7f4ec]"
-              }`}
-            >
-              Gestionar cursos
-            </button>
-          </div>
-
-          <div className="mt-8">
-            {activeTab === "catalog" ? (
-              <div
-                id="panel-catalog"
-                role="tabpanel"
-                aria-labelledby="tab-catalog"
-              >
-                <ErrorBoundary
-                  fallback={
-                    <div
-                      role="alert"
-                      className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
-                    >
-                      <AlertCircle aria-hidden="true" />
-                      No fue posible cargar los cursos. Inténtalo nuevamente.
-                    </div>
-                  }
+            <Suspense
+              fallback={
+                <div
+                  role="status"
+                  className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
                 >
-                  <Suspense
-                    fallback={
-                      <div
-                        role="status"
-                        className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
-                      >
-                        <LoaderCircle
-                          className="animate-spin"
-                          aria-hidden="true"
-                        />
-                        Cargando cursos…
-                      </div>
-                    }
-                  >
-                    <CatalogContent />
-                  </Suspense>
-                </ErrorBoundary>
-              </div>
-            ) : (
-              <div
-                id="panel-manage"
-                role="tabpanel"
-                aria-labelledby="tab-manage"
-              >
-                <CourseManagementPanel />
-              </div>
-            )}
-          </div>
+                  <LoaderCircle className="animate-spin" aria-hidden="true" />
+                  Cargando cursos…
+                </div>
+              }
+            >
+              <CatalogContent />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </main>

@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { Session } from '@thallesp/nestjs-better-auth';
+import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
   createCourseRequestSchema,
@@ -19,17 +19,20 @@ import type {
   CourseDetail,
   CreateCourseRequest as CreateCourseDto,
   UpdateCourseRequest as UpdateCourseDto,
+  CourseBuyerResponse,
 } from '@aula-rayen/contracts/course';
 
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
 import { toCourseCatalogItem, toCourseDetail } from './course.mapper';
 import { CourseService } from './course.service';
 
+@Roles(['admin'])
 @Controller('courses')
 export class CourseController {
   constructor(private readonly courseService: CourseService) {}
 
   @Get()
+  @Roles(['user', 'admin'])
   async findAll(@Session() session: UserSession): Promise<CourseCatalogItem[]> {
     const courses = await this.courseService.getCatalogForUser(session.user.id);
 
@@ -37,6 +40,7 @@ export class CourseController {
   }
 
   @Get(':id')
+  @Roles(['user', 'admin'])
   async findById(
     @Param('id', ParseIntPipe) id: number,
     @Session() session: UserSession,
@@ -45,12 +49,17 @@ export class CourseController {
       id,
       session.user.id,
     );
-
     return toCourseDetail(course);
   }
 
-  // Temporalmente abierto a cualquier usuario autenticado.
-  // Se añadirá guard de rol admin en el próximo cambio.
+  @Get('buyers/:id')
+  @Roles(['admin'])
+  async findBuyers(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CourseBuyerResponse[]> {
+    return this.courseService.getBuyers(id);
+  }
+
   @Post()
   async create(
     @Session() _session: UserSession,
