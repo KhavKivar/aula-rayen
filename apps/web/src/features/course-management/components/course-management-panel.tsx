@@ -4,6 +4,7 @@ import { AlertCircle, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { queryKeys } from "@/config/query-keys";
 import { CourseFormDialog } from "@/features/course-management/components/course-form-dialog";
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
@@ -113,26 +114,20 @@ export function CourseManagementPanel({
       ) : null}
 
       {courses.length === 0 ? (
-        <section
-          className="rounded-[2rem] border border-dashed border-[#bfcac3] bg-[#fffdf8] px-6 py-16 text-center"
-          aria-labelledby="empty-manage-title"
-        >
-          <h3
-            id="empty-manage-title"
-            className="font-heading text-xl font-semibold text-[#294944]"
-          >
-            No hay cursos aún
-          </h3>
-          <p className="mx-auto mt-2 max-w-md leading-7 text-[#62716d]">
-            Crea tu primer curso para comenzar a gestionar el catálogo.
-          </p>
-          <Button
-            onClick={() => setCreateOpen(true)}
-            className="mt-6 bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]"
-          >
-            Crear tu primer curso
-          </Button>
-        </section>
+        <EmptyState
+          title="No hay cursos aún"
+          titleId="empty-manage-title"
+          titleClassName="text-xl"
+          description="Crea tu primer curso para comenzar a gestionar el catálogo."
+          action={
+            <Button
+              onClick={() => setCreateOpen(true)}
+              className="bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]"
+            >
+              Crear tu primer curso
+            </Button>
+          }
+        />
       ) : (
         <div className="overflow-hidden rounded-[1.5rem] border border-[#d9dfd8] bg-[#fffdf8]">
           <div className="overflow-x-auto">

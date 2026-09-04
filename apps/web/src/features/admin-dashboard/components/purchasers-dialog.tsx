@@ -3,6 +3,7 @@ import { AlertCircle, LoaderCircle, Search, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
   DialogBackdrop,
@@ -99,22 +100,27 @@ export function PurchasersDialog({
           No fue posible cargar los compradores.
         </div>
       ) : visiblePurchasers.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-[#cbd7cf] bg-[#f8f7f1] px-5 py-10 text-center">
-          <ShoppingBag
-            aria-hidden="true"
-            className="mx-auto size-8 text-[#86938e]"
-          />
-          <p className="mt-3 font-heading text-lg font-semibold">
-            {purchasers.length === 0
+        <EmptyState
+          className="mt-6 rounded-2xl border-[#cbd7cf] bg-[#f8f7f1] px-5 py-10"
+          icon={
+            <ShoppingBag
+              aria-hidden="true"
+              className="mx-auto size-8 text-[#86938e]"
+            />
+          }
+          title={
+            purchasers.length === 0
               ? "Este curso aún no registra compras"
-              : "No encontramos compradores"}
-          </p>
-          <p className="mt-1 text-sm text-[#65746f]">
-            {purchasers.length === 0
+              : "No encontramos compradores"
+          }
+          titleId="purchasers-empty-title"
+          titleClassName="mt-3 text-lg"
+          description={
+            purchasers.length === 0
               ? "Las compras aparecerán aquí cuando se registren."
-              : "Intenta con otro nombre o correo."}
-          </p>
-        </div>
+              : "Intenta con otro nombre o correo."
+          }
+        />
       ) : (
         <div className="mt-6 overflow-hidden rounded-2xl border border-[#d9dfd8]">
           <div className="hidden overflow-x-auto sm:block">

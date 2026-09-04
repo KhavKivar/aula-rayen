@@ -1,5 +1,6 @@
 import { BookOpen } from "lucide-react";
 
+import { EmptyState } from "@/components/ui/empty-state";
 import { CourseCard } from "@/features/course-dashboard/components/course-card";
 import type { Course } from "@/features/course-dashboard/types/course";
 import { useWebpayCheckout } from "@/features/course-dashboard/api/use-webpay-checkout";
@@ -10,25 +11,19 @@ export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
 
   if (courses.length === 0) {
     return (
-      <section
-        className="rounded-[2rem] border border-dashed border-[#bfcac3] bg-[#fffdf8] px-6 py-16 text-center"
-        aria-labelledby="empty-catalog-title"
-      >
-        <BookOpen
-          className="mx-auto text-[#c66f51]"
-          size={36}
-          aria-hidden="true"
-        />
-        <h2
-          id="empty-catalog-title"
-          className="mt-5 font-heading text-2xl font-semibold text-[#294944]"
-        >
-          No hay cursos disponibles por ahora
-        </h2>
-        <p className="mx-auto mt-2 max-w-md leading-7 text-[#62716d]">
-          Estamos preparando nuevas experiencias. Vuelve pronto para conocerlas.
-        </p>
-      </section>
+      <EmptyState
+        icon={
+          <BookOpen
+            className="mx-auto text-[#c66f51]"
+            size={36}
+            aria-hidden="true"
+          />
+        }
+        title="No hay cursos disponibles por ahora"
+        titleId="empty-catalog-title"
+        titleClassName="mt-5"
+        description="Estamos preparando nuevas experiencias. Vuelve pronto para conocerlas."
+      />
     );
   }
 

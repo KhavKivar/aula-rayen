@@ -1,7 +1,9 @@
-import { CreditCard, FilterX, ReceiptText, Search } from "lucide-react";
+import { CreditCard, FilterX, FlaskConical, ReceiptText, Search } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   Dialog,
   DialogBackdrop,
@@ -14,7 +16,6 @@ import {
   DialogViewport,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { DemoBadge } from "@/features/admin-dashboard/components/demo-badge";
 import {
   demoTransactions,
   filterPayments,
@@ -34,10 +35,13 @@ const paymentStatusLabel: Record<PaymentStatus, string> = {
   rejected: "Rechazado",
 };
 
-const statusClass: Record<PaymentStatus, string> = {
-  approved: "bg-[#e4f2e8] text-[#286044]",
-  pending: "bg-[#fff0cc] text-[#76540e]",
-  rejected: "bg-[#fbe6df] text-[#934d3b]",
+const paymentStatusVariant: Record<
+  PaymentStatus,
+  "success" | "warning" | "destructive"
+> = {
+  approved: "success",
+  pending: "warning",
+  rejected: "destructive",
 };
 
 const initialFilters: PaymentFilters = {
@@ -56,15 +60,19 @@ function formatCurrency(amount: number) {
 
 function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold",
-        statusClass[status],
-      )}
-    >
+    <Badge variant={paymentStatusVariant[status]}>
       <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
       {paymentStatusLabel[status]}
-    </span>
+    </Badge>
+  );
+}
+
+function DemoDataBadge() {
+  return (
+    <Badge variant="demo">
+      <FlaskConical aria-hidden="true" className="size-3.5" />
+      Datos de demostración
+    </Badge>
   );
 }
 
@@ -119,7 +127,7 @@ function PaymentDetail({
                     ))}
                   </dl>
                   <div className="mt-5">
-                    <DemoBadge />
+                    <DemoDataBadge />
                   </div>
                 </>
               ) : null}
@@ -166,7 +174,7 @@ export function PaymentsPanel() {
             Explora una muestra de transacciones antes de conectar la conciliación real.
           </p>
         </div>
-        <DemoBadge />
+        <DemoDataBadge />
       </div>
 
       <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -245,14 +253,27 @@ export function PaymentsPanel() {
       </div>
 
       {visiblePayments.length === 0 ? (
-        <div className="mt-6 rounded-3xl border border-dashed border-[#cbd7cf] bg-[#fffdf8] px-5 py-14 text-center">
-          <ReceiptText aria-hidden="true" className="mx-auto size-9 text-[#87948f]" />
-          <h2 className="mt-3 font-heading text-xl font-semibold">Sin resultados de pago</h2>
-          <p className="mt-1 text-sm text-[#65746f]">No hay transacciones que coincidan con los filtros.</p>
-          <Button className="mt-5" variant="outline" onClick={() => setFilters(initialFilters)}>
-            Limpiar filtros
-          </Button>
-        </div>
+        <EmptyState
+          className="mt-6 rounded-3xl border-[#cbd7cf] px-5 py-14"
+          icon={
+            <ReceiptText
+              aria-hidden="true"
+              className="mx-auto size-9 text-[#87948f]"
+            />
+          }
+          title="Sin resultados de pago"
+          titleId="payments-empty-title"
+          titleClassName="mt-3 text-xl"
+          description="No hay transacciones que coincidan con los filtros."
+          action={
+            <Button
+              variant="outline"
+              onClick={() => setFilters(initialFilters)}
+            >
+              Limpiar filtros
+            </Button>
+          }
+        />
       ) : (
         <div className="mt-6 overflow-hidden rounded-3xl border border-[#dce2dc] bg-[#fffdf8]">
           <div className="hidden overflow-x-auto md:block">
