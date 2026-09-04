@@ -10,6 +10,7 @@ import {
   useCreateCourse,
   useUpdateCourse,
 } from "@/features/course-management/api/use-course-mutations";
+import { toApiErrorMessage } from "@/lib/api-error";
 
 export type EditableCourse = Pick<
   CourseCatalogItem,
@@ -111,7 +112,14 @@ export function useCourseForm({
     isPending: createMutation.isPending || updateMutation.isPending,
     errorMessage:
       validationError ??
-      createMutation.error?.message ??
-      updateMutation.error?.message,
+      (createMutation.isError
+        ? toApiErrorMessage(createMutation.error, "No se pudo crear el curso")
+        : undefined) ??
+      (updateMutation.isError
+        ? toApiErrorMessage(
+            updateMutation.error,
+            "No se pudo actualizar el curso",
+          )
+        : undefined),
   };
 }

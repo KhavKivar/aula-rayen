@@ -83,9 +83,21 @@ describe("CourseCatalog", () => {
     submit.mockRestore();
   });
 
-  it("shows an error when Webpay checkout fails", async () => {
+  it("shows the backend message when Webpay checkout fails", async () => {
     const user = userEvent.setup();
-    vi.mocked(createWebPay).mockRejectedValueOnce(new Error("Webpay caído"));
+    vi.mocked(createWebPay).mockRejectedValueOnce(
+      Object.assign(new Error("Request failed with status code 409"), {
+        isAxiosError: true,
+        response: {
+          status: 409,
+          data: {
+            statusCode: 409,
+            message: "El curso ya fue comprado.",
+            error: "Conflict",
+          },
+        },
+      }),
+    );
     render(<CourseCatalog courses={[course]} />);
 
     await user.click(
@@ -94,9 +106,9 @@ describe("CourseCatalog", () => {
       }),
     );
 
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "No fue posible iniciar el pago",
-    );
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("El curso ya fue comprado.");
+    expect(alert).not.toHaveTextContent("Request failed");
   });
 
   it("shows the course link instead of Webpay when the user has access", () => {

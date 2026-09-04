@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import { createWebPay } from "@/features/course-dashboard/api/create-webpay";
+import { toApiErrorMessage } from "@/lib/api-error";
 
 const CHECKOUT_ERROR = "No fue posible iniciar el pago. Inténtalo nuevamente.";
 
@@ -35,8 +36,8 @@ export function useWebpayCheckout() {
       form.submit();
     },
 
-    onError: () => {
-      setCheckoutError(CHECKOUT_ERROR);
+    onError: (error) => {
+      setCheckoutError(toApiErrorMessage(error, CHECKOUT_ERROR));
     },
   });
 

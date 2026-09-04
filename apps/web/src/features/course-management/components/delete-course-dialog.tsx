@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { useDeleteCourse } from "@/features/course-management/api/use-course-mutations";
+import { toApiErrorMessage } from "@/lib/api-error";
 
 type Props = {
   open: boolean;
@@ -55,7 +56,10 @@ export function DeleteCourseDialog({
 
             {mutation.isError ? (
               <p role="alert" className="mt-4 text-sm text-destructive">
-                {mutation.error.message || "No se pudo eliminar el curso"}
+                {toApiErrorMessage(
+                  mutation.error,
+                  "No se pudo eliminar el curso",
+                )}
               </p>
             ) : null}
 
