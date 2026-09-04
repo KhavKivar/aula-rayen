@@ -1,5 +1,5 @@
 import { CreditCard, FilterX, ReceiptText, Search } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import type {
   PaymentStatus,
 } from "@/features/admin-dashboard/types";
 import { cn } from "@/lib/utils";
+import { useDeferredSearch } from "@/hooks/use-deferred-search";
 
 const paymentStatusLabel: Record<PaymentStatus, string> = {
   approved: "Aprobado",
@@ -110,7 +111,7 @@ function PaymentDetail({
 
 export function PaymentsPanel() {
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
-  const deferredQuery = useDeferredValue(filters.query);
+  const deferredQuery = useDeferredSearch(filters.query);
   const [selectedPayment, setSelectedPayment] =
     useState<DemoTransaction | null>(null);
   const visiblePayments = filterPayments(demoTransactions, {

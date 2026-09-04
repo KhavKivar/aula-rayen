@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, LoaderCircle, Search, ShoppingBag } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { DemoDialog } from "@/features/admin-dashboard/components/demo-dialog";
 import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
+import { useDeferredSearch } from "@/hooks/use-deferred-search";
 
 export function PurchasersDialog({
   course,
@@ -16,9 +17,7 @@ export function PurchasersDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const [query, setQuery] = useState("");
-  const deferredQuery = useDeferredValue(
-    query.trim().toLocaleLowerCase("es-CL"),
-  );
+  const deferredQuery = useDeferredSearch(query);
 
   const purchasersQuery = useQuery(
     adminDashboardQueries.courseBuyers(course?.id ?? null),

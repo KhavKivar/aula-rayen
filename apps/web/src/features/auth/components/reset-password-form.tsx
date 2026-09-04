@@ -2,7 +2,6 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { KeyRound } from "lucide-react";
-import { useRef } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
@@ -13,9 +12,10 @@ import {
   newPasswordSchema,
   type NewPassword,
 } from "@/features/auth/schemas/password-recovery-schema";
+import { useSubmitGuard } from "@/hooks/use-submit-guard";
 
 export function ResetPasswordForm({ token }: { token: string }) {
-  const submissionPending = useRef(false);
+  const guardedSubmit = useSubmitGuard();
   const mutation = useMutation<void, AuthError, NewPassword>({
     mutationFn: (values) => resetPassword(token, values),
   });
@@ -23,13 +23,8 @@ export function ResetPasswordForm({ token }: { token: string }) {
     defaultValues: { password: "", confirmPassword: "" },
     validators: { onSubmit: newPasswordSchema },
     onSubmit: ({ value }) => {
-      if (submissionPending.current) return;
-
-      submissionPending.current = true;
-      mutation.mutate(value, {
-        onSettled: () => {
-          submissionPending.current = false;
-        },
+      guardedSubmit((release) => {
+        mutation.mutate(value, { onSettled: release });
       });
     },
   });
