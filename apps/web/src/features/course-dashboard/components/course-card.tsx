@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Course } from "@/features/course-dashboard/types/course";
+import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 
 const priceFormatter = new Intl.NumberFormat("es-CL", {
   style: "currency",
@@ -22,7 +22,7 @@ function getAccentClass(id: number) {
 }
 
 type CourseCardProps = {
-  course: Course;
+  course: CourseCatalogItem;
   onClickWebPay?: (courseId: number) => void;
 };
 

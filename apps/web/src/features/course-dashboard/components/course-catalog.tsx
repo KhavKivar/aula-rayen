@@ -2,10 +2,10 @@ import { BookOpen } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/empty-state";
 import { CourseCard } from "@/features/course-dashboard/components/course-card";
-import type { Course } from "@/features/course-dashboard/types/course";
+import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { useWebpayCheckout } from "@/features/course-dashboard/api/use-webpay-checkout";
 
-export function CourseCatalog({ courses }: { courses: readonly Course[] }) {
+export function CourseCatalog({ courses }: { courses: readonly CourseCatalogItem[] }) {
   const { checkoutFormRef, checkoutError, startCheckout } =
     useWebpayCheckout();
 

@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { CourseContent as CourseContentData } from "@/features/course-dashboard/types/course";
+import type { CourseDetail } from "@aula-rayen/contracts/course";
 
 type TestLinkProps = ComponentProps<"a"> & {
   to: string;
@@ -24,7 +24,7 @@ import { getCourse } from "@/features/course-dashboard/api/get-course";
 import { CourseContent } from "@/features/course-dashboard/components/course-content";
 import { render } from "@/testing/test-utils";
 
-const course: CourseContentData = {
+const course: CourseDetail = {
   id: 1,
   title: "Curso adquirido",
   description: "Contenido disponible para el usuario.",

@@ -1,13 +1,15 @@
 import { describe, expect, it } from "vitest";
 
+import { DEMO_TODAY, demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
 import {
-  demoTransactions,
   filterPayments,
   getCoursePurchasers,
   getPaymentMetrics,
-} from "@/features/admin-dashboard/data";
+} from "@/features/admin-dashboard/api/payment-selectors";
 
-describe("admin dashboard demo data", () => {
+const demoToday = new Date(`${DEMO_TODAY}T23:59:59.999Z`);
+
+describe("admin dashboard payments", () => {
   it("derives approved purchasers by course", () => {
     const purchasers = getCoursePurchasers(1);
 
@@ -17,11 +19,15 @@ describe("admin dashboard demo data", () => {
   });
 
   it("combines payment filters and computes metrics from visible rows", () => {
-    const filtered = filterPayments(demoTransactions, {
-      query: "camila",
-      status: "approved",
-      period: "7d",
-    });
+    const filtered = filterPayments(
+      demoTransactions,
+      {
+        query: "camila",
+        status: "approved",
+        period: "7d",
+      },
+      demoToday,
+    );
 
     expect(filtered.map(({ orderId }) => orderId)).toEqual(["AR-1048"]);
     expect(getPaymentMetrics(filtered)).toEqual({

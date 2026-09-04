@@ -17,17 +17,14 @@ import {
   DialogViewport,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
+import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 import {
-  demoTransactions,
   filterPayments,
   getPaymentMetrics,
-} from "@/features/admin-dashboard/data";
-import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
-import type {
-  AdminPayment,
-  PaymentFilters,
-  PaymentStatus,
-} from "@/features/admin-dashboard/types";
+  type PaymentFilters,
+} from "@/features/admin-dashboard/api/payment-selectors";
+import type { Payment, PaymentStatus } from "@aula-rayen/contracts/payment";
 import { cn } from "@/lib/utils";
 import { useDeferredSearch } from "@/hooks/use-deferred-search";
 
@@ -83,7 +80,7 @@ function PaymentDetail({
   onOpenChange,
   isLive,
 }: {
-  payment: AdminPayment | null;
+  payment: Payment | null;
   onOpenChange: (open: boolean) => void;
   isLive: boolean;
 }) {
@@ -162,7 +159,7 @@ export function PaymentsPanel() {
   const isLive = paymentsQuery.data !== undefined;
   const payments = paymentsQuery.data ?? demoTransactions;
   const [selectedPayment, setSelectedPayment] =
-    useState<AdminPayment | null>(null);
+    useState<Payment | null>(null);
   const visiblePayments = filterPayments(payments, {
     ...filters,
     query: deferredQuery,

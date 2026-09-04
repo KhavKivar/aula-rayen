@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PaymentsPanel } from "@/features/admin-dashboard/components/payments-panel";
-import { demoTransactions } from "@/features/admin-dashboard/data";
+import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
 import { createTestQueryClient, render } from "@/testing/test-utils";
 
 const mockGetPayments = vi.fn();

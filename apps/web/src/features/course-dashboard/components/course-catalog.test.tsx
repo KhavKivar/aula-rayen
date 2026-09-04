@@ -25,10 +25,10 @@ vi.mock("@/features/course-dashboard/api/create-webpay", () => ({
 
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
 import { createWebPay } from "@/features/course-dashboard/api/create-webpay";
-import type { Course } from "@/features/course-dashboard/types/course";
+import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { render } from "@/testing/test-utils";
 
-const course: Course = {
+const course: CourseCatalogItem = {
   id: 1,
   title: "Curso de demostración",
   description: "Una descripción breve para probar el catálogo.",
