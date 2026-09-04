@@ -4,7 +4,7 @@ import { useDeferredValue, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { DemoDialog } from "@/features/admin-dashboard/components/demo-dialog";
-import { queries } from "@/config/queries";
+import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 
 export function PurchasersDialog({
   course,
@@ -20,7 +20,9 @@ export function PurchasersDialog({
     query.trim().toLocaleLowerCase("es-CL"),
   );
 
-  const purchasersQuery = useQuery(queries.courseBuyers(course?.id ?? null))
+  const purchasersQuery = useQuery(
+    adminDashboardQueries.courseBuyers(course?.id ?? null),
+  );
 
   const purchasers = purchasersQuery.data ?? [];
   const visiblePurchasers = purchasers.filter(

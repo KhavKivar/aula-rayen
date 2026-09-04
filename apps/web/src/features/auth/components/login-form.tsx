@@ -14,7 +14,7 @@ import {
   type LoginCredentials,
 } from "@/features/auth/schemas/login-schema";
 
-import { queries } from "@/config/queries";
+import { sessionQueries } from "@/lib/session-queries";
 
 export function LoginForm({
   redirectTo = "/dashboard",
@@ -39,7 +39,7 @@ export function LoginForm({
       // await router.invalidate();
       // router.history.push(redirectTo);
       await queryClient.invalidateQueries({
-        queryKey: queries.session.queryKey,
+        queryKey: sessionQueries.session.queryKey,
       });
       await router.invalidate();
       await navigate({ to: redirectTo, replace: true });

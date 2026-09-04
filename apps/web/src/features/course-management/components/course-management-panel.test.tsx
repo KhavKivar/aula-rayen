@@ -1,4 +1,5 @@
 import { screen } from "@testing-library/react";
+import { queryOptions } from "@tanstack/react-query";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -38,10 +39,20 @@ const fetchCourseDetail = vi.fn().mockResolvedValue({
   fileLink: "https://example.com/file",
 });
 
+function panelProps() {
+  return {
+    coursesQueryOptions: queryOptions({
+      queryKey: ["courses"] as const,
+      queryFn: () => mockGetCourses(),
+    }),
+    fetchCourseDetail,
+  };
+}
+
 describe("CourseManagementPanel", () => {
   it("shows gestion header and crear button", async () => {
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
+    render(<CourseManagementPanel {...panelProps()} />);
 
     expect(await screen.findByRole("heading", { name: "Gestionar cursos" })).toBeVisible();
     expect(screen.getByRole("button", { name: "Crear curso" })).toBeVisible();
@@ -49,7 +60,7 @@ describe("CourseManagementPanel", () => {
 
   it("shows empty state when no courses", async () => {
     mockGetCourses.mockResolvedValue([]);
-    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
+    render(<CourseManagementPanel {...panelProps()} />);
 
     expect(await screen.findByText("No hay cursos aún")).toBeVisible();
     expect(screen.getByRole("button", { name: "Crear tu primer curso" })).toBeVisible();
@@ -58,7 +69,7 @@ describe("CourseManagementPanel", () => {
   it("renders cursos and opens delete dialog", async () => {
     const user = userEvent.setup();
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
+    render(<CourseManagementPanel {...panelProps()} />);
 
     expect(await screen.findByText(course.title)).toBeVisible();
 
@@ -71,7 +82,7 @@ describe("CourseManagementPanel", () => {
   it("opens create dialog", async () => {
     const user = userEvent.setup();
     mockGetCourses.mockResolvedValue([course]);
-    render(<CourseManagementPanel fetchCourseDetail={fetchCourseDetail} />);
+    render(<CourseManagementPanel {...panelProps()} />);
 
     await screen.findByText(course.title);
     await user.click(screen.getByRole("button", { name: "Crear curso" }));
@@ -84,7 +95,7 @@ describe("CourseManagementPanel", () => {
     mockGetCourses.mockResolvedValue([course]);
     render(
       <CourseManagementPanel
-        fetchCourseDetail={fetchCourseDetail}
+        {...panelProps()}
         onViewPurchasers={onViewPurchasers}
       />,
     );

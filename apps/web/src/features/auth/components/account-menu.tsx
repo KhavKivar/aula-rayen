@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
-import { queries } from "@/config/queries";
+import { sessionQueries } from "@/lib/session-queries";
 
 export function AccountMenu() {
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ export function AccountMenu() {
     },
     onSuccess: async () => {
       queryClient.invalidateQueries({
-        queryKey: queries.session.queryKey,
+        queryKey: sessionQueries.session.queryKey,
       });
       await navigate({ to: "/", replace: true });
       await router.invalidate();

@@ -21,7 +21,7 @@ import {
 
 import { Navbar } from "@/components/ui/navbar";
 import { useQuery } from "@tanstack/react-query";
-import { queries } from "@/config/queries";
+import { sessionQueries } from "@/lib/session-queries";
 
 function ExternalInstagramLink({
   className,
@@ -49,7 +49,7 @@ function ExternalInstagramLink({
 
 export function LandingPage() {
   // const { data: session, isPending } = useSession();
-  const { data: session, isPending } = useQuery(queries.session);
+  const { data: session, isPending } = useQuery(sessionQueries.session);
 
   const isLoggedIn = Boolean(session?.user);
 

@@ -11,10 +11,10 @@ import { Suspense, type ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 import { CourseCatalog } from "@/features/course-dashboard/components/course-catalog";
-import { queries } from "@/config/queries";
+import { courseDashboardQueries } from "@/features/course-dashboard/api/queries";
 
 function CatalogContent() {
-  const { data: courses } = useSuspenseQuery(queries.courses);
+  const { data: courses } = useSuspenseQuery(courseDashboardQueries.courses);
 
   return <CourseCatalog courses={courses} />;
 }

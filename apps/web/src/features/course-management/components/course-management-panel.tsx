@@ -1,9 +1,9 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { UseQueryOptions } from "@tanstack/react-query";
 import { AlertCircle, Eye, LoaderCircle, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { queries } from "@/config/queries";
 import { queryKeys } from "@/config/query-keys";
 import { CourseFormDialog } from "@/features/course-management/components/course-form-dialog";
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
@@ -13,14 +13,21 @@ import type {
 } from "@aula-rayen/contracts/course";
 
 export function CourseManagementPanel({
+  coursesQueryOptions,
   fetchCourseDetail,
   onViewPurchasers,
 }: {
+  coursesQueryOptions: UseQueryOptions<
+    CourseCatalogItem[],
+    Error,
+    CourseCatalogItem[],
+    readonly ["courses"]
+  >;
   fetchCourseDetail: (courseId: number) => Promise<CourseDetail>;
   onViewPurchasers?: (course: CourseCatalogItem) => void;
 }) {
   const queryClient = useQueryClient();
-  const coursesQuery = useQuery(queries.courses);
+  const coursesQuery = useQuery(coursesQueryOptions);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editCourse, setEditCourse] = useState<

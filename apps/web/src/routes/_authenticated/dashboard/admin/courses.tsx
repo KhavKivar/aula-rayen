@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { PurchasersDialog } from "@/features/admin-dashboard/components/purchasers-dialog";
 import { getCourse } from "@/features/course-dashboard/api/get-course";
+import { courseDashboardQueries } from "@/features/course-dashboard/api/queries";
 import { CourseManagementPanel } from "@/features/course-management/components/course-management-panel";
 
 export const Route = createFileRoute("/_authenticated/dashboard/admin/courses")(
@@ -33,6 +34,7 @@ function AdminCoursesPage() {
         </div>
       </div>
       <CourseManagementPanel
+        coursesQueryOptions={courseDashboardQueries.courses}
         fetchCourseDetail={getCourse}
         onViewPurchasers={(course) => {
           setSelectedCourse({ id: course.id, title: course.title });

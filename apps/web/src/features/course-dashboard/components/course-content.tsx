@@ -3,14 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { buttonVariants } from "@/components/ui/button";
-import { getCourse } from "@/features/course-dashboard/api/get-course";
-import { queryKeys } from "@/config/query-keys";
+import { courseDashboardQueries } from "@/features/course-dashboard/api/queries";
 
 export function CourseContent({ courseId }: { courseId: number }) {
-  const courseQuery = useQuery({
-    queryKey: queryKeys.course(courseId),
-    queryFn: () => getCourse(courseId),
-  });
+  const courseQuery = useQuery(courseDashboardQueries.courseDetail(courseId));
 
   if (courseQuery.isPending) {
     return (
