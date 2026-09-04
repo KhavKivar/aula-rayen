@@ -69,8 +69,7 @@ export function filterPayments(
     const matchesQuery =
       query.length === 0 ||
       transaction.buyerName.toLocaleLowerCase("es-CL").includes(query) ||
-      transaction.buyerEmail.toLocaleLowerCase("es-CL").includes(query) ||
-      transaction.orderId.toLocaleLowerCase("es-CL").includes(query);
+      transaction.buyerEmail.toLocaleLowerCase("es-CL").includes(query);
     const matchesStatus =
       filters.status === "all" || transaction.status === filters.status;
     const matchesPeriod =

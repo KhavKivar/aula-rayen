@@ -25,16 +25,16 @@ describe("PaymentsPanel", () => {
     expect(
       screen.queryByText("Datos de demostración"),
     ).not.toBeInTheDocument();
-    await user.type(screen.getByRole("textbox", { name: "Buscar por comprador u orden" }), "camila");
+    await user.type(screen.getByRole("textbox", { name: "Buscar por comprador o correo" }), "camila");
     await user.selectOptions(screen.getByRole("combobox", { name: "Filtrar por estado" }), "approved");
     expect((await screen.findAllByText("$42.000"))[0]).toBeVisible();
-    expect(screen.getAllByText("AR-1048")[0]).toBeVisible();
+    expect(screen.getAllByText("Camila Rojas")[0]).toBeVisible();
 
-    await user.clear(screen.getByRole("textbox", { name: "Buscar por comprador u orden" }));
-    await user.type(screen.getByRole("textbox", { name: "Buscar por comprador u orden" }), "sin-coincidencias");
+    await user.clear(screen.getByRole("textbox", { name: "Buscar por comprador o correo" }));
+    await user.type(screen.getByRole("textbox", { name: "Buscar por comprador o correo" }), "sin-coincidencias");
     expect(await screen.findByText("Sin resultados de pago")).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Limpiar filtros" }));
-    expect((await screen.findAllByText("AR-1048"))[0]).toBeVisible();
+    expect((await screen.findAllByText("Camila Rojas"))[0]).toBeVisible();
   });
 
   it("opens complete payment detail without demo labeling on live data", async () => {
@@ -64,14 +64,14 @@ describe("PaymentsPanel", () => {
     const queryClient = createTestQueryClient();
     render(<PaymentsPanel />, { queryClient });
 
-    expect((await screen.findAllByText("AR-REAL"))[0]).toBeVisible();
+    expect((await screen.findAllByText("Camila Rojas"))[0]).toBeVisible();
     expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
 
     await act(async () => {
       await queryClient.invalidateQueries({ queryKey: ["payments"] });
     });
 
-    expect(screen.getAllByText("AR-REAL")[0]).toBeVisible();
+    expect(screen.getAllByText("Camila Rojas")[0]).toBeVisible();
     expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
   });
 });
