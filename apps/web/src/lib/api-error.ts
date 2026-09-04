@@ -24,11 +24,16 @@ function joinBackendMessage(message: string | string[]): string {
 
 /**
  * Convierte cualquier error de una mutación/query en un mensaje ES apto
- * para la UI. Prioridad: mensaje real del backend (validado con
- * `apiErrorSchema`) > mapa por status de contracts > fallback.
- * Nunca expone el texto crudo de axios ("Request failed...").
+ * para la UI. Prioridad: mensaje específico por `code` (si se provee mapa)
+ * > mensaje real del backend (validado con `apiErrorSchema`) > mapa por
+ * status de contracts > fallback. Nunca expone el texto crudo de axios
+ * ("Request failed...").
  */
-export function toApiErrorMessage(error: unknown, fallback: string): string {
+export function toApiErrorMessage(
+  error: unknown,
+  fallback: string,
+  codeMessages?: Record<string, string>,
+): string {
   if (error instanceof SessionExpiredError) return error.message;
   if (error instanceof AuthError) return error.message;
   if (error instanceof ApiError) return error.message;
@@ -38,6 +43,8 @@ export function toApiErrorMessage(error: unknown, fallback: string): string {
     const parsed = apiErrorSchema.safeParse(error.response?.data);
 
     if (parsed.success) {
+      const code = parsed.data.code;
+      if (code && codeMessages?.[code]) return codeMessages[code];
       const text = joinBackendMessage(parsed.data.message).trim();
       if (text.length > 0) return text;
     }
@@ -53,13 +60,19 @@ export function toApiErrorMessage(error: unknown, fallback: string): string {
 }
 
 /** Envuelve un error desconocido en ApiError con mensaje ya normalizado. */
-export function toApiError(error: unknown, fallback: string): ApiError {
+export function toApiError(
+  error: unknown,
+  fallback: string,
+  codeMessages?: Record<string, string>,
+): ApiError {
   if (error instanceof ApiError) return error;
   if (axios.isAxiosError(error)) {
+    const parsed = apiErrorSchema.safeParse(error.response?.data);
     return new ApiError(
-      toApiErrorMessage(error, fallback),
+      toApiErrorMessage(error, fallback, codeMessages),
       error.response?.status,
+      parsed.success ? parsed.data.code : undefined,
     );
   }
-  return new ApiError(toApiErrorMessage(error, fallback));
+  return new ApiError(toApiErrorMessage(error, fallback, codeMessages));
 }

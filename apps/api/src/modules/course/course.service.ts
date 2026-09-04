@@ -1,16 +1,17 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type {
   CreateCourseRequest,
   UpdateCourseRequest,
   CourseBuyerResponse,
 } from '@aula-rayen/contracts/course';
+import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 
 import { CourseRepository } from './course.repository';
+import {
+  conflictError,
+  forbiddenError,
+  notFoundError,
+} from '@/common/errors/http-error';
 
 @Injectable()
 export class CourseService {
@@ -32,7 +33,10 @@ export class CourseService {
     const course = await this.repository.findById(id);
 
     if (!course) {
-      throw new NotFoundException(`Curso con ID ${id} no encontrado`);
+      throw notFoundError(
+        API_ERROR_CODES.COURSE_NOT_FOUND,
+        `Curso con ID ${id} no encontrado`,
+      );
     }
     return course;
   }
@@ -41,7 +45,10 @@ export class CourseService {
     const course = await this.repository.findPurchasedById(id, userId);
 
     if (!course) {
-      throw new ForbiddenException('No tienes acceso a este curso');
+      throw forbiddenError(
+        API_ERROR_CODES.COURSE_NO_ACCESS,
+        'No tienes acceso a este curso',
+      );
     }
 
     return course;
@@ -58,14 +65,18 @@ export class CourseService {
   async update(id: number, dto: UpdateCourseRequest) {
     const updatedCourse = await this.repository.update(id, dto);
     if (!updatedCourse) {
-      throw new NotFoundException(`Curso con ID ${id} no encontrado`);
+      throw notFoundError(
+        API_ERROR_CODES.COURSE_NOT_FOUND,
+        `Curso con ID ${id} no encontrado`,
+      );
     }
     return updatedCourse;
   }
 
   async remove(id: number) {
     if (await this.hasPurchases(id)) {
-      throw new ConflictException(
+      throw conflictError(
+        API_ERROR_CODES.COURSE_HAS_PURCHASES,
         'No se puede eliminar un curso que ya tiene compras',
       );
     }
@@ -73,7 +84,10 @@ export class CourseService {
     const deletedCourse = await this.repository.remove(id);
 
     if (!deletedCourse) {
-      throw new NotFoundException(`Curso con ID ${id} no encontrado`);
+      throw notFoundError(
+        API_ERROR_CODES.COURSE_NOT_FOUND,
+        `Curso con ID ${id} no encontrado`,
+      );
     }
 
     return deletedCourse;

@@ -46,6 +46,24 @@ describe("toApiErrorMessage", () => {
     );
   });
 
+  it("prefers code-specific messages when a map is provided", () => {
+    const error = axiosError(
+      {
+        statusCode: 409,
+        message: "No se puede eliminar un curso que ya tiene compras",
+        error: "Conflict",
+        code: "COURSE_HAS_PURCHASES",
+      },
+      409,
+    );
+
+    expect(
+      toApiErrorMessage(error, "fallback", {
+        COURSE_HAS_PURCHASES: "Tiene compras asociadas.",
+      }),
+    ).toBe("Tiene compras asociadas.");
+  });
+
   it("joins array messages from validation errors", () => {
     const error = axiosError(
       { statusCode: 400, message: ["Título inválido", "Precio inválido"] },
@@ -108,5 +126,22 @@ describe("toApiError", () => {
     expect(wrapped).toBeInstanceOf(ApiError);
     expect(wrapped.message).toBe("Conflicto real");
     expect(wrapped.status).toBe(409);
+  });
+
+  it("extracts the backend code", () => {
+    const wrapped = toApiError(
+      axiosError(
+        {
+          statusCode: 409,
+          message: "Conflicto real",
+          error: "Conflict",
+          code: "COURSE_HAS_PURCHASES",
+        },
+        409,
+      ),
+      "fallback",
+    );
+
+    expect(wrapped.code).toBe("COURSE_HAS_PURCHASES");
   });
 });

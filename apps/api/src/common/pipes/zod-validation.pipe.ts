@@ -1,5 +1,8 @@
-import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import { Injectable, PipeTransform } from '@nestjs/common';
 import type { ZodType } from 'zod';
+import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
+
+import { badRequestError } from '@/common/errors/http-error';
 
 @Injectable()
 export class ZodValidationPipe<T> implements PipeTransform<unknown, T> {
@@ -15,7 +18,7 @@ export class ZodValidationPipe<T> implements PipeTransform<unknown, T> {
         return field ? `Campo ${field} inválido` : issue.message;
       });
 
-      throw new BadRequestException(messages);
+      throw badRequestError(API_ERROR_CODES.VALIDATION_ERROR, messages);
     }
 
     return result.data;

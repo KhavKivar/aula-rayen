@@ -1,11 +1,10 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { WebPayRepository } from './webpay.repository';
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { nanoid } from 'nanoid';
+import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
+
+import { badRequestError, notFoundError } from '@/common/errors/http-error';
 
 import { webpayTransaction } from './infrastructure/transbank.client';
 import type { Course, NewWebPaySession } from '@/db/types';
@@ -134,14 +133,20 @@ export class WebPayService {
 
     const webpaySession = await this.repository.findById(buyOrderId);
     if (!webpaySession) {
-      throw new NotFoundException('Sesión de Webpay no encontrada');
+      throw notFoundError(
+        API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
+        'Sesión de Webpay no encontrada',
+      );
     }
 
     const parsedCommit = CommitResponseSchema.safeParse(
       await webpayTransaction.commit(tokenNormal),
     );
     if (!parsedCommit.success) {
-      throw new BadRequestException('Respuesta inválida de Transbank');
+      throw badRequestError(
+        API_ERROR_CODES.WEBPAY_INVALID_RESPONSE,
+        'Respuesta inválida de Transbank',
+      );
     }
 
     const { buyOrderId: committedBuyOrderId, ...commitDetails } =
@@ -165,7 +170,10 @@ export class WebPayService {
       commitDetails,
     );
     if (!completedSession) {
-      throw new NotFoundException('Sesión de Webpay no encontrada');
+      throw notFoundError(
+        API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
+        'Sesión de Webpay no encontrada',
+      );
     }
 
     return { payment: true };

@@ -1,10 +1,25 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  API_ERROR_CODES,
   API_ERROR_DEFAULT_MESSAGES,
   GENERIC_API_ERROR_MESSAGE,
+  apiErrorSchema,
   getDefaultApiErrorMessage,
 } from './api-error.js';
+
+describe('apiErrorSchema', () => {
+  it('accepts an optional machine-readable code', () => {
+    expect(
+      apiErrorSchema.parse({
+        statusCode: 409,
+        message: 'No se puede eliminar un curso que ya tiene compras',
+        error: 'Conflict',
+        code: API_ERROR_CODES.COURSE_HAS_PURCHASES,
+      }),
+    ).toMatchObject({ code: 'COURSE_HAS_PURCHASES' });
+  });
+});
 
 describe('getDefaultApiErrorMessage', () => {
   it('returns the mapped message for known statuses', () => {
