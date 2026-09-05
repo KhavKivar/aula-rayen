@@ -7,7 +7,7 @@ psicologarayen.cl recibe poco tráfico orgánico porque una sola URL (/) compite
 - Reorientar `/` a psicología online Chile: título, descripción, H1/H2 con keywords transaccionales (online, Chile, infantojuvenil, familiar), manteniendo tono de marca.
 - Crear ruta `/psicologa-iquique` para captación local presencial + online: H1 local, NAP (Iquique/Tarapacá), mapa/zona, CTA de agenda.
 - Crear ruta `/sobre-pamela-rayen` como pilar E-E-A-T: U. de Tarapacá, Magíster en Salud y Arteterapia, psicodrama, experiencia infantojuvenil/familiar, enlazada desde home y página local.
-- Añadir fundamentos técnicos SEO: `head()` por ruta (title/description/canonical/OG/Twitter), `sitemap.xml` + directiva `Sitemap:` en `robots.txt`, imagen OG JPG/PNG 1200×630, alts descriptivos, JSON-LD (`ProfessionalService`, `LocalBusiness/Psychologist` con `areaServed: Iquique`, `Person`, `FAQPage`).
+- Añadir fundamentos técnicos SEO: `head()` por ruta (title/description/canonical/OG/Twitter), `sitemap.xml` + directiva `Sitemap:` en `robots.txt`, imagen OG JPG/PNG 1200×630, alts descriptivos, `llms.txt` para agentes de IA, JSON-LD (`ProfessionalService`, `LocalBusiness/Psychologist` con `areaServed: Iquique`, `Person`, `FAQPage`).
 - Aparcar talleres: sin ruta ni SEO propio; se mantiene solo como bloque existente en `/` sin optimización adicional.
 - Registrar fuera del código (plan operativo, no deploy): Google Business Profile Iquique + altas en Doctoralia, Psychology Today CL y MejorMente con enlace al dominio.
 - No incluye: blog, glosario, páginas de talleres, checkout, cambios de agenda (solo CTAs existentes).

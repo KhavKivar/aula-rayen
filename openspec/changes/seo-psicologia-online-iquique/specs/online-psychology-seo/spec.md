@@ -49,3 +49,12 @@ El sitio SHALL exponer `sitemap.xml` con las 3 páginas indexables y `robots.txt
 
 - **WHEN** un crawler pide `/sitemap.xml` y `/robots.txt`
 - **THEN** el sitemap responde 200 con las URLs canónicas de `/`, `/psicologa-iquique` y `/sobre-pamela-rayen`, y `robots.txt` contiene `Sitemap: https://<dominio-canónico>/sitemap.xml`.
+
+### Requirement: Archivo llms.txt para agentes de IA
+
+El sitio SHALL exponer `/llms.txt` en texto plano con un resumen del sitio, sus páginas principales y vías de contacto públicas, sin secretos ni URLs internas.
+
+#### Scenario: Agente recupera llms.txt
+
+- **WHEN** un agente solicita `GET /llms.txt`
+- **THEN** responde 200 con el nombre de la profesional, las 3 URLs canónicas (`/`, `/psicologa-iquique`, `/sobre-pamela-rayen`), el WhatsApp y el Instagram públicos, y no contiene tokens, claves ni URLs `localhost`.

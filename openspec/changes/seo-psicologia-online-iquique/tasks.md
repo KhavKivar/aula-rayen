@@ -4,6 +4,7 @@
 - [x] 1.2 Generar `sitemap.xml` en build con `/`, `/psicologa-iquique` y `/sobre-pamela-rayen` canónicas
 - [x] 1.3 Reemplazar OG SVG por imagen raster 1200×630 (JPG/PNG) y referenciarla en `head()` global y por ruta
 - [x] 1.4 Fijar canonical absoluto desde `VITE_PUBLIC_SITE_URL` de producción con test que lo verifica
+- [x] 1.5 Añadir `public/llms.txt` con resumen, páginas principales y contacto público (sin secretos ni URLs internas)
 
 ## 2. Home psicología online Chile (`/`)
 
