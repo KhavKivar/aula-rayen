@@ -1,4 +1,4 @@
-# Learning Platform API
+# API de Aula Rayen
 
 NestJS service for authentication, courses, enrollment, payments, and password-recovery email delivery. See the [root README](../../README.md) for full setup and architecture notes.
 

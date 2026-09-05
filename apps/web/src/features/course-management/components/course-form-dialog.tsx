@@ -40,10 +40,8 @@ export function CourseFormDialog({
     onSuccess,
   });
 
-  if (!open) return null;
-
   return (
-    <Dialog open onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogBackdrop />
         <DialogViewport>
@@ -91,7 +89,10 @@ export function CourseFormDialog({
                 <Button type="submit" disabled={isPending}>
                   {isPending ? (
                     <>
-                      <LoaderCircle className="animate-spin" aria-hidden="true" />
+                      <LoaderCircle
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
                       Guardando...
                     </>
                   ) : mode === "create" ? (

@@ -78,7 +78,7 @@ export function LoginForm({
           type="button"
           variant="outline"
           size="lg"
-          className="w-full"
+          className="w-full border-input bg-card shadow-none hover:bg-card hover:text-foreground"
           disabled={googleLoginMutation.isPending}
           onClick={() => googleLoginMutation.mutate()}
         >

@@ -50,12 +50,14 @@ describe("PaymentsPanel", () => {
     expect(dialog).not.toHaveTextContent("Datos de demostración");
   });
 
-  it("falls back to demo fixtures with labeling when the query fails", async () => {
+  it("falls back to demo fixtures without demo labeling when the query fails", async () => {
     mockGetPayments.mockRejectedValue(new Error("Sin conexión"));
     render(<PaymentsPanel />);
 
     expect(await screen.findByText("$119.000")).toBeVisible();
-    expect(screen.getAllByText("Datos de demostración").length).toBeGreaterThan(0);
+    expect(
+      screen.queryByText("Datos de demostración"),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps live labeling when a background refetch fails with cached data", async () => {

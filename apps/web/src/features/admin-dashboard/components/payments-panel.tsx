@@ -1,4 +1,10 @@
-import { CreditCard, FilterX, FlaskConical, LoaderCircle, ReceiptText, Search } from "lucide-react";
+import {
+  CreditCard,
+  FilterX,
+  LoaderCircle,
+  ReceiptText,
+  Search,
+} from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
@@ -66,23 +72,14 @@ function PaymentStatusBadge({ status }: { status: PaymentStatus }) {
   );
 }
 
-function DemoDataBadge() {
-  return (
-    <Badge variant="demo">
-      <FlaskConical aria-hidden="true" className="size-3.5" />
-      Datos de demostración
-    </Badge>
-  );
-}
-
 function PaymentDetail({
   payment,
+  isOpen,
   onOpenChange,
-  isLive,
 }: {
+  isOpen: boolean;
   payment: Payment | null;
   onOpenChange: (open: boolean) => void;
-  isLive: boolean;
 }) {
   const rows = payment
     ? [
@@ -92,12 +89,15 @@ function PaymentDetail({
         ["Monto", formatCurrency(payment.amount)],
         ["Fecha", new Date(payment.date).toLocaleString("es-CL")],
         ["Medio de pago", payment.maskedCard],
-        ["Código de autorización", payment.authorizationCode ?? "No disponible"],
+        [
+          "Código de autorización",
+          payment.authorizationCode ?? "No disponible",
+        ],
       ]
     : [];
 
   return (
-    <Dialog open={Boolean(payment)} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogBackdrop />
         <DialogViewport className="items-end p-0 sm:items-center sm:p-5">
@@ -106,9 +106,7 @@ function PaymentDetail({
               <div>
                 <DialogTitle>Detalle de transacción</DialogTitle>
                 <DialogDescription>
-                  {isLive
-                    ? "Información registrada del pago."
-                    : "Información ficticia para validar el flujo administrativo."}
+                  "Información registrada del pago."
                 </DialogDescription>
               </div>
               <DialogClose />
@@ -117,18 +115,26 @@ function PaymentDetail({
               {payment ? (
                 <>
                   <div className="flex items-center justify-between gap-4 rounded-2xl bg-secondary p-4">
-                    <span className="text-sm font-semibold">{payment.buyerName}</span>
+                    <span className="text-sm font-semibold">
+                      {payment.buyerName}
+                    </span>
                     <PaymentStatusBadge status={payment.status} />
                   </div>
                   <dl className="mt-5 divide-y divide-border">
                     {rows.map(([label, value]) => (
-                      <div key={label} className="grid gap-1 py-3 sm:grid-cols-[170px_1fr]">
-                        <dt className="text-sm font-semibold text-muted-foreground">{label}</dt>
-                        <dd className="break-words text-sm font-medium">{value}</dd>
+                      <div
+                        key={label}
+                        className="grid gap-1 py-3 sm:grid-cols-[170px_1fr]"
+                      >
+                        <dt className="text-sm font-semibold text-muted-foreground">
+                          {label}
+                        </dt>
+                        <dd className="break-words text-sm font-medium">
+                          {value}
+                        </dd>
                       </div>
                     ))}
                   </dl>
-                  <DemoFallback isLive={isLive} />
                 </>
               ) : null}
             </div>
@@ -139,26 +145,21 @@ function PaymentDetail({
   );
 }
 
-function DemoFallback({ isLive }: { isLive: boolean }) {
-  if (isLive) return null;
-
-  return (
-    <div className="mt-5">
-      <DemoDataBadge />
-    </div>
-  );
-}
-
 export function PaymentsPanel() {
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
   const deferredQuery = useDeferredSearch(filters.query);
   const paymentsQuery = useQuery(adminDashboardQueries.payments);
-  // Hay datos reales aunque un refetch en background falle (React Query
-  // conserva la caché con isError en true). Solo se usa demo sin datos.
-  const isLive = paymentsQuery.data !== undefined;
+
   const payments = paymentsQuery.data ?? demoTransactions;
-  const [selectedPayment, setSelectedPayment] =
-    useState<Payment | null>(null);
+
+  const [details, setDetails] = useState<{
+    open: boolean;
+    selectPayment: Payment | null;
+  }>({
+    open: false,
+    selectPayment: null,
+  });
+
   const visiblePayments = filterPayments(payments, {
     ...filters,
     query: deferredQuery,
@@ -186,12 +187,9 @@ export function PaymentsPanel() {
             Pagos
           </h1>
           <p className="mt-2 max-w-2xl leading-7 text-muted-foreground">
-            {isLive
-              ? "Transacciones registradas por la pasarela de pago."
-              : "Explora una muestra de transacciones antes de conectar la conciliación real."}
+            "Transacciones registradas por la pasarela de pago."
           </p>
         </div>
-        {isLive ? null : <DemoDataBadge />}
       </div>
 
       {paymentsQuery.isPending ? (
@@ -207,151 +205,215 @@ export function PaymentsPanel() {
       {paymentsQuery.isPending ? null : (
         <>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map(({ label, value }, index) => (
-          <article
-            key={label}
-            className={cn(
-              "relative overflow-hidden rounded-2xl border p-5",
-              index === 0
-                ? "border-[#294944] bg-primary text-white"
-                : "border-border bg-card",
-            )}
-          >
-            <p className={cn("text-xs font-bold uppercase tracking-[0.12em]", index === 0 ? "text-primary-foreground" : "text-muted-foreground")}>{label}</p>
-            <p className="mt-3 font-heading text-3xl font-normal tracking-[-0.03em]">{value}</p>
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
-        <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_170px_auto]">
-          <label className="relative">
-            <span className="sr-only">Buscar por comprador o correo</span>
-            <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={filters.query}
-              onChange={(event) =>
-                setFilters((current) => ({ ...current, query: event.target.value }))
-              }
-              placeholder="Comprador o correo"
-              className="bg-secondary pl-9"
-            />
-          </label>
-          <label>
-            <span className="sr-only">Filtrar por estado</span>
-            <select
-              value={filters.status}
-              onChange={(event) =>
-                setFilters((current) => ({
-                  ...current,
-                  status: event.target.value as PaymentFilters["status"],
-                }))
-              }
-              className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
-            >
-              <option value="all">Todos los estados</option>
-              <option value="approved">Aprobado</option>
-              <option value="pending">Pendiente</option>
-              <option value="rejected">Rechazado</option>
-            </select>
-          </label>
-          <label>
-            <span className="sr-only">Filtrar por periodo</span>
-            <select
-              value={filters.period}
-              onChange={(event) =>
-                setFilters((current) => ({
-                  ...current,
-                  period: event.target.value as PaymentFilters["period"],
-                }))
-              }
-              className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
-            >
-              <option value="all">Todo el periodo</option>
-              <option value="7d">Últimos 7 días</option>
-              <option value="30d">Últimos 30 días</option>
-            </select>
-          </label>
-          <Button
-            variant="outline"
-            onClick={() => setFilters(initialFilters)}
-          >
-            <FilterX aria-hidden="true" /> Limpiar
-          </Button>
-        </div>
-      </div>
-
-      {visiblePayments.length === 0 ? (
-        <EmptyState
-          className="mt-6 rounded-3xl border-border px-5 py-14"
-          icon={
-            <ReceiptText
-              aria-hidden="true"
-              className="mx-auto size-9 text-muted-foreground"
-            />
-          }
-          title="Sin resultados de pago"
-          titleId="payments-empty-title"
-          titleClassName="mt-3 text-xl"
-          description="No hay transacciones que coincidan con los filtros."
-          action={
-            <Button
-              variant="outline"
-              onClick={() => setFilters(initialFilters)}
-            >
-              Limpiar filtros
-            </Button>
-          }
-        />
-      ) : (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-card">
-          <div className="hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-secondary/60 text-xs uppercase tracking-[0.11em] text-muted-foreground">
-                <tr>
-                  <th className="px-5 py-4">Comprador</th>
-                  <th className="px-5 py-4">Curso</th>
-                  <th className="px-5 py-4">Monto</th>
-                  <th className="px-5 py-4">Fecha</th>
-                  <th className="px-5 py-4">Estado</th>
-                  <th className="px-5 py-4 text-right">Detalle</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {visiblePayments.map((payment) => (
-                  <tr key={payment.orderId} className="hover:bg-background">
-                    <td className="px-5 py-4"><p className="font-semibold">{payment.buyerName}</p><p className="text-xs text-muted-foreground">{payment.buyerEmail}</p></td>
-                    <td className="max-w-56 truncate px-5 py-4">{payment.courseTitle}</td>
-                    <td className="px-5 py-4 font-semibold">{formatCurrency(payment.amount)}</td>
-                    <td className="px-5 py-4 text-muted-foreground">{new Date(payment.date).toLocaleDateString("es-CL")}</td>
-                    <td className="px-5 py-4"><PaymentStatusBadge status={payment.status} /></td>
-                    <td className="px-5 py-4 text-right">
-                      <Button id={`payment-trigger-${payment.orderId}`} variant="ghost" size="sm" onClick={() => setSelectedPayment(payment)}>Ver detalle</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <ul className="divide-y divide-border md:hidden">
-            {visiblePayments.map((payment) => (
-              <li key={payment.orderId} className="p-4">
-                <div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{payment.buyerName}</p></div><PaymentStatusBadge status={payment.status} /></div>
-                <p className="mt-3 text-sm text-muted-foreground">{payment.courseTitle}</p>
-                <div className="mt-4 flex items-center justify-between gap-4"><p className="font-heading text-xl font-normal">{formatCurrency(payment.amount)}</p><Button id={`payment-trigger-${payment.orderId}`} variant="outline" size="sm" onClick={() => setSelectedPayment(payment)}><CreditCard aria-hidden="true" /> Detalle</Button></div>
-              </li>
+            {metricCards.map(({ label, value }, index) => (
+              <article
+                key={label}
+                className={cn(
+                  "relative overflow-hidden rounded-2xl border p-5",
+                  index === 0
+                    ? "border-[#294944] bg-primary text-white"
+                    : "border-border bg-card",
+                )}
+              >
+                <p
+                  className={cn(
+                    "text-xs font-bold uppercase tracking-[0.12em]",
+                    index === 0 ? "text-primary-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {label}
+                </p>
+                <p className="mt-3 font-heading text-3xl font-normal tracking-[-0.03em]">
+                  {value}
+                </p>
+              </article>
             ))}
-          </ul>
-        </div>
-      )}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
+            <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_170px_auto]">
+              <label className="relative">
+                <span className="sr-only">Buscar por comprador o correo</span>
+                <Search
+                  aria-hidden="true"
+                  className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  value={filters.query}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      query: event.target.value,
+                    }))
+                  }
+                  placeholder="Comprador o correo"
+                  className="bg-secondary pl-9"
+                />
+              </label>
+              <label>
+                <span className="sr-only">Filtrar por estado</span>
+                <select
+                  value={filters.status}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      status: event.target.value as PaymentFilters["status"],
+                    }))
+                  }
+                  className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
+                >
+                  <option value="all">Todos los estados</option>
+                  <option value="approved">Aprobado</option>
+                  <option value="pending">Pendiente</option>
+                  <option value="rejected">Rechazado</option>
+                </select>
+              </label>
+              <label>
+                <span className="sr-only">Filtrar por periodo</span>
+                <select
+                  value={filters.period}
+                  onChange={(event) =>
+                    setFilters((current) => ({
+                      ...current,
+                      period: event.target.value as PaymentFilters["period"],
+                    }))
+                  }
+                  className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
+                >
+                  <option value="all">Todo el periodo</option>
+                  <option value="7d">Últimos 7 días</option>
+                  <option value="30d">Últimos 30 días</option>
+                </select>
+              </label>
+              <Button
+                variant="outline"
+                onClick={() => setFilters(initialFilters)}
+              >
+                <FilterX aria-hidden="true" /> Limpiar
+              </Button>
+            </div>
+          </div>
+
+          {visiblePayments.length === 0 ? (
+            <EmptyState
+              className="mt-6 rounded-3xl border-border px-5 py-14"
+              icon={
+                <ReceiptText
+                  aria-hidden="true"
+                  className="mx-auto size-9 text-muted-foreground"
+                />
+              }
+              title="Sin resultados de pago"
+              titleId="payments-empty-title"
+              titleClassName="mt-3 text-xl"
+              description="No hay transacciones que coincidan con los filtros."
+              action={
+                <Button
+                  variant="outline"
+                  onClick={() => setFilters(initialFilters)}
+                >
+                  Limpiar filtros
+                </Button>
+              }
+            />
+          ) : (
+            <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-card">
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[820px] text-left text-sm">
+                  <thead className="bg-secondary/60 text-xs uppercase tracking-[0.11em] text-muted-foreground">
+                    <tr>
+                      <th className="px-5 py-4">Comprador</th>
+                      <th className="px-5 py-4">Curso</th>
+                      <th className="px-5 py-4">Monto</th>
+                      <th className="px-5 py-4">Fecha</th>
+                      <th className="px-5 py-4">Estado</th>
+                      <th className="px-5 py-4 text-right">Detalle</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {visiblePayments.map((payment) => (
+                      <tr key={payment.orderId} className="hover:bg-background">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold">{payment.buyerName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {payment.buyerEmail}
+                          </p>
+                        </td>
+                        <td className="max-w-56 truncate px-5 py-4">
+                          {payment.courseTitle}
+                        </td>
+                        <td className="px-5 py-4 font-semibold">
+                          {formatCurrency(payment.amount)}
+                        </td>
+                        <td className="px-5 py-4 text-muted-foreground">
+                          {new Date(payment.date).toLocaleDateString("es-CL")}
+                        </td>
+                        <td className="px-5 py-4">
+                          <PaymentStatusBadge status={payment.status} />
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <Button
+                            id={`payment-trigger-${payment.orderId}`}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setDetails({
+                                open: true,
+                                selectPayment: payment,
+                              });
+                            }}
+                          >
+                            Ver detalle
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <ul className="divide-y divide-border md:hidden">
+                {visiblePayments.map((payment) => (
+                  <li key={payment.orderId} className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold">{payment.buyerName}</p>
+                      </div>
+                      <PaymentStatusBadge status={payment.status} />
+                    </div>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      {payment.courseTitle}
+                    </p>
+                    <div className="mt-4 flex items-center justify-between gap-4">
+                      <p className="font-heading text-xl font-normal">
+                        {formatCurrency(payment.amount)}
+                      </p>
+                      <Button
+                        id={`payment-trigger-${payment.orderId}`}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setDetails({
+                            open: true,
+                            selectPayment: payment,
+                          });
+                        }}
+                      >
+                        <CreditCard aria-hidden="true" /> Detalle
+                      </Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </>
       )}
 
       <PaymentDetail
-        payment={selectedPayment}
-        isLive={isLive}
-        onOpenChange={(open) => {
-          if (!open) setSelectedPayment(null);
+        isOpen={details.open}
+        payment={details.selectPayment}
+        onOpenChange={(opx) => {
+          setDetails({ ...details, open: opx });
         }}
       />
     </section>

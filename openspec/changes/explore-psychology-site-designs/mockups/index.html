@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tres caminos para Rayen · Propuesta de diseño</title>
+    <link rel="stylesheet" href="assets/fonts/fonts.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #eeeee8;
+        color: #29372c;
+        font:
+          15px/1.65 "DM Sans",
+          sans-serif;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      a:focus-visible {
+        outline: 3px solid #9b5136;
+        outline-offset: 5px;
+      }
+      header,
+      main,
+      footer {
+        max-width: 1700px;
+        margin: auto;
+        padding-left: 54px;
+        padding-right: 54px;
+      }
+      header {
+        padding-top: 34px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+      header a {
+        text-decoration: underline;
+        text-underline-offset: 5px;
+      }
+      header span {
+        opacity: 0.6;
+      }
+      .intro {
+        padding-top: 70px;
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 40px;
+        margin-bottom: 50px;
+      }
+      .intro h1 {
+        font:
+          400 72px/1.08 "Fraunces",
+          serif;
+        letter-spacing: -0.06em;
+        margin: 10px 0 0;
+      }
+      .intro h1 em {
+        color: #9b5136;
+      }
+      .eyebrow {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        font-weight: 600;
+        margin: 0;
+      }
+      .intro > p {
+        max-width: 350px;
+        color: #626b61;
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0 0 5px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+      }
+      .card {
+        background: #fcfcf7;
+        border: 1px solid #d6d9d0;
+        border-radius: 18px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+      .card-top {
+        padding: 24px 26px 19px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .card-top > span {
+        font:
+          italic 28px "Fraunces",
+          serif;
+        color: #6f796c;
+      }
+      .card-top > .tag {
+        font:
+          500 8px/1.65 "DM Sans",
+          sans-serif;
+        letter-spacing: 0.09em;
+        padding: 6px 11px;
+        background: #e0e7d8;
+        border-radius: 100px;
+      }
+      .cover {
+        display: block;
+        margin: 0 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #f9f7f0;
+        transition: transform 0.2s;
+      }
+      .cover:hover {
+        transform: translateY(-3px);
+      }
+      .cover img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+        object-position: top;
+      }
+      .card-body {
+        padding: 24px 26px;
+        flex: 1;
+      }
+      .card h2 {
+        font:
+          400 38px "Fraunces",
+          serif;
+        letter-spacing: -0.05em;
+        margin: 0 0 6px;
+      }
+      .card .sub {
+        margin: 0 0 17px;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #62705e;
+      }
+      .card .description {
+        font-size: 13px;
+        color: #626b61;
+        min-height: 65px;
+        margin-bottom: 23px;
+      }
+      .palette {
+        display: flex;
+        gap: 7px;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .palette i {
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        border: 1px solid #29372c20;
+      }
+      .palette span {
+        font-size: 9px;
+        color: #626b61;
+        margin-left: 7px;
+      }
+      .detail {
+        border-top: 1px solid #e0e2db;
+        padding-top: 16px;
+        margin-top: 15px;
+        font-size: 11px;
+        color: #626b61;
+      }
+      .detail b {
+        display: block;
+        color: #29372c;
+        font-size: 10px;
+        margin-bottom: 4px;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 26px;
+      }
+      .primary {
+        display: inline-flex;
+        background: #293f30;
+        color: #fff;
+        padding: 12px 17px;
+        min-height: 44px;
+        border-radius: 100px;
+        font-size: 11px;
+        align-items: center;
+        gap: 18px;
+      }
+      .small-link {
+        font-size: 10px;
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .card:nth-child(2) h2 {
+        font-family: "Manrope", sans-serif;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.06em;
+      }
+      .card:nth-child(2) .primary {
+        background: #3036c8;
+      }
+      .card:nth-child(3) .primary {
+        background: #a45338;
+        border-radius: 2px;
+      }
+      .card:nth-child(2) .tag {
+        background: #ddf399;
+      }
+      .card:nth-child(3) .tag {
+        background: #e9dfd1;
+      }
+      .recommend {
+        margin: 38px 0 0;
+        padding: 27px 32px;
+        background: #dee5d6;
+        border-radius: 12px;
+        display: flex;
+        gap: 40px;
+        align-items: center;
+      }
+      .recommend > span {
+        font:
+          400 33px "Fraunces",
+          serif;
+        white-space: nowrap;
+        letter-spacing: -0.04em;
+      }
+      .recommend p {
+        font-size: 13px;
+        line-height: 1.8;
+        margin: 0;
+        color: #4f5e4f;
+      }
+      .more {
+        margin: 65px 0;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+      }
+      .more h2 {
+        font:
+          400 35px "Fraunces",
+          serif;
+        margin: 0 0 14px;
+        letter-spacing: -0.04em;
+      }
+      .more p {
+        font-size: 13px;
+        color: #626b61;
+      }
+      .more ul {
+        padding-left: 16px;
+        font-size: 12px;
+        line-height: 2.1;
+        color: #626b61;
+      }
+      .more a {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      footer {
+        padding-top: 24px;
+        padding-bottom: 35px;
+        border-top: 1px solid #cfd5cb;
+        display: flex;
+        justify-content: space-between;
+        font-size: 10px;
+        color: #626b61;
+      }
+      footer a {
+        text-decoration: underline;
+      }
+      a img {
+        transition: opacity 0.2s;
+      }
+      a:hover img {
+        opacity: 0.93;
+      }
+      @media (max-width: 900px) {
+        header,
+        main,
+        footer {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+        .intro {
+          display: block;
+          padding-top: 40px;
+        }
+        .intro h1 {
+          font-size: 54px;
+        }
+        .intro > p {
+          margin-top: 25px;
+        }
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .card-body {
+          padding: 24px;
+        }
+        .card .description {
+          min-height: 0;
+        }
+        .recommend {
+          display: block;
+          padding: 24px;
+        }
+        .recommend > span {
+          font-size: 27px;
+        }
+        .recommend p {
+          margin-top: 14px;
+        }
+        .more {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .card h2 {
+          font-size: 36px;
+        }
+        footer {
+          gap: 20px;
+          flex-wrap: wrap;
+        }
+        .intro {
+          margin-bottom: 30px;
+        }
+        header {
+          font-size: 9px;
+        }
+        .cover img {
+          aspect-ratio: 4/3;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a href="index.html">RAYEN / ESTUDIO DE DISEÑO</a
+      ><span>SEPTIEMBRE 2026 · SOLO INTERFAZ</span>
+    </header>
+    <main>
+      <section class="intro">
+        <div>
+          <p class="eyebrow">TRES DIRECCIONES. UNA MIRADA HUMANA.</p>
+          <h1>Un nuevo espacio<br />para <em>Rayen.</em></h1>
+        </div>
+        <p>
+          Psicología, agenda y formación bajo una misma identidad. Tres
+          propuestas para explorar cómo se verá y se sentirá la nueva página.
+        </p>
+      </section>
+      <section class="grid" aria-label="Las tres propuestas">
+        <article class="card">
+          <div class="card-top">
+            <span>01</span><span class="tag">RECOMENDADA</span>
+          </div>
+          <a
+            class="cover"
+            href="concept.html?theme=florecer"
+            aria-label="Abrir mockup Florecer"
+            ><img
+              src="previews/florecer-seed-desktop.png"
+              alt="Portada Florecer, crema y verde, con una semilla que revela un jardín interior"
+          /></a>
+          <div class="card-body">
+            <h2>Florecer</h2>
+            <p class="sub">Natural · cálida · cercana</p>
+            <p class="description">
+              Una evolución luminosa de Rayen. Texturas de arcilla, verdes
+              suaves y una semilla que revela un universo interior.
+            </p>
+            <div class="palette">
+              <i style="background: #f7f5ed"></i
+              ><i style="background: #243d32"></i
+              ><i style="background: #dce5cb"></i
+              ><i style="background: #be6746"></i
+              ><span>Fraunces + DM Sans</span>
+            </div>
+            <div class="detail">
+              <b>LA EXPERIENCIA</b>Formas orgánicas, botones redondos y lectura
+              tranquila. Equilibra atención, familias y formación.
+            </div>
+            <div class="detail">
+              <b>MOVIMIENTO EN BLENDER</b>Una semilla se abre y revela un jardín
+              iluminado. Loop de 8 segundos, con reproducción automática y
+              pausa.
+            </div>
+            <div class="actions">
+              <a class="primary" href="concept.html?theme=florecer"
+                >Explorar diseño <span>↗</span></a
+              ><a class="small-link" href="previews/florecer-seed-full.png"
+                >Página completa</a
+              >
+            </div>
+            <div class="actions">
+              <a class="small-link" href="previews/florecer-seed-mobile.png"
+                >Vista móvil</a
+              ><a
+                class="small-link"
+                href="concept.html?theme=florecer&view=booking"
+                >Ver agenda</a
+              >
+            </div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-top">
+            <span>02</span><span class="tag">MÁS EXPRESIVA</span>
+          </div>
+          <a
+            class="cover"
+            href="concept.html?theme=ritmo"
+            aria-label="Abrir mockup A tu ritmo"
+            ><img
+              src="previews/ritmo-desktop.png"
+              alt="Portada A tu ritmo, azul y lima, con formas flotantes"
+          /></a>
+          <div class="card-body">
+            <h2>A tu ritmo</h2>
+            <p class="sub">Creativa · lúdica · digital</p>
+            <p class="description">
+              Una marca con energía propia. Azul intenso, acentos lima y formas
+              blandas que juegan con el espacio.
+            </p>
+            <div class="palette">
+              <i style="background: #f8f7ff"></i
+              ><i style="background: #3036c8"></i
+              ><i style="background: #ddf399"></i
+              ><i style="background: #ef8e77"></i><span>Manrope + DM Sans</span>
+            </div>
+            <div class="detail">
+              <b>LA EXPERIENCIA</b>Tipografía contundente, tarjetas con borde y
+              detalles expresivos. Da protagonismo a la creatividad.
+            </div>
+            <div class="detail">
+              <b>MOVIMIENTO EN BLENDER</b>Formas infladas que flotan a distintas
+              velocidades. Loop de 6 segundos, sin rebotes bruscos.
+            </div>
+            <div class="actions">
+              <a class="primary" href="concept.html?theme=ritmo"
+                >Explorar diseño <span>↗</span></a
+              ><a class="small-link" href="previews/ritmo-full.png"
+                >Página completa</a
+              >
+            </div>
+            <div class="actions">
+              <a class="small-link" href="previews/ritmo-mobile.png"
+                >Vista móvil</a
+              ><a
+                class="small-link"
+                href="concept.html?theme=ritmo&view=booking"
+                >Ver agenda</a
+              >
+            </div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="card-top">
+            <span>03</span><span class="tag">MÁS EDITORIAL</span>
+          </div>
+          <a
+            class="cover"
+            href="concept.html?theme=espacio"
+            aria-label="Abrir mockup Espacio"
+            ><img
+              src="previews/espacio-desktop.png"
+              alt="Portada Espacio, arena y terracota, con arco escultórico"
+          /></a>
+          <div class="card-body">
+            <h2>Espacio</h2>
+            <p class="sub">Serena · elegante · esencial</p>
+            <p class="description">
+              Una presencia más contemplativa. Tipografía editorial, mucho aire
+              y una escultura que invita a detenerse.
+            </p>
+            <div class="palette">
+              <i style="background: #f2ede4"></i
+              ><i style="background: #30352d"></i
+              ><i style="background: #a45338"></i
+              ><i style="background: #d9d0be"></i
+              ><span>Fraunces + DM Sans</span>
+            </div>
+            <div class="detail">
+              <b>LA EXPERIENCIA</b>Composición asimétrica, líneas finas y
+              botones rectos. Mayor énfasis en atención y marca personal.
+            </div>
+            <div class="detail">
+              <b>MOVIMIENTO EN BLENDER</b>Una esfera suspendida dentro de un
+              arco de cerámica. Loop de 6 segundos con movimiento mínimo.
+            </div>
+            <div class="actions">
+              <a class="primary" href="concept.html?theme=espacio"
+                >Explorar diseño <span>↗</span></a
+              ><a class="small-link" href="previews/espacio-full.png"
+                >Página completa</a
+              >
+            </div>
+            <div class="actions">
+              <a class="small-link" href="previews/espacio-mobile.png"
+                >Vista móvil</a
+              ><a
+                class="small-link"
+                href="concept.html?theme=espacio&view=booking"
+                >Ver agenda</a
+              >
+            </div>
+          </div>
+        </article>
+      </section>
+      <aside class="recommend">
+        <span>Mi elección: Florecer.</span>
+        <p>
+          Conserva la calidez del sitio actual y permite sumar atención
+          psicológica con una identidad más luminosa y memorable. Si buscas un
+          cambio más atrevido y entretenido, elegiría <b>A tu ritmo</b>.
+        </p>
+      </aside>
+      <section class="more">
+        <div>
+          <h2>Dos caminos, una marca.</h2>
+          <p>
+            “Psicóloga Rayen” recibe a quienes buscan atención. “Aula Rayen”
+            mantiene un espacio claro para quienes buscan formación profesional.
+          </p>
+          <ul>
+            <li>
+              Portada → servicios → presentación de Pamela → cursos → agenda.
+            </li>
+            <li>“Agendar hora” como acción principal.</li>
+            <li>Agenda visual con atención, día, hora y resumen de ejemplo.</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Hecho para que lo explores.</h2>
+          <p>
+            Abre una propuesta, recorre sus secciones y pulsa “Ver movimiento”.
+            Puedes probar la agenda y cambiar día y hora. Al final de cada
+            página encontrarás su paleta y componentes.
+          </p>
+          <p>
+            <a href="blender/rayen-design-studies.blend"
+              >Escenas editables de Blender</a
+            >
+            · <a href="../design.md">Decisiones de diseño</a> ·
+            <a href="README.md">Guía de los entregables</a>
+          </p>
+          <p>
+            Estos son mockups. Los servicios, modalidades y horarios se
+            presentan como ejemplos; la agenda no crea reservas.
+          </p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <span>Propuesta visual · Pamela Rayen Calderón · 2026</span
+      ><a href="https://psicologarayen.cl/" target="_blank" rel="noreferrer"
+        >Sitio actual ↗</a
+      ><span>Modelado original en Blender mediante MCP</span>
+    </footer>
+  </body>
+</html>

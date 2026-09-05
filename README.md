@@ -1,31 +1,34 @@
-# Full-Stack Learning Platform
+# Aula Rayen
 
-A production-oriented learning platform implemented as a pnpm monorepo. It combines a TanStack Start frontend, a NestJS API, shared TypeScript contracts, authentication, course delivery, and payment workflows.
+Plataforma de cursos y talleres de Pamela Rayen Calderón. Aula Rayen reúne el
+catálogo, la inscripción, el acceso a contenidos y los pagos en una experiencia
+web integrada.
 
-## Highlights
+## Características
 
-- File-based web routing with TanStack Start and React 19
-- NestJS API with typed configuration and health checks
-- Shared contracts consumed by both applications
-- Email/password and Google authentication flows
-- Course catalog, enrollment dashboard, and payments with Webpay Plus through the official Transbank SDK
-- Docker Compose development environment
-- Unit, integration, and end-to-end test suites
+- Aplicación web con TanStack Start y React 19
+- API NestJS con configuración tipada y health checks
+- Contratos TypeScript compartidos entre frontend y backend
+- Autenticación con correo y contraseña o Google
+- Catálogo de cursos, panel de inscripciones y acceso a contenidos
+- Pagos con Webpay Plus mediante el SDK oficial de Transbank
+- Entorno local con Docker Compose
+- Pruebas unitarias, de integración y end-to-end
 
-## Repository layout
+## Estructura del repositorio
 
 ```text
 apps/
-  api/        NestJS API and database access
-  web/        TanStack Start web application
+  api/        API NestJS y acceso a la base de datos
+  web/        Aplicación web con TanStack Start
 packages/
-  contracts/  Shared schemas and TypeScript types
-  config/     Shared project configuration
+  contracts/  Esquemas y tipos TypeScript compartidos
+  config/     Configuración compartida del proyecto
 ```
 
-## Getting started
+## Desarrollo local
 
-Requirements: Node.js 20+, pnpm 10+, and PostgreSQL.
+Requisitos: Node.js 20+, pnpm 10+ y PostgreSQL.
 
 ```bash
 pnpm install
@@ -34,14 +37,16 @@ cp apps/web/.env.example apps/web/.env.local
 pnpm build
 ```
 
-Populate the local environment files before starting the applications. All committed environment files contain placeholders only.
+Completa las variables locales antes de iniciar las aplicaciones. Los archivos de
+entorno versionados contienen únicamente valores de ejemplo.
 
 ```bash
 pnpm --filter @aula-rayen/api start:dev
 pnpm --filter @aula-rayen/web dev
 ```
 
-The API listens on `http://localhost:3000` and the web application on `http://localhost:3001` by default.
+Por defecto, la API escucha en `http://localhost:3000` y la aplicación web en
+`http://localhost:3001`.
 
 ## Docker
 
@@ -49,7 +54,7 @@ The API listens on `http://localhost:3000` and the web application on `http://lo
 docker compose up --build
 ```
 
-## Validation
+## Validación
 
 ```bash
 pnpm typecheck
@@ -57,12 +62,13 @@ pnpm test
 pnpm build
 ```
 
-Deployment credentials, private environment values, and third-party secrets are intentionally excluded from this public repository.
+Las credenciales de despliegue, variables privadas y secretos de terceros se
+mantienen fuera del repositorio.
 
-## Production content
+## Contenido de producción
 
-Public production copy and metadata live in
-`apps/web/src/config/site-content.json`, with its JSON Schema beside it. GitHub
-Actions builds that content directly from this monorepo. Runtime credentials and
-private environment values remain deployment secrets and are never stored in the
-content file.
+Los textos públicos y metadatos de producción se encuentran en
+`apps/web/src/config/site-content.json`, junto a su JSON Schema. GitHub Actions
+construye ese contenido directamente desde el monorepo. Las credenciales y
+variables privadas se administran como secretos de despliegue y nunca se guardan
+en el archivo de contenido.
