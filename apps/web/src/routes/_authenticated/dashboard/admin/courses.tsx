@@ -18,21 +18,7 @@ function AdminCoursesPage() {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <section aria-labelledby="admin-courses-title">
-      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="section-kicker">Catálogo y audiencia</p>
-          <h1
-            id="admin-courses-title"
-            className="mt-2 font-heading text-3xl font-semibold tracking-[-0.04em] sm:text-4xl"
-          >
-            Cursos
-          </h1>
-          <p className="mt-2 max-w-2xl leading-7 text-[#65746f]">
-            Administra el catálogo y revisa sus compradores.
-          </p>
-        </div>
-      </div>
+    <section aria-label="Administración de cursos">
       <CourseManagementPanel
         coursesQueryOptions={courseDashboardQueries.courses}
         fetchCourseDetail={getCourse}

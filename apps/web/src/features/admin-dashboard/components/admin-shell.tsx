@@ -3,13 +3,11 @@ import {
   ArrowLeft,
   BookOpenCheck,
   CreditCard,
-  LayoutDashboard,
-  ShieldCheck,
+  ArrowUpRight,
 } from "lucide-react";
 import type { ReactNode } from "react";
-
+import { Brand, FlowerMark } from "@/components/brand";
 import { cn } from "@/lib/utils";
-
 const navigation = [
   {
     to: "/dashboard/admin/courses" as const,
@@ -22,17 +20,11 @@ const navigation = [
     icon: CreditCard,
   },
 ];
-
 function AdminNavigation({ mobile = false }: { mobile?: boolean }) {
   return (
-    <nav aria-label="Administración" className={mobile ? "w-full" : undefined}>
+    <nav aria-label="Administración">
       <ul
-        className={cn(
-          "gap-2",
-          mobile
-            ? "grid grid-cols-2 rounded-2xl border border-[#dce4de] bg-white/85 p-1.5 shadow-sm"
-            : "flex flex-col",
-        )}
+        className={cn("gap-2", mobile ? "grid grid-cols-2" : "flex flex-col")}
       >
         {navigation.map(({ to, label, icon: Icon }) => (
           <li key={to}>
@@ -40,19 +32,17 @@ function AdminNavigation({ mobile = false }: { mobile?: boolean }) {
               to={to}
               activeOptions={{ exact: true }}
               className={cn(
-                "flex items-center gap-3 rounded-xl text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f0c972]",
-                mobile
-                  ? "min-h-11 justify-center px-2 py-2 text-xs text-[#536963] hover:bg-[#edf3ee] sm:text-sm"
-                  : "px-4 py-3 text-white/72 hover:bg-white/10 hover:text-white",
+                "flex min-h-12 items-center gap-3 rounded-xl px-4 text-sm font-medium text-muted-foreground transition hover:bg-sage focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                mobile && "justify-center",
               )}
               activeProps={{
                 className:
-                  "bg-[#f0c972] text-[#213c37] shadow-sm hover:bg-[#f0c972] hover:text-[#213c37]",
+                  "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground",
                 "aria-current": "page",
               }}
             >
-              <Icon aria-hidden="true" className="size-4" />
-              <span>{label}</span>
+              <Icon size={18} aria-hidden="true" />
+              {label}
             </Link>
           </li>
         ))}
@@ -60,7 +50,6 @@ function AdminNavigation({ mobile = false }: { mobile?: boolean }) {
     </nav>
   );
 }
-
 export function AdminShell({
   accountMenu,
   children,
@@ -69,65 +58,67 @@ export function AdminShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-svh overflow-x-clip bg-[#f3f0e8] text-[#294944]">
-      <header className="sticky top-0 z-30 border-b border-[#d9dfd8] bg-[#fffdf8]/95 backdrop-blur">
-        <div className="mx-auto flex min-h-18 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-7 lg:px-10">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#294944] text-[#f0c972]">
-              <ShieldCheck aria-hidden="true" className="size-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="truncate font-heading text-base font-semibold tracking-[-0.02em] sm:text-lg">
-                Aula Rayen
-              </p>
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#c66f51]">
-                Administración
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/dashboard"
-              activeOptions={{ exact: true }}
-              className="hidden min-h-10 items-center gap-2 rounded-full px-4 text-sm font-semibold text-[#50655f] transition hover:bg-[#e7efe9] sm:inline-flex"
-            >
-              <ArrowLeft aria-hidden="true" className="size-4" />
-              Mi espacio
-            </Link>
-            {accountMenu}
-          </div>
-        </div>
-      </header>
-
-      <div className="mx-auto grid max-w-[1600px] lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="hidden min-h-[calc(100svh-4.5rem)] bg-[#294944] p-5 lg:flex lg:flex-col">
-          <div className="mb-7 rounded-2xl border border-white/10 bg-white/5 p-4">
-            <div className="flex items-center gap-2 text-[#f0c972]">
-              <LayoutDashboard aria-hidden="true" className="size-4" />
-              <span className="text-xs font-bold uppercase tracking-[0.14em]">
-                Panel operativo
-              </span>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-white/65">
-              Cursos reales y módulos de demostración para validar la operación.
-            </p>
-          </div>
+    <div className="min-h-svh bg-background text-foreground">
+      <div className="mx-auto grid max-w-[1680px] lg:grid-cols-[250px_minmax(0,1fr)]">
+        <aside className="sticky top-0 hidden h-svh flex-col border-r border-border bg-sidebar px-6 py-8 lg:flex">
+          <Link to="/" aria-label="Psicóloga Rayen, inicio" className="px-2">
+            <Brand classroom />
+          </Link>
+          <p className="mb-5 mt-14 px-4 text-[0.65rem] font-semibold uppercase tracking-[.2em] text-muted-foreground">
+            Administración
+          </p>
           <AdminNavigation />
+          <div className="mt-auto rounded-2xl bg-sage/70 p-5">
+            <FlowerMark className="mb-4 size-10 text-terracotta" />
+            <p className="font-heading text-xl">Hacer crecer el aula.</p>
+            <p className="mt-2 text-xs leading-6 text-muted-foreground">
+              Un espacio para compartir lo que sabes y acompañar nuevos
+              aprendizajes.
+            </p>
+            <Link to="/dashboard" className="text-link mt-5 text-xs">
+              Ver el aula <ArrowUpRight size={15} />
+            </Link>
+          </div>
           <Link
-            to="/dashboard"
-            activeOptions={{ exact: true }}
-            className="mt-auto flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+            to="/"
+            className="mt-5 flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft aria-hidden="true" className="size-4" />
-            Volver al dashboard
+            <ArrowLeft size={15} /> Volver al sitio
           </Link>
         </aside>
-
         <div className="min-w-0">
-          <div className="border-b border-[#d9dfd8] bg-[#fffdf8] px-4 py-3 lg:hidden">
+          <header className="flex min-h-24 items-center justify-between gap-4 border-b border-border px-5 sm:px-8 lg:px-10">
+            <div className="lg:hidden">
+              <Link to="/" aria-label="Psicóloga Rayen, inicio">
+                <Brand classroom />
+              </Link>
+            </div>
+            <div className="hidden lg:block">
+              <p className="text-xs text-muted-foreground">
+                Aula Rayen / Administración
+              </p>
+              <p className="mt-1 text-sm font-medium">Tu espacio de gestión</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Link
+                to="/dashboard"
+                className="hidden items-center gap-2 rounded-full border border-border px-4 py-2.5 text-xs font-medium hover:bg-secondary sm:flex"
+              >
+                <ArrowLeft size={14} /> Mi espacio
+              </Link>
+              {accountMenu}
+            </div>
+          </header>
+          <div className="border-b border-border bg-secondary/50 p-4 lg:hidden">
             <AdminNavigation mobile />
+            <Link
+              to="/dashboard"
+              className="mt-3 flex items-center justify-center gap-2 py-2 text-xs text-muted-foreground sm:hidden"
+            >
+              <ArrowLeft size={14} /> Mi espacio
+            </Link>
           </div>
-          <main className="min-w-0 px-4 py-7 sm:px-7 sm:py-10 lg:px-10 xl:px-14">
+          <main className="min-w-0 px-5 py-8 sm:px-8 lg:px-10 lg:py-12 xl:px-14">
             {children}
           </main>
         </div>

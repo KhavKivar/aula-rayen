@@ -116,14 +116,14 @@ function PaymentDetail({
             <div className="mt-6">
               {payment ? (
                 <>
-                  <div className="flex items-center justify-between gap-4 rounded-2xl bg-[#f1f2ec] p-4">
+                  <div className="flex items-center justify-between gap-4 rounded-2xl bg-secondary p-4">
                     <span className="text-sm font-semibold">{payment.buyerName}</span>
                     <PaymentStatusBadge status={payment.status} />
                   </div>
-                  <dl className="mt-5 divide-y divide-[#e4e8e3]">
+                  <dl className="mt-5 divide-y divide-border">
                     {rows.map(([label, value]) => (
                       <div key={label} className="grid gap-1 py-3 sm:grid-cols-[170px_1fr]">
-                        <dt className="text-sm font-semibold text-[#65746f]">{label}</dt>
+                        <dt className="text-sm font-semibold text-muted-foreground">{label}</dt>
                         <dd className="break-words text-sm font-medium">{value}</dd>
                       </div>
                     ))}
@@ -181,11 +181,11 @@ export function PaymentsPanel() {
           <p className="section-kicker">Actividad comercial</p>
           <h1
             id="payments-title"
-            className="mt-2 font-heading text-3xl font-semibold tracking-[-0.04em] sm:text-4xl"
+            className="mt-2 font-heading text-4xl font-normal tracking-[-0.04em] sm:text-4xl"
           >
             Pagos
           </h1>
-          <p className="mt-2 max-w-2xl leading-7 text-[#65746f]">
+          <p className="mt-2 max-w-2xl leading-7 text-muted-foreground">
             {isLive
               ? "Transacciones registradas por la pasarela de pago."
               : "Explora una muestra de transacciones antes de conectar la conciliación real."}
@@ -197,7 +197,7 @@ export function PaymentsPanel() {
       {paymentsQuery.isPending ? (
         <div
           role="status"
-          className="mt-7 flex items-center justify-center gap-3 rounded-2xl border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+          className="mt-7 flex items-center justify-center gap-3 rounded-2xl border border-border bg-card px-6 py-16 text-muted-foreground"
         >
           <LoaderCircle className="animate-spin" aria-hidden="true" />
           Cargando pagos…
@@ -213,28 +213,28 @@ export function PaymentsPanel() {
             className={cn(
               "relative overflow-hidden rounded-2xl border p-5",
               index === 0
-                ? "border-[#294944] bg-[#294944] text-white"
-                : "border-[#dce2dc] bg-[#fffdf8]",
+                ? "border-[#294944] bg-primary text-white"
+                : "border-border bg-card",
             )}
           >
-            <p className={cn("text-xs font-bold uppercase tracking-[0.12em]", index === 0 ? "text-[#f0c972]" : "text-[#71807b]")}>{label}</p>
-            <p className="mt-3 font-heading text-2xl font-semibold tracking-[-0.03em]">{value}</p>
+            <p className={cn("text-xs font-bold uppercase tracking-[0.12em]", index === 0 ? "text-primary-foreground" : "text-muted-foreground")}>{label}</p>
+            <p className="mt-3 font-heading text-3xl font-normal tracking-[-0.03em]">{value}</p>
           </article>
         ))}
       </div>
 
-      <div className="mt-6 rounded-2xl border border-[#dce2dc] bg-[#fffdf8] p-4 sm:p-5">
+      <div className="mt-6 rounded-2xl border border-border bg-card p-4 sm:p-5">
         <div className="grid gap-3 lg:grid-cols-[minmax(240px,1fr)_190px_170px_auto]">
           <label className="relative">
             <span className="sr-only">Buscar por comprador o correo</span>
-            <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#788680]" />
+            <Search aria-hidden="true" className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={filters.query}
               onChange={(event) =>
                 setFilters((current) => ({ ...current, query: event.target.value }))
               }
               placeholder="Comprador o correo"
-              className="bg-[#f1f2ec] pl-9"
+              className="bg-secondary pl-9"
             />
           </label>
           <label>
@@ -247,7 +247,7 @@ export function PaymentsPanel() {
                   status: event.target.value as PaymentFilters["status"],
                 }))
               }
-              className="h-9 w-full rounded-full border border-[#d9dfd8] bg-[#f1f2ec] px-3 text-sm"
+              className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
             >
               <option value="all">Todos los estados</option>
               <option value="approved">Aprobado</option>
@@ -265,7 +265,7 @@ export function PaymentsPanel() {
                   period: event.target.value as PaymentFilters["period"],
                 }))
               }
-              className="h-9 w-full rounded-full border border-[#d9dfd8] bg-[#f1f2ec] px-3 text-sm"
+              className="h-12 w-full rounded-xl border border-border bg-secondary px-3 text-sm"
             >
               <option value="all">Todo el periodo</option>
               <option value="7d">Últimos 7 días</option>
@@ -283,11 +283,11 @@ export function PaymentsPanel() {
 
       {visiblePayments.length === 0 ? (
         <EmptyState
-          className="mt-6 rounded-3xl border-[#cbd7cf] px-5 py-14"
+          className="mt-6 rounded-3xl border-border px-5 py-14"
           icon={
             <ReceiptText
               aria-hidden="true"
-              className="mx-auto size-9 text-[#87948f]"
+              className="mx-auto size-9 text-muted-foreground"
             />
           }
           title="Sin resultados de pago"
@@ -304,10 +304,10 @@ export function PaymentsPanel() {
           }
         />
       ) : (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-[#dce2dc] bg-[#fffdf8]">
+        <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-card">
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-[#ecefe9] text-xs uppercase tracking-[0.11em] text-[#65746f]">
+              <thead className="bg-secondary/60 text-xs uppercase tracking-[0.11em] text-muted-foreground">
                 <tr>
                   <th className="px-5 py-4">Comprador</th>
                   <th className="px-5 py-4">Curso</th>
@@ -317,13 +317,13 @@ export function PaymentsPanel() {
                   <th className="px-5 py-4 text-right">Detalle</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e4e8e3]">
+              <tbody className="divide-y divide-border">
                 {visiblePayments.map((payment) => (
-                  <tr key={payment.orderId} className="hover:bg-[#f7f6f0]">
-                    <td className="px-5 py-4"><p className="font-semibold">{payment.buyerName}</p><p className="text-xs text-[#65746f]">{payment.buyerEmail}</p></td>
+                  <tr key={payment.orderId} className="hover:bg-background">
+                    <td className="px-5 py-4"><p className="font-semibold">{payment.buyerName}</p><p className="text-xs text-muted-foreground">{payment.buyerEmail}</p></td>
                     <td className="max-w-56 truncate px-5 py-4">{payment.courseTitle}</td>
                     <td className="px-5 py-4 font-semibold">{formatCurrency(payment.amount)}</td>
-                    <td className="px-5 py-4 text-[#65746f]">{new Date(payment.date).toLocaleDateString("es-CL")}</td>
+                    <td className="px-5 py-4 text-muted-foreground">{new Date(payment.date).toLocaleDateString("es-CL")}</td>
                     <td className="px-5 py-4"><PaymentStatusBadge status={payment.status} /></td>
                     <td className="px-5 py-4 text-right">
                       <Button id={`payment-trigger-${payment.orderId}`} variant="ghost" size="sm" onClick={() => setSelectedPayment(payment)}>Ver detalle</Button>
@@ -333,12 +333,12 @@ export function PaymentsPanel() {
               </tbody>
             </table>
           </div>
-          <ul className="divide-y divide-[#e4e8e3] md:hidden">
+          <ul className="divide-y divide-border md:hidden">
             {visiblePayments.map((payment) => (
               <li key={payment.orderId} className="p-4">
                 <div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{payment.buyerName}</p></div><PaymentStatusBadge status={payment.status} /></div>
-                <p className="mt-3 text-sm text-[#65746f]">{payment.courseTitle}</p>
-                <div className="mt-4 flex items-center justify-between gap-4"><p className="font-heading text-lg font-semibold">{formatCurrency(payment.amount)}</p><Button id={`payment-trigger-${payment.orderId}`} variant="outline" size="sm" onClick={() => setSelectedPayment(payment)}><CreditCard aria-hidden="true" /> Detalle</Button></div>
+                <p className="mt-3 text-sm text-muted-foreground">{payment.courseTitle}</p>
+                <div className="mt-4 flex items-center justify-between gap-4"><p className="font-heading text-xl font-normal">{formatCurrency(payment.amount)}</p><Button id={`payment-trigger-${payment.orderId}`} variant="outline" size="sm" onClick={() => setSelectedPayment(payment)}><CreditCard aria-hidden="true" /> Detalle</Button></div>
               </li>
             ))}
           </ul>

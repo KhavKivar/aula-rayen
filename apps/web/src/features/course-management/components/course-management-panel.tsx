@@ -58,7 +58,7 @@ export function CourseManagementPanel({
     return (
       <div
         role="status"
-        className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#d9dfd8] bg-[#fffdf8] px-6 py-16 text-[#62716d]"
+        className="flex items-center justify-center gap-3 rounded-[2rem] border border-border bg-card px-6 py-16 text-muted-foreground"
       >
         <LoaderCircle className="animate-spin" aria-hidden="true" />
         Cargando cursos…
@@ -92,22 +92,38 @@ export function CourseManagementPanel({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="font-heading text-2xl font-semibold text-[#294944]">
-          Gestionar cursos
-        </h2>
+        <div>
+          <p className="section-kicker">Contenido y aprendizaje</p>
+          <h1 className="mt-3 font-heading text-4xl tracking-tight text-foreground">
+            Gestionar cursos
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">
+            Prepara nuevas experiencias y mantén tu catálogo al día.
+          </p>
+        </div>
         <Button
           onClick={() => setCreateOpen(true)}
-          className="bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]"
+          className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
           Crear curso
         </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-secondary/60 px-6 py-5">
+        <p className="text-sm font-medium">Tu catálogo de formación</p>
+        <p className="text-sm text-muted-foreground">
+          <span className="mr-2 font-heading text-3xl text-foreground">
+            {courses.length}
+          </span>
+          {courses.length === 1 ? "curso" : "cursos"}
+        </p>
       </div>
 
       {feedback ? (
         <p
           role="status"
           aria-live="polite"
-          className="rounded-xl bg-[#e7efe9] px-4 py-3 text-sm text-[#294944]"
+          className="rounded-xl bg-secondary px-4 py-3 text-sm text-foreground"
         >
           {feedback}
         </p>
@@ -122,52 +138,66 @@ export function CourseManagementPanel({
           action={
             <Button
               onClick={() => setCreateOpen(true)}
-              className="bg-[#294944] text-[#fffdf8] hover:bg-[#3d655d]"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Crear tu primer curso
             </Button>
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-[1.5rem] border border-[#d9dfd8] bg-[#fffdf8]">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left">
-              <thead className="bg-[#f7f4ec] text-xs uppercase tracking-[0.12em] text-[#7c8985]">
+        <div className="overflow-hidden rounded-[1.5rem] border border-border bg-card">
+          <div
+            className="overflow-x-auto focus-visible:outline-ring"
+            tabIndex={0}
+            role="region"
+            aria-label="Catálogo de cursos"
+            data-scroll="horizontal"
+          >
+            <table className="course-management-table w-full text-left md:min-w-[700px]">
+              <thead className="bg-secondary/60 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Título</th>
-                  <th className="px-6 py-4 font-semibold">Descripción</th>
-                  <th className="px-6 py-4 font-semibold">Duración</th>
-                  <th className="px-6 py-4 font-semibold">Precio</th>
-                  <th className="px-6 py-4 font-semibold">Creado</th>
-                  <th className="px-6 py-4 font-semibold text-right">
+                  <th className="px-4 py-4 font-semibold">Título</th>
+                  <th className="px-4 py-4 font-semibold">Duración</th>
+                  <th className="px-4 py-4 font-semibold">Precio</th>
+                  <th className="px-4 py-4 font-semibold">Creado</th>
+                  <th className="px-4 py-4 font-semibold text-right">
                     Acciones
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e5e8e2]">
+              <tbody className="divide-y divide-border">
                 {courses.map((course) => (
-                  <tr key={course.id} className="hover:bg-[#f7f4ec]/50">
-                    <td className="px-6 py-4 font-medium text-[#294944]">
-                      {course.title}
+                  <tr key={course.id} className="hover:bg-background/50">
+                    <td className="px-4 py-4 font-medium text-foreground">
+                      <p>{course.title}</p>
+                      <p className="mt-2 max-w-xs text-sm font-normal leading-6 text-muted-foreground">
+                        {course.description}
+                      </p>
                     </td>
-                    <td className="max-w-[280px] truncate px-6 py-4 text-sm text-[#62716d]">
-                      {course.description}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-[#294944]">
+                    <td
+                      data-label="Duración"
+                      className="whitespace-nowrap px-4 py-4 text-sm text-foreground"
+                    >
                       {course.duration}
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-[#294944]">
+                    <td
+                      data-label="Precio"
+                      className="whitespace-nowrap px-4 py-4 text-sm font-semibold text-foreground"
+                    >
                       {new Intl.NumberFormat("es-CL", {
                         style: "currency",
                         currency: "CLP",
                         maximumFractionDigits: 0,
                       }).format(course.price)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-[#62716d]">
+                    <td
+                      data-label="Creado"
+                      className="whitespace-nowrap px-4 py-4 text-sm text-muted-foreground"
+                    >
                       {new Date(course.createdAt).toLocaleDateString("es-CL")}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
+                    <td className="px-4 py-4">
+                      <div className="flex flex-wrap justify-end gap-2">
                         {onViewPurchasers ? (
                           <Button
                             variant="ghost"

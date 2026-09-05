@@ -2,16 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 
 import { Navbar } from "@/components/ui/navbar";
 import { sessionQueries } from "@/lib/session-queries";
-import { LandingBenefits } from "@/features/landing/components/landing-benefits";
 import { LandingCourses } from "@/features/landing/components/landing-courses";
 import { LandingCta } from "@/features/landing/components/landing-cta";
-import { LandingExperience } from "@/features/landing/components/landing-experience";
 import { LandingFaq } from "@/features/landing/components/landing-faq";
 import { LandingFooter } from "@/features/landing/components/landing-footer";
 import { LandingHero } from "@/features/landing/components/landing-hero";
-import { LandingLicense } from "@/features/landing/components/landing-license";
-import { LandingMethod } from "@/features/landing/components/landing-method";
 import { LandingProfessional } from "@/features/landing/components/landing-professional";
+import { LandingServices } from "@/features/landing/components/landing-services";
 import { LandingTrustBar } from "@/features/landing/components/landing-trust-bar";
 
 export function LandingPage() {
@@ -24,12 +21,9 @@ export function LandingPage() {
       <Navbar isLoggedIn={isLoggedIn} isPending={isPending} />
       <LandingHero />
       <LandingTrustBar />
-      <LandingBenefits />
-      <LandingCourses />
-      <LandingMethod />
-      <LandingExperience />
+      <LandingServices />
       <LandingProfessional />
-      <LandingLicense />
+      <LandingCourses />
       <LandingFaq />
       <LandingCta />
       <LandingFooter />

@@ -1,87 +1,96 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { ArrowUpRight, Menu, X } from "lucide-react";
+import { useHydrated } from "@/hooks/use-hydrated";
+import { Brand } from "@/components/brand";
+import { buttonVariants } from "@/components/ui/button";
 
-import { siteContent } from "@/config/static-content";
-
-type NavbarProps = {
+export function Navbar({
+  isLoggedIn,
+  isPending,
+}: {
   isLoggedIn: boolean;
   isPending: boolean;
-};
-
-const desktopLinks = [
-  { href: "#cursos", label: "Cursos" },
-  { href: "#metodologia", label: "Metodología" },
-  { href: "#profesional", label: "Profesional" },
-  { href: "#preguntas", label: "Preguntas" },
-];
-
-const mobileLinks = [
-  { href: "#cursos", label: "Cursos" },
-  { href: "#metodologia", label: "Método" },
-  { href: "#profesional", label: "Perfil" },
-  { href: "#preguntas", label: "FAQ" },
-];
-
-export function Navbar({ isLoggedIn, isPending }: NavbarProps) {
+}) {
+  const hydrated = useHydrated();
+  const [open, setOpen] = useState(false);
+  const links = [
+    { href: "#atencion", label: "Atención psicológica" },
+    { href: "#profesional", label: "Sobre mí" },
+    { href: "#cursos", label: "Aula Rayen" },
+  ];
   return (
-    <header className="absolute inset-x-0 top-0 z-20 border-b border-white/15 text-white">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-2 px-5 sm:gap-6 sm:px-8 lg:px-12">
-        <a
-          href="#inicio"
-          className="font-heading text-xl font-semibold tracking-[-0.03em] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+    <header className="relative z-20 border-b border-border/70 bg-background">
+      <div className="page-container flex min-h-24 items-center justify-between gap-6">
+        <Link to="/" aria-label="Psicóloga Rayen, inicio">
+          <Brand />
+        </Link>
+        <nav
+          aria-label="Navegación principal"
+          className="hidden items-center gap-8 text-sm lg:flex"
         >
-          {siteContent.brandName}
-        </a>
-
-        <nav aria-label="Navegación principal" className="hidden md:block">
-          <ul className="flex items-center gap-7 text-sm text-white/80">
-            {desktopLinks.map(({ href, label }) => (
-              <li key={href}>
-                <a className="transition hover:text-white" href={href}>
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="flex min-h-10 items-center gap-2 sm:gap-3">
-          {isPending ? (
-            <span className="text-sm text-white/75" role="status">
-              Cargando sesión…
-            </span>
-          ) : isLoggedIn ? (
-            <Link
-              to="/dashboard"
-              preload="intent"
-              className="inline-flex min-h-10 items-center rounded-full bg-[#f0c972] px-2 py-2 text-sm font-semibold text-[#263c38] transition hover:bg-[#f7d990] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-4"
+          {links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="transition-colors hover:text-terracotta"
             >
-              Ir a mi panel
-            </Link>
-          ) : (
-            <Link
-              to="/login"
-              preload="intent"
-              className="inline-flex min-h-10 items-center rounded-full bg-[#f0c972] px-4 py-2 text-sm font-semibold text-[#263c38] transition hover:bg-[#f7d990] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              Ingresar
-            </Link>
-          )}
-        </div>
-      </div>
-      <nav
-        aria-label="Navegación móvil"
-        className="border-t border-white/10 px-5 py-2 md:hidden"
-      >
-        <ul className="mx-auto flex max-w-md justify-between text-xs font-medium text-white/75">
-          {mobileLinks.map(({ href, label }) => (
-            <li key={href}>
-              <a className="block py-1" href={href}>
-                {label}
-              </a>
-            </li>
+              {link.label}
+            </a>
           ))}
-        </ul>
-      </nav>
+        </nav>
+        <div className="hidden items-center gap-6 lg:flex">
+          <Link
+            to={isLoggedIn ? "/dashboard" : "/login"}
+            className="text-sm font-medium"
+            aria-busy={isPending}
+          >
+            {isLoggedIn ? "Mi espacio" : "Ingresar"}
+          </Link>
+          <a href="#agenda" className={buttonVariants({ size: "default" })}>
+            Agendar hora <ArrowUpRight size={16} />
+          </a>
+        </div>
+        <button
+          type="button"
+          disabled={!hydrated}
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-controls="mobile-navigation"
+          aria-label={open ? "Cerrar menú" : "Abrir menú"}
+          className="grid size-11 place-items-center rounded-full border border-border lg:hidden"
+        >
+          {open ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+      {open && (
+        <nav
+          id="mobile-navigation"
+          aria-label="Navegación móvil"
+          className="page-container flex flex-col gap-1 border-t border-border py-4 lg:hidden"
+        >
+          {links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              className="rounded-xl px-3 py-3 hover:bg-secondary"
+            >
+              {link.label}
+            </a>
+          ))}
+          <Link to={isLoggedIn ? "/dashboard" : "/login"} className="px-3 py-3">
+            {isLoggedIn ? "Mi espacio" : "Ingresar"}
+          </Link>
+          <a
+            href="#agenda"
+            onClick={() => setOpen(false)}
+            className={buttonVariants()}
+          >
+            Agendar hora <ArrowUpRight size={16} />
+          </a>
+        </nav>
+      )}
     </header>
   );
 }

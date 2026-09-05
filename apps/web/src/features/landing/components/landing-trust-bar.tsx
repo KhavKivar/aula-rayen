@@ -1,23 +1,23 @@
-import { Check } from "lucide-react";
-
+import { Asterisk } from "lucide-react";
 export function LandingTrustBar() {
   return (
-    <section className="border-b border-[#dfe6df] bg-[#f7f4ec] py-10">
-      <div className="mx-auto grid max-w-7xl gap-6 px-5 sm:grid-cols-3 sm:px-8 lg:px-12">
+    <div className="border-y border-border">
+      <div className="page-container flex flex-wrap justify-center gap-x-12 gap-y-4 py-6 text-sm text-muted-foreground">
         {[
-          "Formación con fundamento",
-          "Dinámicas paso a paso",
-          "Material editable",
-        ].map((item) => (
-          <div
-            key={item}
-            className="flex items-center justify-center gap-3 text-center text-sm font-semibold text-[#35544e]"
-          >
-            <Check aria-hidden="true" className="text-[#c66f51]" size={18} />
-            {item}
-          </div>
+          "Escucha sin juicios",
+          "Cada proceso es único",
+          "Un paso a la vez",
+        ].map((label) => (
+          <span key={label} className="flex items-center gap-3">
+            <Asterisk
+              className="text-terracotta"
+              size={18}
+              aria-hidden="true"
+            />
+            {label}
+          </span>
         ))}
       </div>
-    </section>
+    </div>
   );
 }

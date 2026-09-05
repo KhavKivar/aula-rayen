@@ -1,30 +1,35 @@
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-
+import { Brand } from "@/components/brand";
 import { siteContent } from "@/config/static-content";
 import { ExternalInstagramLink } from "@/features/landing/components/external-instagram-link";
-
 export function LandingFooter() {
   return (
-    <footer className="bg-[#1e3733] px-5 py-10 text-white/65 sm:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-5 text-sm sm:flex-row sm:items-center sm:justify-between lg:px-4">
+    <footer className="border-t border-border">
+      <div className="page-container flex flex-col justify-between gap-8 py-10 sm:flex-row sm:items-center">
         <div>
-          <p className="font-heading text-lg font-semibold text-white">
-            {siteContent.brandName}
-          </p>
-          <p className="mt-1 text-xs">
-            Formación creada por {siteContent.professional.name}
-            {siteContent.isDemo ? " · Contenido de demostración" : ""}
+          <Link to="/" aria-label="Psicóloga Rayen, inicio">
+            <Brand />
+          </Link>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Psicología, arteterapia y formación ·{" "}
+            {siteContent.professional.name}
           </p>
         </div>
-        <div className="flex flex-wrap gap-5">
-          <Link className="hover:text-white" to="/login" preload="intent">
+        <nav
+          aria-label="Enlaces del pie de página"
+          className="flex flex-wrap gap-6 text-sm"
+        >
+          <Link to="/dashboard" className="hover:text-terracotta">
+            Aula Rayen
+          </Link>
+          <Link to="/login" className="hover:text-terracotta">
             Ingresar
           </Link>
-          <ExternalInstagramLink className="inline-flex items-center gap-1 hover:text-white">
-            Instagram <ArrowUpRight aria-hidden="true" size={14} />
+          <ExternalInstagramLink className="flex items-center gap-1 hover:text-terracotta">
+            Instagram <ArrowUpRight size={14} />
           </ExternalInstagramLink>
-        </div>
+        </nav>
       </div>
     </footer>
   );

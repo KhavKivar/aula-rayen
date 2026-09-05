@@ -1,6 +1,4 @@
-import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
-import "@fontsource-variable/plus-jakarta-sans";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -9,16 +7,15 @@ import {
 } from "@tanstack/react-router";
 
 import { env } from "@/config/env";
-import { siteContent } from "@/config/static-content";
 import appCss from "@/styles/app.css?url";
 import { QueryClient } from "@tanstack/react-query";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-const title = `${siteContent.brandName} | Talleres para profesionales de la psicología`;
+const title = "Psicóloga Rayen | Psicología, arteterapia y formación";
 const description =
-  "Cursos para psicólogos y psicólogas con formación, dinámicas paso a paso y materiales editables para facilitar talleres.";
+  "Un espacio para florecer a tu ritmo. Acompañamiento psicológico, arteterapia y cursos para profesionales de la psicología.";
 const socialImage = new URL(
   "/opengraph-image.svg",
   env.VITE_PUBLIC_SITE_URL,
@@ -37,15 +34,14 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       { name: "description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "es_CL" },
-      { property: "og:site_name", content: siteContent.brandName },
+      { property: "og:site_name", content: "Psicóloga Rayen" },
       {
         property: "og:title",
-        content: `${siteContent.brandName} | Talleres listos para llevar a la práctica`,
+        content: title,
       },
       {
         property: "og:description",
-        content:
-          "Formación, dinámicas y materiales editables para profesionales de la psicología.",
+        content: description,
       },
       { property: "og:image", content: socialImage },
       { name: "twitter:card", content: "summary_large_image" },

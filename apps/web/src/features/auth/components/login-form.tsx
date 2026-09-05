@@ -124,7 +124,7 @@ export function LoginForm({
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "email-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );
@@ -160,7 +160,7 @@ export function LoginForm({
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "password-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );

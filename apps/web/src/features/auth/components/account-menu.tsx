@@ -41,7 +41,7 @@ export function AccountMenu() {
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label="Abrir menú de cuenta"
-          className="inline-flex size-10 items-center justify-center rounded-full bg-[#294944] text-white transition hover:bg-[#3d655d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#294944]"
+          className="inline-flex size-10 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         >
           <UserRound size={19} aria-hidden="true" />
         </DropdownMenuTrigger>

@@ -5,16 +5,19 @@ import { CourseCard } from "@/features/course-dashboard/components/course-card";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import { useWebpayCheckout } from "@/features/course-dashboard/api/use-webpay-checkout";
 
-export function CourseCatalog({ courses }: { courses: readonly CourseCatalogItem[] }) {
-  const { checkoutFormRef, checkoutError, startCheckout } =
-    useWebpayCheckout();
+export function CourseCatalog({
+  courses,
+}: {
+  courses: readonly CourseCatalogItem[];
+}) {
+  const { checkoutFormRef, checkoutError, startCheckout } = useWebpayCheckout();
 
   if (courses.length === 0) {
     return (
       <EmptyState
         icon={
           <BookOpen
-            className="mx-auto text-[#c66f51]"
+            className="mx-auto text-terracotta"
             size={36}
             aria-hidden="true"
           />

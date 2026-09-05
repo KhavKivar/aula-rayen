@@ -81,7 +81,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "new-password-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );
@@ -109,7 +109,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "confirm-password-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );

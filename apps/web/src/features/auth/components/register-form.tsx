@@ -17,11 +17,7 @@ export function RegisterForm() {
   const navigate = useNavigate();
   const router = useRouter();
 
-  const registerMutation = useMutation<
-    void,
-    AuthError,
-    RegisterCredentials
-  >({
+  const registerMutation = useMutation<void, AuthError, RegisterCredentials>({
     mutationFn: registerAccount,
     onSuccess: async () => {
       await navigate({ to: "/", replace: true });
@@ -71,7 +67,7 @@ export function RegisterForm() {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "name-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );
@@ -99,7 +95,7 @@ export function RegisterForm() {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "register-email-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );
@@ -127,7 +123,7 @@ export function RegisterForm() {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "register-password-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );
@@ -155,7 +151,7 @@ export function RegisterForm() {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "confirm-password-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );

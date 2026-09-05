@@ -7,9 +7,13 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Geist Variable", sans-serif;
+  --font-sans: "DM Sans", sans-serif;
   --font-mono: "Geist Mono Variable", monospace;
-  --font-heading: "Plus Jakarta Sans Variable", sans-serif;
+  --font-heading: "Fraunces", serif;
+  --color-terracotta: #a85e40;
+  --color-sage: #dce5cb;
+  --color-clay: #efe2d6;
+  --shadow-soft: 0 12px 40px rgb(36 61 50 / 5%);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -49,38 +53,38 @@
 }
 
 :root {
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.385 0.052 174);
-  --primary-foreground: oklch(0.98 0.01 87);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.55 0.09 165);
-  --chart-1: oklch(0.905 0.182 98.111);
-  --chart-2: oklch(0.795 0.184 86.047);
-  --chart-3: oklch(0.681 0.162 75.834);
-  --chart-4: oklch(0.554 0.135 66.442);
-  --chart-5: oklch(0.476 0.114 61.907);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
-  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(0.99 0.012 89);
-  --foreground: oklch(0.29 0.035 172);
+  --background: #f7f5ed;
+  --foreground: #243d32;
+  --card: #fffef9;
+  --card-foreground: #243d32;
+  --popover: #fffef9;
+  --popover-foreground: #243d32;
+  --primary: #243d32;
+  --primary-foreground: #f7f5ed;
+  --secondary: #e5ead9;
+  --secondary-foreground: #243d32;
+  --muted: #efeee5;
+  --muted-foreground: #59665c;
+  --accent: #dce5cb;
+  --accent-foreground: #243d32;
+  --destructive: #a43b32;
+  --border: #d9dece;
+  --input: #c8d0bd;
+  --ring: #9b613f;
+  --chart-1: #456b4a;
+  --chart-2: #a85e40;
+  --chart-3: #c5d3b1;
+  --chart-4: #d7b580;
+  --chart-5: #8c9e7c;
+  --radius: 0.85rem;
+  --sidebar: #eeefe4;
+  --sidebar-foreground: #243d32;
+  --sidebar-primary: #243d32;
+  --sidebar-primary-foreground: #f7f5ed;
+  --sidebar-accent: #dce5cb;
+  --sidebar-accent-foreground: #243d32;
+  --sidebar-border: #d9dece;
+  --sidebar-ring: #9b613f;
 }
 
 .dark {
@@ -143,10 +147,116 @@
 
 @layer components {
   .section-kicker {
-    @apply text-xs font-bold uppercase tracking-[0.18em] text-[#c66f51];
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-terracotta;
   }
 
   .section-title {
-    @apply font-heading text-4xl font-semibold leading-[1.08] tracking-[-0.045em] text-[#294944] sm:text-5xl;
+    @apply font-heading text-4xl font-normal leading-[1.1] tracking-[-0.045em] text-foreground sm:text-5xl;
+  }
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/florecer/font-0.ttf") format("truetype");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/florecer/font-1.ttf") format("truetype");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/florecer/font-2.ttf") format("truetype");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/florecer/font-3.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/florecer/font-4.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/florecer/font-6.ttf") format("truetype");
+}
+
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-[1440px] px-6 sm:px-10 lg:px-16;
+  }
+  .section-space {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+  .text-link {
+    @apply inline-flex min-h-11 items-center gap-3 text-sm font-medium underline-offset-4 hover:underline;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .course-management-table thead {
+    display: none;
+  }
+  .course-management-table tbody,
+  .course-management-table tr,
+  .course-management-table td {
+    display: block;
+    width: 100%;
+  }
+  .course-management-table tbody {
+    padding: 1rem;
+  }
+  .course-management-table tr {
+    padding: 0.5rem;
+  }
+  .course-management-table tr + tr {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  .course-management-table td {
+    padding: 0.5rem 0;
+    white-space: normal;
+  }
+  .course-management-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--muted-foreground);
+  }
+  .course-management-table td:last-child > div {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
   }
 }

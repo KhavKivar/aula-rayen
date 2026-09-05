@@ -1,24 +1,38 @@
 import { faqs } from "@/config/static-content";
 
+const questions = [
+  {
+    question: "¿Cómo puedo agendar una primera hora?",
+    answer:
+      "Puedes escribirme por Instagram para consultar disponibilidad y acordar la fecha y modalidad de atención. La agenda online estará disponible próximamente.",
+  },
+  {
+    question: "¿Necesito saber qué me pasa antes de consultar?",
+    answer:
+      "No necesitas tener todas las respuestas. Podemos conversar sobre lo que te preocupa y explorar juntos qué tipo de acompañamiento necesitas.",
+  },
+  ...faqs,
+];
+
 export function LandingFaq() {
   return (
     <section
       id="preguntas"
-      className="scroll-mt-8 bg-[#f7f4ec] py-24 sm:py-28"
+      className="page-container section-space scroll-mt-8"
     >
-      <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-8 lg:grid-cols-[.68fr_1.32fr] lg:gap-20 lg:px-12">
+      <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
         <div>
           <p className="section-kicker">Antes de comenzar</p>
           <h2 className="section-title mt-4">Preguntas frecuentes</h2>
         </div>
-        <div className="divide-y divide-[#ccd8d2] border-y border-[#ccd8d2]">
-          {faqs.map((faq, index) => (
+        <div className="divide-y divide-border border-y border-border">
+          {questions.map((faq, index) => (
             <details
               key={faq.question}
               className="group py-6"
               open={index === 0}
             >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-heading text-lg font-semibold text-[#294944] marker:content-none">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 font-heading text-xl font-normal text-foreground marker:content-none">
                 {faq.question}
                 <span
                   aria-hidden="true"
@@ -27,7 +41,7 @@ export function LandingFaq() {
                   +
                 </span>
               </summary>
-              <p className="max-w-2xl pt-4 text-sm leading-7 text-[#62716d]">
+              <p className="max-w-2xl pt-4 text-sm leading-7 text-muted-foreground">
                 {faq.answer}
               </p>
             </details>

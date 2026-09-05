@@ -40,7 +40,10 @@ export function ForgotPasswordForm() {
         </p>
         <Link
           to="/login"
-          className={buttonVariants({ variant: "outline", className: "w-full" })}
+          className={buttonVariants({
+            variant: "outline",
+            className: "w-full",
+          })}
         >
           Volver a iniciar sesión
         </Link>
@@ -80,7 +83,7 @@ export function ForgotPasswordForm() {
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
                 aria-describedby={error ? "reset-email-error" : undefined}
-                className="h-11 bg-muted/80 px-4 shadow-none"
+                className="h-11 bg-card px-4 shadow-none"
               />
             </FormField>
           );

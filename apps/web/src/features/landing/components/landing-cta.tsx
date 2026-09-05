@@ -1,27 +1,35 @@
-import { ArrowUpRight, Camera } from "lucide-react";
-
-import { siteContent } from "@/config/static-content";
+import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { ExternalInstagramLink } from "@/features/landing/components/external-instagram-link";
-
 export function LandingCta() {
   return (
-    <section className="bg-[#d98968] px-5 py-20 text-center text-white sm:px-8 sm:py-24">
-      <div className="mx-auto max-w-3xl">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/70">
-          Estamos preparando el primer curso
-        </p>
-        <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-          Que tu próximo taller empiece con una ruta clara.
-        </h2>
-        <p className="mx-auto mt-5 max-w-xl leading-7 text-white/78">
-          {siteContent.social.instagramUrl
-            ? `Sigue a ${siteContent.professional.shortName} en Instagram para conocer el proceso y enterarte cuando se abran las inscripciones.`
-            : "Explora el catálogo para conocer las próximas formaciones y materiales disponibles."}
-        </p>
-        <ExternalInstagramLink className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-[#294944] px-6 text-sm font-semibold text-white transition hover:bg-[#203d38] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-          <Camera aria-hidden="true" size={18} /> Seguir en Instagram{" "}
-          <ArrowUpRight aria-hidden="true" size={16} />
-        </ExternalInstagramLink>
+    <section id="agenda" className="page-container scroll-mt-8 pb-16 lg:pb-24">
+      <div className="grid gap-10 rounded-[2rem] bg-primary p-7 text-primary-foreground sm:p-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-20 lg:p-16">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-sage">
+            A tu tiempo, a tu ritmo
+          </p>
+          <h2 className="mt-5 font-heading text-4xl leading-tight tracking-tight sm:text-5xl">
+            Hagamos espacio para conversar.
+          </h2>
+          <p className="mt-6 max-w-md leading-8 text-primary-foreground/75">
+            Dar el primer paso puede traer preguntas. Escríbeme para conocer las
+            modalidades de atención y consultar disponibilidad.
+          </p>
+        </div>
+        <div className="rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-7 sm:p-8">
+          <CalendarDays size={30} strokeWidth={1.4} aria-hidden="true" />
+          <h3 className="mt-5 font-heading text-3xl">Tu próximo espacio</h3>
+          <p className="mt-4 text-sm leading-7 text-primary-foreground/75">
+            La agenda online estará disponible próximamente. Por ahora, podemos
+            coordinar tu primera hora por Instagram.
+          </p>
+          <ExternalInstagramLink className="mt-7 flex min-h-12 items-center justify-between gap-4 rounded-full bg-sage px-6 py-3 text-sm font-medium text-primary hover:bg-background">
+            Consultar disponibilidad <ArrowUpRight size={18} />
+          </ExternalInstagramLink>
+          <p className="mt-4 text-xs leading-5 text-primary-foreground/65">
+            La fecha y modalidad se acuerdan directamente con Pamela.
+          </p>
+        </div>
       </div>
     </section>
   );
