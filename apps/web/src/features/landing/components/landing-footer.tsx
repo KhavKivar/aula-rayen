@@ -20,6 +20,18 @@ export function LandingFooter() {
           aria-label="Enlaces del pie de página"
           className="flex flex-wrap gap-6 text-sm"
         >
+          <Link
+            to="/psicologa-iquique"
+            className="hover:text-terracotta"
+          >
+            Psicóloga en Iquique
+          </Link>
+          <Link
+            to="/sobre-pamela-rayen"
+            className="hover:text-terracotta"
+          >
+            Sobre Pamela
+          </Link>
           <Link to="/dashboard" className="hover:text-terracotta">
             Aula Rayen
           </Link>

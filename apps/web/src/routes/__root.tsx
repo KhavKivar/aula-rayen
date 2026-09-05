@@ -6,7 +6,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 
-import { env } from "@/config/env";
+import { OG_IMAGE_URL } from "@/config/seo";
 import appCss from "@/styles/app.css?url";
 import { QueryClient } from "@tanstack/react-query";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -16,10 +16,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 const title = "Psicóloga Rayen | Psicología, arteterapia y formación";
 const description =
   "Un espacio para florecer a tu ritmo. Acompañamiento psicológico, arteterapia y cursos para profesionales de la psicología.";
-const socialImage = new URL(
-  "/opengraph-image.svg",
-  env.VITE_PUBLIC_SITE_URL,
-).toString();
+const socialImage = OG_IMAGE_URL;
 
 interface RouterContext {
   queryClient: QueryClient;

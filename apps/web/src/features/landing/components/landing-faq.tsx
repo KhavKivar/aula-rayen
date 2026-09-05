@@ -1,10 +1,10 @@
 import { faqs } from "@/config/static-content";
 
-const questions = [
+export const visibleFaqs = [
   {
     question: "¿Cómo puedo agendar una primera hora?",
     answer:
-      "Puedes escribirme por Instagram para consultar disponibilidad y acordar la fecha y modalidad de atención. La agenda online estará disponible próximamente.",
+      "Puedes escribirme por WhatsApp o Instagram para consultar disponibilidad y acordar la fecha y modalidad de atención, online o presencial en Iquique.",
   },
   {
     question: "¿Necesito saber qué me pasa antes de consultar?",
@@ -13,6 +13,8 @@ const questions = [
   },
   ...faqs,
 ];
+
+const questions = visibleFaqs;
 
 export function LandingFaq() {
   return (
