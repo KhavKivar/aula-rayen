@@ -59,9 +59,9 @@ function AboutPage() {
           {siteContent.professional.name}, psicóloga.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-          {siteContent.professional.title} · Magíster en Salud y Arteterapia.
-          Atiendo online en todo Chile y de forma presencial en Iquique,
-          Tarapacá: psicoterapia infantojuvenil y acompañamiento familiar.
+          Psicóloga · Magíster en Salud y Arteterapia. Atiendo online en todo
+          Chile y de forma presencial en Iquique, Tarapacá: psicoterapia
+          infantojuvenil y acompañamiento familiar.
         </p>
         <p className="mt-6 flex max-w-2xl flex-wrap gap-x-6 gap-y-2 text-sm">
           <Link
