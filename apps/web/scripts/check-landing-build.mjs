@@ -68,11 +68,15 @@ try {
     ['lang="es"', "idioma español"],
     ["Aula Rayen", "marca comercial"],
     ["Arteterapia para niños y niñas", "curso inicial"],
-    ["Inscripciones próximamente", "estado del curso"],
+    ["Próximamente", "estado del curso"],
     ['href="/login"', "enlace de inicio de sesión"],
     [siteContent.professional.name, "identidad profesional"],
     ['id="cursos"', "sección de cursos"],
-    ['id="metodologia"', "sección de metodología"],
+    ['id="atencion"', "servicios psicológicos"],
+    ['id="agenda"', "contacto para agendar"],
+    ['href="#agenda"', "acceso al contacto desde la portada"],
+    ['poster="/images/florecer.png"', "flor original como imagen inicial"],
+    ['aria-label="Flor de arcilla en movimiento suave"', "animación accesible"],
     ['id="profesional"', "sección profesional"],
     ['id="preguntas"', "sección de preguntas"],
     ['property="og:image"', "imagen social"],
@@ -106,8 +110,22 @@ try {
     }
   }
 
+  const assets = [
+    ["/images/florecer.png", "image/png"],
+    ["/media/florecer.mp4", "video/mp4"],
+  ];
+  await Promise.all(assets.map(async ([path, contentType]) => {
+    const response = await fetch(new URL(path, previewUrl));
+    if (!response.ok || !response.headers.get("content-type")?.includes(contentType)) {
+      throw new Error(`El recurso de la flor no está disponible: ${path}`);
+    }
+    if ((await response.arrayBuffer()).byteLength === 0) {
+      throw new Error(`El recurso de la flor está vacío: ${path}`);
+    }
+  }));
+
   console.log(
-    `Landing verificada: ${requiredContent.length} comprobaciones aprobadas.`,
+    `Landing verificada: ${requiredContent.length + assets.length} comprobaciones aprobadas.`,
   );
 } finally {
   preview.kill("SIGTERM");

@@ -7,6 +7,7 @@ Florecer 01 is applied to the landing page, authentication/recovery, learner cat
 - `pnpm test:run` — 30 files, 105 tests passed.
 - `pnpm test:e2e` — 5 tests passed (login guards, looping/pause/resume, reduced motion, mobile appointment navigation).
 - `pnpm build` — passed.
+- `pnpm check:landing` — 20 production HTML and asset checks passed, covering services, appointment contact and the original flower poster/video.
 - Browser review at 1440 px and 390 px: public/auth screens, course catalog/content, admin courses/payments, create-course, buyers and payment-detail dialogs. No horizontal page overflow or JavaScript page errors in the checked flows. Protected screens used intercepted local fixture responses; no production records were changed.
 
 Validation was repeated against an isolated checkout of the exact staged change, excluding the user's preexisting payment/dialog edits. Existing work remains in the primary working tree.
