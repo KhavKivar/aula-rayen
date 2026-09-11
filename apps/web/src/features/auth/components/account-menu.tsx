@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
 import { sessionQueries } from "@/lib/session-queries";
+import { clearSessionCache } from "@/lib/session-cache";
 
 export function AccountMenu() {
   const navigate = useNavigate();
@@ -28,9 +29,8 @@ export function AccountMenu() {
       }
     },
     onSuccess: async () => {
-      queryClient.invalidateQueries({
-        queryKey: sessionQueries.session.queryKey,
-      });
+      await clearSessionCache(queryClient);
+      queryClient.setQueryData(sessionQueries.session.queryKey, null);
       await navigate({ to: "/", replace: true });
       await router.invalidate();
     },

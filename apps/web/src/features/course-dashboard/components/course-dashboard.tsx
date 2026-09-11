@@ -31,10 +31,7 @@ export function CourseDashboard({
     <main className="min-h-svh overflow-x-clip bg-background text-foreground">
       <header className="border-b border-border bg-card/95">
         <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-3 px-5 sm:px-8 lg:px-12">
-          <Link
-            to="/"
-            className="font-heading text-xl font-semibold tracking-[-0.03em]"
-          >
+          <Link to="/" className="font-heading text-xl tracking-[-0.03em]">
             <Brand classroom />
           </Link>
           <div className="flex items-center gap-2">

@@ -22,6 +22,7 @@ vi.mock("@/lib/api-client", () => ({
 }));
 
 import { apiClient } from "@/lib/api-client";
+import { toApiErrorMessage } from "@/lib/api-error";
 
 function axiosError(message: string | string[] | undefined, status?: number) {
   const error = new Error(message as string) as unknown as ReturnType<
@@ -70,6 +71,10 @@ describe("createWebPay", () => {
         message: "El curso ya fue comprado.",
         status: 409,
       }),
+    );
+    const error = await request.catch((reason: unknown) => reason);
+    expect(toApiErrorMessage(error, "No se pudo iniciar el pago.")).toBe(
+      "El curso ya fue comprado.",
     );
   });
 

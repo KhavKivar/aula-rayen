@@ -1,22 +1,34 @@
 import { ArrowUpRight, Check } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { FlowerMark } from "@/components/brand";
+import { buttonVariants } from "@/components/ui/button";
 import { courses } from "@/config/static-content";
 import { ExternalInstagramLink } from "@/features/landing/components/external-instagram-link";
 export function LandingCourses() {
   return (
-    <section id="cursos" className="border-y border-border bg-card/60">
-      <div className="page-container section-space grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+    <section
+      id="cursos"
+      className="scroll-mt-8 bg-terracotta-deep text-background"
+    >
+      <div className="page-container section-space grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-center lg:gap-20">
         <div>
-          <p className="section-kicker">Aula Rayen · Formación</p>
-          <h2 className="section-title mt-4">
+          <p className="section-kicker text-clay">Aula Rayen · Formación</p>
+          <h2 className="section-title mt-4 text-background">
             Aprender también es una forma de cuidar.
           </h2>
-          <p className="mt-6 max-w-md leading-8 text-muted-foreground">
+          <p className="mt-6 max-w-md leading-8 text-clay">
             Cursos y recursos para profesionales que quieren acompañar con
             creatividad, herramientas prácticas y una mirada sensible.
           </p>
-          <Link to="/dashboard" className="text-link mt-8">
+          <Link
+            to="/dashboard"
+            className={buttonVariants({
+              variant: "outline",
+              size: "lg",
+              className:
+                "mt-8 text-terracotta-deep focus-visible:border-background focus-visible:ring-background/70",
+            })}
+          >
             Explorar el aula <ArrowUpRight size={18} />
           </Link>
         </div>
@@ -24,7 +36,7 @@ export function LandingCourses() {
           {courses.map((course) => (
             <article
               key={course.id}
-              className="overflow-hidden rounded-[1.75rem] border border-border bg-card"
+              className="overflow-hidden rounded-[1.75rem] border border-clay bg-card text-card-foreground"
             >
               <div className="flex min-h-44 items-center justify-between gap-8 bg-clay px-8 py-6">
                 <div>

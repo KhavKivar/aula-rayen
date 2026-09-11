@@ -5,6 +5,7 @@ import { course_purchases, courses, user, webpay_sessions } from '@/db/schema';
 import type { Database, NewWebPaySession, WebPaySession } from '@/db/types';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
+// Todo clean this shit
 type CommitDetails = Pick<
   NewWebPaySession,
   | 'vci'
@@ -36,7 +37,7 @@ export class WebPayRepository {
     return session ?? null;
   }
 
-  async findPayments(limit: number) {
+  async findPayments() {
     return this.db
       .select({
         buyOrderId: webpay_sessions.buyOrderId,
@@ -54,10 +55,10 @@ export class WebPayRepository {
         courseTitle: courses.title,
       })
       .from(webpay_sessions)
+      .where(eq(webpay_sessions.tbStatus, 'AUTHORIZED'))
       .innerJoin(user, eq(webpay_sessions.userId, user.id))
       .innerJoin(courses, eq(webpay_sessions.courseId, courses.id))
-      .orderBy(desc(webpay_sessions.createdAt))
-      .limit(limit);
+      .orderBy(desc(webpay_sessions.createdAt));
   }
   async create(
     newWebPaySession: NewWebPaySession,

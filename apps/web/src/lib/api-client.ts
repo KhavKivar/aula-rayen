@@ -1,7 +1,8 @@
 import axios, { type AxiosError } from "axios";
 import { env } from "@/config/env";
+import { UserFacingError } from "@/lib/user-facing-error";
 
-export class SessionExpiredError extends Error {
+export class SessionExpiredError extends UserFacingError {
   constructor() {
     super("Sesión expirada");
     this.name = "SessionExpiredError";

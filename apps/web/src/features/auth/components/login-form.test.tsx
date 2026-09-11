@@ -4,17 +4,19 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AuthError } from "@/features/auth/errors/auth-error";
-import { render } from "@/testing/test-utils";
+import { createTestQueryClient, render } from "@/testing/test-utils";
+import { queryKeys } from "@/config/query-keys";
 
-const { loginMock, loginWithGoogleMock, navigateMock, routerMock } =
-  vi.hoisted(() => ({
+const { loginMock, loginWithGoogleMock, navigateMock, routerMock } = vi.hoisted(
+  () => ({
     loginMock: vi.fn(),
     loginWithGoogleMock: vi.fn(),
     navigateMock: vi.fn(),
     routerMock: {
       invalidate: vi.fn(),
     },
-  }));
+  }),
+);
 
 vi.mock("@/features/auth/api/login", () => ({
   login: loginMock,
@@ -52,10 +54,9 @@ describe("LoginForm", () => {
   it("links to password recovery", () => {
     render(<LoginForm />);
 
-    expect(screen.getByRole("link", { name: "¿La olvidaste?" })).toHaveAttribute(
-      "href",
-      "/forgot-password",
-    );
+    expect(
+      screen.getByRole("link", { name: "¿La olvidaste?" }),
+    ).toHaveAttribute("href", "/forgot-password");
   });
 
   it("starts Google sign-in with the requested return route", async () => {
@@ -83,7 +84,9 @@ describe("LoginForm", () => {
     await user.type(screen.getByLabelText("Contraseña"), "secreto");
     await user.click(screen.getByRole("button", { name: "Ingresar" }));
 
-    expect(screen.getByRole("button", { name: "Ingresando..." })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Ingresando..." }),
+    ).toBeDisabled();
     expect(loginMock).toHaveBeenCalledWith(
       {
         email: "persona@example.com",
@@ -121,6 +124,33 @@ describe("LoginForm", () => {
         replace: true,
       }),
     );
+  });
+
+  it("fetches the new account's catalog instead of reusing the previous account's data", async () => {
+    const user = userEvent.setup();
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(queryKeys.courses, [{ id: 1, hasAccess: true }]);
+    loginMock.mockResolvedValueOnce(undefined);
+    render(<LoginForm />, { queryClient });
+
+    await user.type(
+      screen.getByLabelText("Correo electrónico"),
+      "b@example.com",
+    );
+    await user.type(screen.getByLabelText("Contraseña"), "secreto");
+    await user.click(screen.getByRole("button", { name: "Ingresar" }));
+    await waitFor(() => expect(navigateMock).toHaveBeenCalled());
+
+    const fetchCatalog = vi
+      .fn()
+      .mockResolvedValue([{ id: 1, hasAccess: false }]);
+    const catalog = await queryClient.fetchQuery({
+      queryKey: queryKeys.courses,
+      queryFn: fetchCatalog,
+      staleTime: 300_000,
+    });
+    expect(catalog).toEqual([{ id: 1, hasAccess: false }]);
+    expect(fetchCatalog).toHaveBeenCalledOnce();
   });
 
   it("shows an authentication error returned by the API", async () => {

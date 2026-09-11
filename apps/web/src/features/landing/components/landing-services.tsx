@@ -27,9 +27,9 @@ export function LandingServices() {
     <section id="atencion" className="page-container section-space scroll-mt-8">
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
-          <p className="section-kicker">Psicoterapia online en Chile</p>
+          <p className="section-kicker">Cómo puedo acompañarte</p>
           <h2 className="section-title mt-4 max-w-xl">
-            Terapia infantojuvenil online y acompañamiento familiar.
+            Terapia para niños, adolescentes y familias.
           </h2>
         </div>
         <p className="max-w-sm leading-7 text-muted-foreground">

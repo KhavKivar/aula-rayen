@@ -10,12 +10,12 @@ export function LandingHero({
   kicker = "Psicología con calidez",
   title = (
     <>
-      Un espacio <em className="font-normal text-terracotta">online</em> en
-      Chile para florecer a tu ritmo.
+      Un espacio para <em className="font-normal text-terracotta">florecer</em> a
+      tu ritmo.
     </>
   ),
-  description = "Acompañamiento psicológico online en Chile para conectar contigo, comprender lo que sientes y abrir nuevas posibilidades.",
-  heroAlt = "Psicóloga online en Chile: retrato de Pamela Rayen Calderón",
+  description = "Te acompaño a comprender lo que sientes y a cuidar de ti y de tus vínculos, con sesiones online y presenciales.",
+  heroAlt = "Retrato de Pamela Rayen Calderón, psicóloga",
 }: {
   kicker?: string;
   title?: ReactNode;

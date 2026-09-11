@@ -2,6 +2,7 @@ import axios from "axios";
 import { z } from "zod";
 
 import { apiClient } from "@/lib/api-client";
+import { UserFacingError } from "@/lib/user-facing-error";
 
 const createWebPayDtoSchema = z.object({
   course_id: z.number().int().positive(),
@@ -19,7 +20,7 @@ type ApiErrorResponse = {
   message?: string | string[];
 };
 
-export class CreateWebPayError extends Error {
+export class CreateWebPayError extends UserFacingError {
   constructor(
     message: string,
     readonly status?: number,

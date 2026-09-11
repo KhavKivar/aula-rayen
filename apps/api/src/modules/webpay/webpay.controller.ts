@@ -18,6 +18,7 @@ export class WebPayController {
     return this.webpayService.getAll();
   }
 
+  // Return only the succesful payment
   @Get('payments')
   @Roles(['admin'])
   async findPayments(): Promise<PaymentsResponse> {

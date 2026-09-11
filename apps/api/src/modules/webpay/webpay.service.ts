@@ -94,10 +94,9 @@ export class WebPayService {
     return this.repository.findAll();
   }
 
-  async getPayments(limit = 100): Promise<PaymentsResponse> {
-    const rows = await this.repository.findPayments(
-      Math.min(Math.max(limit, 1), 200),
-    );
+  // Expected few payments rows, so we should return all payment at once
+  async getPayments(): Promise<PaymentsResponse> {
+    const rows = await this.repository.findPayments();
 
     return paymentsResponseSchema.parse(
       rows.map((row) => {

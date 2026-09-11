@@ -14,7 +14,7 @@ import {
   type LoginCredentials,
 } from "@/features/auth/schemas/login-schema";
 
-import { sessionQueries } from "@/lib/session-queries";
+import { clearSessionCache } from "@/lib/session-cache";
 
 export function LoginForm({
   redirectTo = "/dashboard",
@@ -23,7 +23,6 @@ export function LoginForm({
 }) {
   const router = useRouter();
 
-  // const { refetch: refetchSession } = useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const loginMutation = useMutation<
@@ -34,13 +33,7 @@ export function LoginForm({
     mutationFn: login,
 
     onSuccess: async () => {
-      // await refetchSession();
-
-      // await router.invalidate();
-      // router.history.push(redirectTo);
-      await queryClient.invalidateQueries({
-        queryKey: sessionQueries.session.queryKey,
-      });
+      await clearSessionCache(queryClient);
       await router.invalidate();
       await navigate({ to: redirectTo, replace: true });
     },

@@ -1,0 +1,120 @@
+.bloom-garden {
+  & .bloom-garden__plant {
+    transform-origin: 250px 442px;
+    --bloom-animation: bloom-sway;
+    --bloom-duration: 4s;
+  }
+
+  & .bloom-garden__leaf {
+    --bloom-animation: bloom-leaf;
+    --bloom-duration: 3s;
+  }
+
+  & .bloom-garden__leaf--left {
+    transform-origin: 251px 296px;
+  }
+
+  & .bloom-garden__leaf--right {
+    transform-origin: 253px 266px;
+    animation-delay: -1.5s;
+  }
+
+  & .bloom-garden__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    --bloom-animation: bloom-blink;
+    --bloom-duration: 5.5s;
+  }
+
+  & .bloom-garden__butterfly-flight {
+    --bloom-animation: bloom-flight;
+    --bloom-duration: 8s;
+  }
+
+  & .bloom-garden__wings {
+    --bloom-animation: bloom-flutter;
+    --bloom-duration: 0.65s;
+  }
+
+  & .bloom-garden__sun {
+    --bloom-animation: bloom-sun;
+    --bloom-duration: 6s;
+  }
+
+  & .bloom-garden__sparkles {
+    --bloom-animation: bloom-sparkle;
+    --bloom-duration: 4s;
+  }
+
+  & .bloom-garden__shadow {
+    transform-origin: 249px 448px;
+    --bloom-animation: bloom-shadow;
+    --bloom-duration: 4s;
+  }
+
+  & svg g,
+  & :where(.bloom-garden__shadow) {
+    --bloom-animation: none;
+    --bloom-duration: 4s;
+    animation-name: var(--bloom-animation, none);
+    animation-duration: var(--bloom-duration, 4s);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+
+  &[data-motion="running"] svg g,
+  &[data-motion="running"] .bloom-garden__shadow {
+    animation-play-state: running;
+  }
+}
+
+/* Only an explicit press of Play opts back into motion after this preference. */
+@media (prefers-reduced-motion: reduce) {
+  .bloom-garden[data-motion="running"] svg g,
+  .bloom-garden[data-motion="running"] .bloom-garden__shadow {
+    animation-duration: var(--bloom-duration, 4s) !important;
+    animation-iteration-count: infinite !important;
+  }
+}
+
+@keyframes bloom-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: translateY(-7px) rotate(3deg); }
+}
+
+@keyframes bloom-leaf {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(5deg); }
+}
+
+@keyframes bloom-blink {
+  0%, 43%, 47%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(0.1); }
+}
+
+@keyframes bloom-flight {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  30% { transform: translate(23px, -43px) rotate(5deg); }
+  65% { transform: translate(-23px, 23px) rotate(-6deg); }
+}
+
+@keyframes bloom-flutter {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.45); }
+}
+
+@keyframes bloom-sun {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+
+@keyframes bloom-sparkle {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes bloom-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.16; }
+  50% { transform: scaleX(0.88); opacity: 0.1; }
+}

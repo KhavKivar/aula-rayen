@@ -3,7 +3,8 @@ import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { render } from "@/testing/test-utils";
+import { createTestQueryClient, render } from "@/testing/test-utils";
+import { queryKeys } from "@/config/query-keys";
 
 const { navigateMock, registerAccountMock, routerMock } = vi.hoisted(() => ({
   navigateMock: vi.fn(),
@@ -37,7 +38,10 @@ async function fillRegistrationForm(
     "rayen@example.com",
   );
   await user.type(screen.getByLabelText("Contraseña"), "password-seguro");
-  await user.type(screen.getByLabelText("Confirmar contraseña"), confirmPassword);
+  await user.type(
+    screen.getByLabelText("Confirmar contraseña"),
+    confirmPassword,
+  );
 }
 
 describe("RegisterForm", () => {
@@ -52,14 +56,21 @@ describe("RegisterForm", () => {
     await fillRegistrationForm(user, "password-distinto");
     await user.click(screen.getByRole("button", { name: "Crear cuenta" }));
 
-    expect(await screen.findByText("Las contraseñas no coinciden.")).toBeVisible();
+    expect(
+      await screen.findByText("Las contraseñas no coinciden."),
+    ).toBeVisible();
     expect(registerAccountMock).not.toHaveBeenCalled();
   });
 
   it("registers valid data and navigates to the home page", async () => {
     const user = userEvent.setup();
     registerAccountMock.mockResolvedValueOnce(undefined);
-    render(<RegisterForm />);
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(queryKeys.session, {
+      user: { id: "old-account" },
+    });
+    queryClient.setQueryData(queryKeys.courses, [{ id: 1, hasAccess: true }]);
+    render(<RegisterForm />, { queryClient });
 
     await fillRegistrationForm(user);
     await user.click(screen.getByRole("button", { name: "Crear cuenta" }));
@@ -77,5 +88,7 @@ describe("RegisterForm", () => {
       expect(navigateMock).toHaveBeenCalledWith({ to: "/", replace: true });
       expect(routerMock.invalidate).toHaveBeenCalledOnce();
     });
+    expect(queryClient.getQueryData(queryKeys.session)).toBeUndefined();
+    expect(queryClient.getQueryData(queryKeys.courses)).toBeUndefined();
   });
 });

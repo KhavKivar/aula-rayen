@@ -1,9 +1,11 @@
+import { UserFacingError } from "@/lib/user-facing-error";
+
 type AuthProviderError = {
   code?: string;
   status?: number;
 };
 
-export class AuthError extends Error {
+export class AuthError extends UserFacingError {
   constructor(
     message: string,
     readonly code?: string,

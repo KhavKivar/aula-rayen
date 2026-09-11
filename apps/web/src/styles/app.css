@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "@fontsource-variable/newsreader/standard.css";
+@import "@fontsource-variable/newsreader/standard-italic.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -9,8 +11,9 @@
   --color-foreground: var(--foreground);
   --font-sans: "DM Sans", sans-serif;
   --font-mono: "Geist Mono Variable", monospace;
-  --font-heading: "Fraunces", serif;
+  --font-heading: "Newsreader Variable", serif;
   --color-terracotta: #a85e40;
+  --color-terracotta-deep: #7b4638;
   --color-sage: #dce5cb;
   --color-clay: #efe2d6;
   --shadow-soft: 0 12px 40px rgb(36 61 50 / 5%);
@@ -182,20 +185,6 @@
   font-weight: 700;
   font-display: swap;
   src: url("/fonts/florecer/font-3.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/florecer/font-4.ttf") format("truetype");
-}
-@font-face {
-  font-family: "Fraunces";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/florecer/font-6.ttf") format("truetype");
 }
 
 @layer components {

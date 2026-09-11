@@ -1,13 +1,10 @@
 import axios from "axios";
 import { describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 import { SessionExpiredError } from "@/lib/api-client";
 import { AuthError } from "@/features/auth/errors/auth-error";
-import {
-  ApiError,
-  toApiError,
-  toApiErrorMessage,
-} from "@/lib/api-error";
+import { ApiError, toApiError, toApiErrorMessage } from "@/lib/api-error";
 
 vi.mock("@/config/env", () => ({
   env: {
@@ -99,9 +96,9 @@ describe("toApiErrorMessage", () => {
   });
 
   it("respects domain errors as-is", () => {
-    expect(
-      toApiErrorMessage(new SessionExpiredError(), "fallback"),
-    ).toBe("Sesión expirada");
+    expect(toApiErrorMessage(new SessionExpiredError(), "fallback")).toBe(
+      "Sesión expirada",
+    );
     expect(
       toApiErrorMessage(
         new AuthError("Correo o contraseña incorrectos."),
@@ -111,8 +108,20 @@ describe("toApiErrorMessage", () => {
   });
 
   it("falls back for plain errors and unknown values", () => {
-    expect(toApiErrorMessage(new Error("boom"), "fallback")).toBe("boom");
+    expect(
+      toApiErrorMessage(new Error("boom"), "No se pudo completar la acción."),
+    ).toBe("No se pudo completar la acción.");
     expect(toApiErrorMessage(undefined, "fallback")).toBe("fallback");
+  });
+
+  it("does not expose response validation details", () => {
+    const parsed = z.object({ token: z.string() }).safeParse({ token: 123 });
+    expect(
+      toApiErrorMessage(parsed.error, "Respuesta inesperada del servidor."),
+    ).toBe("Respuesta inesperada del servidor.");
+    expect(
+      toApiError(new Error("internal failure"), "No se pudo guardar.").message,
+    ).toBe("No se pudo guardar.");
   });
 });
 

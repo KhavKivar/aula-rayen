@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { UserPlus } from "lucide-react";
 
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { registerAccount } from "@/features/auth/api/register";
+import { clearSessionCache } from "@/lib/session-cache";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
   registerSchema,
@@ -14,12 +15,14 @@ import {
 } from "@/features/auth/schemas/register-schema";
 
 export function RegisterForm() {
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const router = useRouter();
 
   const registerMutation = useMutation<void, AuthError, RegisterCredentials>({
     mutationFn: registerAccount,
     onSuccess: async () => {
+      await clearSessionCache(queryClient);
       await navigate({ to: "/", replace: true });
       await router.invalidate();
     },

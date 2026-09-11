@@ -4,10 +4,9 @@ import {
 } from "@aula-rayen/contracts/api-error";
 import axios from "axios";
 
-import { SessionExpiredError } from "@/lib/api-client";
-import { AuthError } from "@/features/auth/errors/auth-error";
+import { UserFacingError } from "@/lib/user-facing-error";
 
-export class ApiError extends Error {
+export class ApiError extends UserFacingError {
   constructor(
     message: string,
     readonly status?: number,
@@ -34,9 +33,7 @@ export function toApiErrorMessage(
   fallback: string,
   codeMessages?: Record<string, string>,
 ): string {
-  if (error instanceof SessionExpiredError) return error.message;
-  if (error instanceof AuthError) return error.message;
-  if (error instanceof ApiError) return error.message;
+  if (error instanceof UserFacingError) return error.message;
 
   if (axios.isAxiosError(error)) {
     const status = error.response?.status;
@@ -50,10 +47,6 @@ export function toApiErrorMessage(
     }
 
     return getDefaultApiErrorMessage(status, fallback);
-  }
-
-  if (error instanceof Error && error.message.trim().length > 0) {
-    return error.message;
   }
 
   return fallback;

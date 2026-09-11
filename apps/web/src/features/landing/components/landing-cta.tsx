@@ -15,16 +15,14 @@ export function LandingCta() {
             Hagamos espacio para conversar.
           </h2>
           <p className="mt-6 max-w-md leading-8 text-primary-foreground/75">
-            Dar el primer paso puede traer preguntas. Escríbeme por WhatsApp o
-            Instagram para conocer las modalidades de atención —online en todo
-            Chile y{" "}
+            Si tienes dudas o quieres agendar una sesión, escríbeme por WhatsApp
+            o Instagram. La atención puede ser online o{" "}
             <Link
               to="/psicologa-iquique"
               className="underline underline-offset-4 hover:text-sage"
             >
               presencial en Iquique
-            </Link>{" "}
-            — y consultar disponibilidad.
+            </Link>.
           </p>
         </div>
         <div className="rounded-3xl border border-primary-foreground/20 bg-primary-foreground/5 p-7 sm:p-8">

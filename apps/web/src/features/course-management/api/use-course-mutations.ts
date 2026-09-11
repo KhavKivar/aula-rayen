@@ -34,7 +34,10 @@ export function useUpdateCourse({ onSuccess }: MutationCallbacks = {}) {
 
   return useMutation({
     mutationFn: updateCourse,
-    onSuccess: async () => {
+    onSuccess: async (_course, { id }) => {
+      const queryKey = queryKeys.course(id);
+      await queryClient.cancelQueries({ queryKey, exact: true });
+      await queryClient.invalidateQueries({ queryKey, exact: true });
       await invalidateCatalog(queryClient);
       onSuccess?.();
     },
@@ -46,7 +49,10 @@ export function useDeleteCourse({ onSuccess }: MutationCallbacks = {}) {
 
   return useMutation({
     mutationFn: deleteCourse,
-    onSuccess: async () => {
+    onSuccess: async (_course, { id }) => {
+      const queryKey = queryKeys.course(id);
+      await queryClient.cancelQueries({ queryKey, exact: true });
+      queryClient.removeQueries({ queryKey, exact: true });
       await invalidateCatalog(queryClient);
       onSuccess?.();
     },

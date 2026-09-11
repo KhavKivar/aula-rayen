@@ -24,9 +24,9 @@ export const SEO_PAGES: Record<
 > = {
   home: {
     path: "/",
-    title: "Psicóloga online Chile | Infantojuvenil y familiar",
+    title: "Psicóloga online | Terapia infantojuvenil y familiar",
     description:
-      "Psicoterapia online en Chile: acompañamiento psicológico infantojuvenil y familiar con Pamela Rayen Calderón. Agenda tu primera hora por WhatsApp o Instagram.",
+      "Acompañamiento psicológico para niños, adolescentes y familias con Pamela Rayen Calderón. Sesiones online y presenciales. Escríbeme y agenda tu primera hora.",
   },
   iquique: {
     path: "/psicologa-iquique",

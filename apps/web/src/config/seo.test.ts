@@ -34,15 +34,15 @@ describe("canonical SEO", () => {
     const titles = [SEO_PAGES.home.title, SEO_PAGES.iquique.title, SEO_PAGES.about.title];
     expect(new Set(titles).size).toBe(3);
     expect(SEO_PAGES.home.title).toContain("Psicóloga online");
-    expect(SEO_PAGES.home.title).toContain("Chile");
+    expect(SEO_PAGES.home.title).toContain("Terapia infantojuvenil y familiar");
     expect(SEO_PAGES.home.title.length).toBeGreaterThanOrEqual(50);
     expect(SEO_PAGES.home.title.length).toBeLessThanOrEqual(60);
     expect(SEO_PAGES.iquique.title).toContain("Iquique");
   });
 
-  it("expone descripciones con geo, modalidad y agenda", () => {
+  it("expone descripciones con modalidad y agenda", () => {
     expect(SEO_PAGES.home.description).toContain("online");
-    expect(SEO_PAGES.home.description).toContain("Chile");
+    expect(SEO_PAGES.home.description).toContain("presenciales");
     expect(SEO_PAGES.home.description).toContain("primera hora");
     expect(SEO_PAGES.home.description.length).toBeGreaterThanOrEqual(150);
     expect(SEO_PAGES.home.description.length).toBeLessThanOrEqual(160);
