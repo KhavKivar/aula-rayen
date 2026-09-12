@@ -180,25 +180,6 @@ export class WebPayService {
       );
     }
 
-    const hasAuthorizedResult =
-      webpaySession.committedAt !== null &&
-      webpaySession.responseCode === 0 &&
-      webpaySession.tbStatus === 'AUTHORIZED';
-    if (hasAuthorizedResult) {
-      return { paymentStatus: 'ok' };
-    }
-
-    const hasGatewayResult =
-      webpaySession.responseCode != null || webpaySession.tbStatus != null;
-    if (hasGatewayResult) {
-      return { paymentStatus: 'canceled' };
-    }
-
-    // Older versions used committedAt as the claim before storing a result.
-    if (webpaySession.committedAt !== null) {
-      return { paymentStatus: 'pending' };
-    }
-
     // Only one callback may consume the Transbank commit token.
     const claimed = await this.repository.takeSession(buyOrderId);
     if (!claimed) {
