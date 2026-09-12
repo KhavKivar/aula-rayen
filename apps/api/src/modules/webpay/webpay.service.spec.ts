@@ -122,6 +122,8 @@ describe('WebPayService', () => {
     repository.findById.mockResolvedValue({
       ...webpaySession,
       committedAt: new Date(),
+      responseCode: 0,
+      tbStatus: 'AUTHORIZED',
     });
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
@@ -130,6 +132,34 @@ describe('WebPayService', () => {
     expect(webpayTransaction.commit).not.toHaveBeenCalled();
     expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
     expect(repository.recordAttempt).not.toHaveBeenCalled();
+  });
+
+  it('returns canceled for an already recorded rejected attempt', async () => {
+    repository.findById.mockResolvedValue({
+      ...webpaySession,
+      takenAt: new Date(),
+      responseCode: -1,
+      tbStatus: 'FAILED',
+    });
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'canceled',
+    });
+    expect(repository.takeSession).not.toHaveBeenCalled();
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
+  });
+
+  it('returns pending for a legacy committed row without an authorization result', async () => {
+    repository.findById.mockResolvedValue({
+      ...webpaySession,
+      committedAt: new Date(),
+    });
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'pending',
+    });
+    expect(repository.takeSession).not.toHaveBeenCalled();
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
   });
 
   it('returns pending without calling Transbank when the claim is lost', async () => {
