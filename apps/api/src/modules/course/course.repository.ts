@@ -119,6 +119,9 @@ export class CourseRepository {
       .values(course)
       .returning();
 
+    if (!createdCourse) {
+      throw new Error('No se pudo crear el curso');
+    }
     return createdCourse;
   }
 
@@ -131,7 +134,7 @@ export class CourseRepository {
       .set(course)
       .where(eq(courses.id, id))
       .returning();
-    return updateCourse;
+    return updateCourse ?? null;
   }
 
   async remove(id: number): Promise<Course | null> {
@@ -140,6 +143,6 @@ export class CourseRepository {
       .where(eq(courses.id, id))
       .returning();
 
-    return deletedCourse;
+    return deletedCourse ?? null;
   }
 }

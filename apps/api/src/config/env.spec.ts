@@ -64,9 +64,7 @@ describe('environment configuration', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ path: ['DOMAIN'] }),
-        ]),
+        expect.arrayContaining([expect.objectContaining({ path: ['DOMAIN'] })]),
       );
     }
   });

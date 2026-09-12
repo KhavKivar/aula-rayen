@@ -37,6 +37,23 @@ export class WebPayRepository {
     return session ?? null;
   }
 
+  async takeSession(buyOrderId: string): Promise<WebPaySession | null> {
+    const [session] = await this.db
+      .update(webpay_sessions)
+      .set({
+        committedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(webpay_sessions.buyOrderId, buyOrderId),
+          isNull(webpay_sessions.committedAt),
+        ),
+      )
+      .returning();
+
+    return session ?? null;
+  }
+
   async findPayments() {
     return this.db
       .select({

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Query, Redirect } from '@nestjs/common';
-import { WebPayService } from './webpay.service';
+import { commitResponseSchema, WebPayService } from './webpay.service';
 
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
@@ -41,15 +41,12 @@ export class WebPayController {
     @Query('TBK_TOKEN') tokenReject: string | undefined,
     @Query('buyOrder') buyOrderId: string,
   ) {
-    const result = await this.webpayService.checkCommit(
+    const result: commitResponseSchema = await this.webpayService.checkCommit(
       buyOrderId,
       tokenNormal,
     );
-    const status = result.payment
-      ? 'success'
-      : tokenNormal || tokenReject
-        ? 'rejected'
-        : 'timeout';
+    const status = result.paymentStatus;
+
     const url = new URL('/payment-result', env.FRONTEND_URL);
     url.searchParams.set('status', status);
 

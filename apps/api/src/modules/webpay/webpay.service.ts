@@ -83,6 +83,9 @@ function isCreateResponse(value: unknown): value is CreateResponse {
   );
 }
 
+export type commitResponseSchema = {
+  paymentStatus: 'ok' | 'pending' | 'canceled';
+};
 @Injectable()
 export class WebPayService {
   constructor(
@@ -131,13 +134,15 @@ export class WebPayService {
     createWebpayDto: CreateWebpayDto,
     userId: string,
   ): Promise<CreateResponse | null> {
-    const buyOrder = nanoid(26);
-    const sessionId = nanoid(61);
-    const returnUrl = `${env.BASE_URL}/webpay/commit?buyOrder=${buyOrder}`;
-
     const course: Course = await this.courseService.getById(
       createWebpayDto.course_id,
     );
+    // This value can be random
+    const buyOrder = nanoid(26);
+
+    const returnUrl = `${env.BASE_URL}/webpay/commit?buyOrder=${buyOrder}`;
+    // Session Id, use as metadata
+    const sessionId = `${userId}:${course.id}`;
 
     const response: unknown = await webpayTransaction.create(
       buyOrder,
@@ -161,14 +166,19 @@ export class WebPayService {
     return response;
   }
 
-  async checkCommit(buyOrderId: string, tokenNormal: string | undefined) {
+  async checkCommit(
+    buyOrderId: string,
+    tokenNormal: string | undefined,
+  ): Promise<commitResponseSchema> {
     // Flujo normal:
-    // Llega solo `token_ws`, tanto si la transacción fue aprobada como rechazada.
+    // Llega solo `token_ws` (tokenNormal), tanto si la transacción fue aprobada como rechazada(por el banco).
+    // Sin embargo en caso de timeout o rechazo TBK_TOKEN es recibido
     if (tokenNormal === undefined) {
-      return { payment: false };
+      return { paymentStatus: 'canceled' };
     }
 
     const webpaySession = await this.repository.findById(buyOrderId);
+    // Weird scenario
     if (!webpaySession) {
       throw notFoundError(
         API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
@@ -176,16 +186,17 @@ export class WebPayService {
       );
     }
 
-    // Reintento de un pago ya confirmado: éxito idempotente sin
-    // volver a llamar a Transbank ni reescribir la fila.
-    if (webpaySession.committedAt) {
-      return { payment: true };
+    // Idempotencity
+    const getSession = this.repository.takeSession(buyOrderId);
+    if (getSession == null) {
+      //We assume the payment is pending, but it may be paid
+      return { paymentStatus: 'pending' };
     }
-
     const parsedCommit = CommitResponseSchema.safeParse(
       await webpayTransaction.commit(tokenNormal),
     );
     if (!parsedCommit.success) {
+      //Todo: Capture as Critical
       throw badRequestError(
         API_ERROR_CODES.WEBPAY_INVALID_RESPONSE,
         'Respuesta inválida de Transbank',
@@ -204,7 +215,7 @@ export class WebPayService {
       commitDetails.tbAmount !== webpaySession.amount
     ) {
       await this.repository.recordAttempt(buyOrderId, commitDetails);
-      return { payment: false };
+      return { paymentStatus: 'canceled' };
     }
 
     const completedSession = await this.repository.completeAuthorizedPayment(
@@ -214,12 +225,13 @@ export class WebPayService {
       commitDetails,
     );
     if (!completedSession) {
+      // Todo:Capture as critical
       throw notFoundError(
         API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
         'Sesión de Webpay no encontrada',
       );
     }
 
-    return { payment: true };
+    return { paymentStatus: 'ok' };
   }
 }

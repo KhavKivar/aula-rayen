@@ -42,7 +42,10 @@ describe('password reset mailer', () => {
       }),
     ).resolves.toBe('email-id');
 
-    const [payload, options] = send.mock.calls[0];
+    const firstCall = send.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    if (!firstCall) throw new Error('Expected send to have been called');
+    const [payload, options] = firstCall;
     expect(payload.from).toBe(envMock.RESEND_FROM_EMAIL);
     expect(payload.to).toBe('person@example.com');
     expect(payload.subject).toContain('Aula Rayen');
@@ -70,7 +73,7 @@ describe('password reset mailer', () => {
       token: 'token',
     });
 
-    expect(send.mock.calls[0][0].html).toContain(
+    expect(send.mock.calls[0]?.[0]?.html).toContain(
       'token=a&amp;next=&quot;bad&quot;',
     );
   });
@@ -86,8 +89,10 @@ describe('password reset mailer', () => {
     await mailer.send(message);
     await mailer.send(message);
 
-    expect(send.mock.calls[0][1]).toEqual(send.mock.calls[1][1]);
-    expect(send.mock.calls[0][1].idempotencyKey).not.toContain('same-token');
+    const firstOptions = send.mock.calls[0]?.[1];
+    const secondOptions = send.mock.calls[1]?.[1];
+    expect(firstOptions).toEqual(secondOptions);
+    expect(firstOptions?.idempotencyKey).not.toContain('same-token');
   });
 
   it('throws an internal error when Resend rejects the message', async () => {
