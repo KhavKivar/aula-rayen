@@ -21,6 +21,8 @@ const webpaySession = {
   userId: 'user-id',
   courseId: 1,
   amount,
+  committedAt: null,
+  takenAt: null,
 } as WebPaySession;
 
 const commitResponse = {
@@ -41,6 +43,7 @@ const commitResponse = {
 describe('WebPayService', () => {
   const repository = {
     findById: jest.fn(),
+    takeSession: jest.fn(),
     completeAuthorizedPayment: jest.fn(),
     recordAttempt: jest.fn(),
     findPayments: jest.fn(),
@@ -52,16 +55,19 @@ describe('WebPayService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    repository.takeSession.mockResolvedValue(webpaySession);
   });
 
   it('stores the authorized commit and grants access to the course', async () => {
     repository.findById.mockResolvedValue(webpaySession);
+    repository.takeSession.mockResolvedValue(webpaySession);
     repository.completeAuthorizedPayment.mockResolvedValue(webpaySession);
     jest.mocked(webpayTransaction.commit).mockResolvedValue(commitResponse);
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
-      payment: true,
+      paymentStatus: 'ok',
     });
+    expect(repository.takeSession).toHaveBeenCalledWith(buyOrderId);
     expect(repository.completeAuthorizedPayment).toHaveBeenCalledWith(
       buyOrderId,
       webpaySession.userId,
@@ -83,7 +89,7 @@ describe('WebPayService', () => {
     });
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
-      payment: false,
+      paymentStatus: 'canceled',
     });
     expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
     expect(repository.recordAttempt).toHaveBeenCalledWith(
@@ -103,7 +109,7 @@ describe('WebPayService', () => {
     });
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
-      payment: false,
+      paymentStatus: 'canceled',
     });
     expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
     expect(repository.recordAttempt).toHaveBeenCalledWith(
@@ -119,11 +125,32 @@ describe('WebPayService', () => {
     });
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
-      payment: true,
+      paymentStatus: 'ok',
     });
     expect(webpayTransaction.commit).not.toHaveBeenCalled();
     expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
     expect(repository.recordAttempt).not.toHaveBeenCalled();
+  });
+
+  it('returns pending without calling Transbank when the claim is lost', async () => {
+    repository.findById.mockResolvedValue(webpaySession);
+    repository.takeSession.mockResolvedValue(null);
+    jest.mocked(webpayTransaction.commit).mockResolvedValue(commitResponse);
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'pending',
+    });
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
+    expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
+    expect(repository.recordAttempt).not.toHaveBeenCalled();
+  });
+
+  it('returns canceled without calling Transbank when the token is missing', async () => {
+    await expect(service.checkCommit(buyOrderId, undefined)).resolves.toEqual({
+      paymentStatus: 'canceled',
+    });
+    expect(repository.findById).not.toHaveBeenCalled();
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
   });
 
   it('rejects malformed Transbank responses', async () => {
@@ -208,7 +235,7 @@ describe('WebPayService', () => {
 
     const payments = await service.getPayments();
 
-    expect(repository.findPayments).toHaveBeenCalledWith(100);
+    expect(repository.findPayments).toHaveBeenCalledWith();
     expect(payments).toEqual([
       expect.objectContaining({
         orderId: 'order-approved',

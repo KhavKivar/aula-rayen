@@ -7,6 +7,13 @@ import {
   paymentsResponseSchema,
   type PaymentsResponse,
 } from '@aula-rayen/contracts/payment';
+import {
+  createWebpayResponseSchema,
+  webpaySessionsResponseSchema,
+  type CommitResult,
+  type CreateWebpayResponse,
+  type WebpaySessionsResponse,
+} from '@aula-rayen/contracts/webpay';
 
 import { badRequestError, notFoundError } from '@/common/errors/http-error';
 
@@ -17,10 +24,9 @@ import { z } from 'zod';
 import { CourseService } from '../course/course.service';
 import { env } from '@/config/env';
 
-type CreateResponse = {
-  token: string;
-  url: string;
-};
+function isCreateResponse(value: unknown): value is CreateWebpayResponse {
+  return createWebpayResponseSchema.safeParse(value).success;
+}
 
 const CommitResponseSchema = z
   .object({
@@ -74,18 +80,6 @@ const CommitResponseSchema = z
     installmentsNumber: result.installments_number ?? null,
   }));
 
-function isCreateResponse(value: unknown): value is CreateResponse {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'token' in value &&
-    'url' in value
-  );
-}
-
-export type commitResponseSchema = {
-  paymentStatus: 'ok' | 'pending' | 'canceled';
-};
 @Injectable()
 export class WebPayService {
   constructor(
@@ -93,8 +87,8 @@ export class WebPayService {
     private readonly courseService: CourseService,
   ) {}
 
-  getAll() {
-    return this.repository.findAll();
+  async getAll(): Promise<WebpaySessionsResponse> {
+    return webpaySessionsResponseSchema.parse(await this.repository.findAll());
   }
 
   // Expected few payments rows, so we should return all payment at once
@@ -133,7 +127,7 @@ export class WebPayService {
   async create(
     createWebpayDto: CreateWebpayDto,
     userId: string,
-  ): Promise<CreateResponse | null> {
+  ): Promise<CreateWebpayResponse> {
     const course: Course = await this.courseService.getById(
       createWebpayDto.course_id,
     );
@@ -169,7 +163,7 @@ export class WebPayService {
   async checkCommit(
     buyOrderId: string,
     tokenNormal: string | undefined,
-  ): Promise<commitResponseSchema> {
+  ): Promise<CommitResult> {
     // Flujo normal:
     // Llega solo `token_ws` (tokenNormal), tanto si la transacción fue aprobada como rechazada(por el banco).
     // Sin embargo en caso de timeout o rechazo TBK_TOKEN es recibido
@@ -186,12 +180,16 @@ export class WebPayService {
       );
     }
 
-    // Idempotencity
-    const getSession = this.repository.takeSession(buyOrderId);
-    if (getSession == null) {
-      //We assume the payment is pending, but it may be paid
+    if (webpaySession.committedAt !== null) {
+      return { paymentStatus: 'ok' };
+    }
+
+    // Only one callback may consume the Transbank commit token.
+    const claimed = await this.repository.takeSession(buyOrderId);
+    if (!claimed) {
       return { paymentStatus: 'pending' };
     }
+
     const parsedCommit = CommitResponseSchema.safeParse(
       await webpayTransaction.commit(tokenNormal),
     );

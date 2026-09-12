@@ -23,6 +23,11 @@
       "types": "./dist/payment.d.ts",
       "import": "./dist/payment.js",
       "require": "./dist-cjs/payment.js"
+    },
+    "./webpay": {
+      "types": "./dist/webpay.d.ts",
+      "import": "./dist/webpay.js",
+      "require": "./dist-cjs/webpay.js"
     }
   },
   "files": [

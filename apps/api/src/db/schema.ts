@@ -54,6 +54,7 @@ export const webpay_sessions = pgTable(
     installmentsNumber: integer('installments_number'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
     committedAt: timestamp('committed_at', { withTimezone: true }),
+    takenAt: timestamp('taken_at', { withTimezone: true }),
   },
   (table) => [
     index('webpay_sessions_userId_idx').on(table.userId),

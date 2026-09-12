@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
+import { paymentResultStatusSchema } from "@aula-rayen/contracts/webpay";
 import { z } from "zod";
 
 import { Brand } from "@/components/brand";
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/card";
 
 const paymentResultSearchSchema = z.object({
-  status: z.enum(["success", "rejected", "timeout"]).catch("rejected"),
+  status: paymentResultStatusSchema.catch("rejected"),
 });
 
 const paymentMessages = {

@@ -1,20 +1,13 @@
 import axios from "axios";
-import { z } from "zod";
+import {
+  createWebpayRequestSchema,
+  createWebpayResponseSchema,
+  type CreateWebpayRequest,
+  type CreateWebpayResponse,
+} from "@aula-rayen/contracts/webpay";
 
 import { apiClient } from "@/lib/api-client";
 import { UserFacingError } from "@/lib/user-facing-error";
-
-const createWebPayDtoSchema = z.object({
-  course_id: z.number().int().positive(),
-});
-
-const createWebPayResponseSchema = z.object({
-  token: z.string().min(1),
-  url: z.url(),
-});
-
-export type CreateWebPayDto = z.infer<typeof createWebPayDtoSchema>;
-export type CreateWebPayResponse = z.infer<typeof createWebPayResponseSchema>;
 
 type ApiErrorResponse = {
   message?: string | string[];
@@ -31,17 +24,17 @@ export class CreateWebPayError extends UserFacingError {
 }
 
 export async function createWebPay(
-  createWebPayDto: CreateWebPayDto,
-): Promise<CreateWebPayResponse> {
-  const parsedDto = createWebPayDtoSchema.parse(createWebPayDto);
+  createWebPayDto: CreateWebpayRequest,
+): Promise<CreateWebpayResponse> {
+  const parsedDto = createWebpayRequestSchema.parse(createWebPayDto);
 
   try {
-    const { data } = await apiClient.post<CreateWebPayResponse>(
+    const { data } = await apiClient.post<CreateWebpayResponse>(
       "/webpay",
       parsedDto,
     );
 
-    return createWebPayResponseSchema.parse(data);
+    return createWebpayResponseSchema.parse(data);
   } catch (error: unknown) {
     if (axios.isAxiosError<ApiErrorResponse>(error)) {
       const apiMessage = error.response?.data?.message;

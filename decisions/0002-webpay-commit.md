@@ -10,15 +10,16 @@ Transbank retorna a `GET /webpay/commit` con `token_ws`, `TBK_TOKEN` o nada (aba
 
 ## Decisión
 
-En `WebPayService.checkCommit` (`apps/api/src/modules/webpay/webpay.service.ts:166-228`) y `WebPayController.commit` (`apps/api/src/modules/webpay/webpay.controller.ts:39-57`):
+Contrato en `@aula-rayen/contracts/webpay` (`CommitResult { paymentStatus: ok | pending | canceled }`, `CommitRedirect { url }`, `PaymentResultStatus success | rejected | timeout`). Flujo en `checkCommit` + `commit`:
 
-- Sin `token_ws` se devuelve `{ payment: false }` sin llamar a Transbank. El controller mapea a `status=timeout`, con `token_ws` o `TBK_TOKEN` a `rejected`, y redirige 302 a `/payment-result?status=...`.
-- Se busca la sesión por `buyOrderId`, si no existe se lanza `WEBPAY_SESSION_NOT_FOUND`.
-- Idempotencia: si `committedAt` ya existe se devuelve `{ payment: true }` sin re-llamar a `commit` ni reescribir.
-- Se llama `webpayTransaction.commit(token)` una vez y se valida con `CommitResponseSchema`, si falla se lanza `WEBPAY_INVALID_RESPONSE`.
-- Solo es autorizado si `responseCode === 0 && tbStatus === 'AUTHORIZED'` **y** `buyOrder` coincide **y** `tbAmount === amount` guardado en create.
-- Si no autoriza o hay mismatch: `repository.recordAttempt` (`webpay.repository.ts:107-123`) que solo actualiza si `committedAt IS NULL`, no otorga curso, devuelve `{ payment: false }`.
-- Si autoriza: `repository.completeAuthorizedPayment` (`webpay.repository.ts:74-100`) en transacción DB: update `webpay_sessions` + `committedAt = now()` e insert en `course_purchases` con `onConflictDoNothing`.
+- Sin `token_ws` se devuelve `canceled` sin llamar a Transbank.
+- Sesión inexistente → `WEBPAY_SESSION_NOT_FOUND`. Sesión con `committedAt` → `ok` idempotente sin re-llamar ni reescribir.
+- Antes de consumir el token se adquiere un claim atómico con `takeSession` (`takenAt IS NULL`). El ganador continúa; un callback concurrente que pierde el claim devuelve `pending`, porque todavía no conoce el resultado final, y no llama a Transbank.
+- El ganador ejecuta `commit(token)` una sola vez y valida la respuesta con `CommitResponseSchema`; una respuesta inválida produce `WEBPAY_INVALID_RESPONSE`.
+- Autorizado solo si `responseCode === 0 && tbStatus === 'AUTHORIZED'` **y** `buyOrder` coincide **y** `tbAmount === amount` de create.
+- No autorizado o mismatch → `recordAttempt` (solo si `committedAt IS NULL`, nunca otorga curso) → `canceled`.
+- Autorizado → `completeAuthorizedPayment` en transacción (update + `committedAt` + insert `course_purchases` con `onConflictDoNothing`) → `ok`.
+- El controller mapea (`mapCommitToRedirectStatus`) y redirige 302 a `/payment-result?status=...`: `ok→success`, `canceled + tokens→rejected`, `canceled sin tokens→timeout`, `pending→timeout`.
 
 ## Alternativas consideradas
 

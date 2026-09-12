@@ -41,12 +41,12 @@ export class WebPayRepository {
     const [session] = await this.db
       .update(webpay_sessions)
       .set({
-        committedAt: new Date(),
+        takenAt: new Date(),
       })
       .where(
         and(
           eq(webpay_sessions.buyOrderId, buyOrderId),
-          isNull(webpay_sessions.committedAt),
+          isNull(webpay_sessions.takenAt),
         ),
       )
       .returning();
