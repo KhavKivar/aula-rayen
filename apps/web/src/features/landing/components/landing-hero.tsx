@@ -26,9 +26,6 @@ export function LandingHero({
     <section className="page-container grid items-center gap-10 pb-14 pt-10 lg:grid-cols-[1.08fr_1fr] lg:gap-16 lg:pb-20 lg:pt-14">
       <div className="py-4 lg:py-8">
         <p className="section-kicker">{kicker}</p>
-        <p className="mt-3 inline-flex rounded-full border border-dashed border-terracotta px-3 py-1 text-xs font-medium uppercase tracking-wide text-terracotta">
-          Prueba de rollback · B
-        </p>
         <h1 className="mt-6 max-w-2xl font-heading text-[clamp(2.8rem,5.4vw,5rem)] leading-[1.08] tracking-[-0.045em]">
           {title}
         </h1>
