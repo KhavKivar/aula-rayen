@@ -101,10 +101,10 @@ function rollbackWeb(tag) {
     (version) => version.annotations?.["workers/tag"] === tag,
   );
   if (!target) {
-    throw new Error(
-      `No encontré una versión del Worker con tag ${tag} entre las últimas ${versions.length}.\n` +
-        `Revisa con: pnpm --dir apps/web exec wrangler versions list`,
+    console.warn(
+      `\nWeb: no encontré una versión del Worker con tag ${tag} entre las últimas ${versions.length}; se omite la web.`,
     );
+    return false;
   }
   console.log(`\nWeb: revirtiendo a ${tag} (worker version ${target.id})...`);
   run(
@@ -122,6 +122,7 @@ function rollbackWeb(tag) {
     ],
     { inherit: true },
   );
+  return true;
 }
 
 async function rollbackApi(tag) {
@@ -190,9 +191,11 @@ async function main() {
     return;
   }
 
-  rollbackWeb(tag);
+  const webRolledBack = rollbackWeb(tag);
   await rollbackApi(tag);
-  console.log(`\nRollback completo: web y API en ${tag}`);
+  console.log(
+    `\nRollback completo: ${webRolledBack ? "web y API" : "solo API"} en ${tag}`,
+  );
 }
 
 main().catch((error) => {
