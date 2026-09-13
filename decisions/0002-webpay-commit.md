@@ -12,6 +12,7 @@ El callback de Transbank debe procesarse una sola vez y nunca otorgar acceso por
 
 - Sin `token_ws`, el resultado es `canceled` y no se llama a Transbank.
 - `takeSession` usa `takenAt` como claim atómico. Solo el ganador confirma; los demás retornan `pending`.
+- Un callback repetido sobre una sesión ya completada responde `ok` sin volver a llamar a Transbank.
 - Un pago es válido únicamente si está autorizado y coinciden la orden y el monto guardados.
 - El pago autorizado y el acceso al curso se guardan en una transacción.
 - Los intentos rechazados se registran sin otorgar acceso.

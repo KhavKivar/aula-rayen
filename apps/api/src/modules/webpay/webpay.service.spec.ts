@@ -154,6 +154,19 @@ describe('WebPayService', () => {
     expect(repository.recordAttempt).not.toHaveBeenCalled();
   });
 
+  it('returns ok for a repeated callback after a successful commit', async () => {
+    repository.findById.mockResolvedValue({
+      ...webpaySession,
+      committedAt: new Date('2026-09-01T00:05:00.000Z'),
+    });
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'ok',
+    });
+    expect(repository.takeSession).not.toHaveBeenCalled();
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
+  });
+
   it('returns canceled without calling Transbank when the token is missing', async () => {
     await expect(service.checkCommit(buyOrderId, undefined)).resolves.toEqual({
       paymentStatus: 'canceled',

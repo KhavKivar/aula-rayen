@@ -216,6 +216,12 @@ export class WebPayService {
       );
     }
 
+    // Un callback repetido sobre una sesión ya completada responde ok sin
+    // volver a llamar a Transbank.
+    if (webpaySession.committedAt !== null) {
+      return { paymentStatus: 'ok' };
+    }
+
     // Only one callback may consume the Transbank commit token.
     const claimed = await this.repository.takeSession(buyOrderId);
     if (!claimed) {
