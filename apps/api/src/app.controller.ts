@@ -21,6 +21,6 @@ export class AppController {
   @Get('ping')
   @AllowAnonymous()
   ping() {
-    return { pong: true };
+    return { pong: true, revision: 2 };
   }
 }

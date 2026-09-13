@@ -27,7 +27,7 @@ export function LandingHero({
       <div className="py-4 lg:py-8">
         <p className="section-kicker">{kicker}</p>
         <p className="mt-3 inline-flex rounded-full border border-dashed border-terracotta px-3 py-1 text-xs font-medium uppercase tracking-wide text-terracotta">
-          Prueba de rollback · A
+          Prueba de rollback · B
         </p>
         <h1 className="mt-6 max-w-2xl font-heading text-[clamp(2.8rem,5.4vw,5rem)] leading-[1.08] tracking-[-0.045em]">
           {title}
