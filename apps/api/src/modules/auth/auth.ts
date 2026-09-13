@@ -12,6 +12,11 @@ export const PASSWORD_RESET_RATE_LIMIT = {
   max: 3,
 } as const;
 
+export const ADMIN_RATE_LIMIT = {
+  window: 60,
+  max: 1000,
+} as const;
+
 const passwordResetLogger = new Logger('PasswordResetEmail');
 
 export function queuePasswordResetEmail({
@@ -73,6 +78,7 @@ export const auth = betterAuth({
     window: 60,
     max: 100,
     customRules: {
+      '/admin/*': ADMIN_RATE_LIMIT,
       '/sign-in/email': {
         window: 15,
         max: 15,

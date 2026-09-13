@@ -31,6 +31,7 @@ jest.mock('@nestjs/common', () => ({
 }));
 
 import {
+  ADMIN_RATE_LIMIT,
   PASSWORD_RESET_RATE_LIMIT,
   PASSWORD_RESET_TOKEN_EXPIRES_IN_SECONDS,
   auth,
@@ -61,6 +62,24 @@ describe('password recovery auth settings', () => {
       window: 60,
       max: 3,
     });
+  });
+
+  it('gives admin endpoints a higher rate limit bucket', () => {
+    const options = auth as unknown as {
+      rateLimit: {
+        window: number;
+        max: number;
+        customRules: Record<string, { window: number; max: number }>;
+      };
+    };
+
+    expect(ADMIN_RATE_LIMIT).toEqual({ window: 60, max: 1000 });
+    const adminRule = options.rateLimit.customRules['/admin/*'];
+    expect(adminRule).toEqual({
+      window: 60,
+      max: 1000,
+    });
+    expect(adminRule?.max ?? 0).toBeGreaterThan(options.rateLimit.max);
   });
 
   it('mounts Better Auth at the configured backend path', () => {
