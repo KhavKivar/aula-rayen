@@ -1,5 +1,9 @@
 /* eslint-disable @typescript-eslint/unbound-method -- Transbank SDK methods are replaced with Jest mocks. */
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 
 import type { WebPaySession } from '@/db/types';
 import { CourseService } from '../course/course.service';
@@ -9,6 +13,7 @@ import { WebPayService } from './webpay.service';
 
 jest.mock('./infrastructure/transbank.client', () => ({
   webpayTransaction: {
+    create: jest.fn(),
     commit: jest.fn(),
     status: jest.fn(),
   },
@@ -50,16 +55,33 @@ describe('WebPayService', () => {
     recordAttempt: jest.fn(),
     findPayments: jest.fn(),
     findAll: jest.fn(),
+    create: jest.fn(),
+  };
+  const courseService = {
+    getById: jest.fn(),
+    userHasAccess: jest.fn(),
   };
   const service = new WebPayService(
     repository as unknown as WebPayRepository,
-    {} as CourseService,
+    courseService as unknown as CourseService,
   );
 
   beforeEach(() => {
     jest.clearAllMocks();
     repository.takeSession.mockResolvedValue(webpaySession);
     repository.reclaimStaleSession.mockResolvedValue(null);
+    courseService.getById.mockResolvedValue({ id: 1, price: amount });
+    courseService.userHasAccess.mockResolvedValue(false);
+  });
+
+  it('rejects a new payment when the user already owns the course', async () => {
+    courseService.userHasAccess.mockResolvedValue(true);
+
+    await expect(service.create({ course_id: 1 }, 'user-id')).rejects.toThrow(
+      ConflictException,
+    );
+    expect(webpayTransaction.create).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
   });
 
   it('stores the authorized commit and grants access to the course', async () => {

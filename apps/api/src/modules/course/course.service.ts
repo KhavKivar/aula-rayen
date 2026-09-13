@@ -58,6 +58,12 @@ export class CourseService {
     return await this.repository.hasPurchases(courseId);
   }
 
+  async userHasAccess(userId: string, courseId: number): Promise<boolean> {
+    const course = await this.repository.findPurchasedById(courseId, userId);
+
+    return course !== null;
+  }
+
   create(dto: CreateCourseRequest) {
     return this.repository.create(dto);
   }

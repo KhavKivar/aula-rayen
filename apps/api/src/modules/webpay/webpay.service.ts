@@ -15,7 +15,11 @@ import {
   type WebpayAdminSessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 
-import { badRequestError, notFoundError } from '@/common/errors/http-error';
+import {
+  badRequestError,
+  conflictError,
+  notFoundError,
+} from '@/common/errors/http-error';
 
 import { webpayTransaction } from './infrastructure/transbank.client';
 import type { Course, NewWebPaySession, WebPaySession } from '@/db/types';
@@ -163,6 +167,14 @@ export class WebPayService {
     const course: Course = await this.courseService.getById(
       createWebpayDto.course_id,
     );
+
+    if (await this.courseService.userHasAccess(userId, course.id)) {
+      throw conflictError(
+        API_ERROR_CODES.COURSE_ALREADY_PURCHASED,
+        'Ya tienes acceso a este curso',
+      );
+    }
+
     // This value can be random
     const buyOrder = nanoid(26);
 

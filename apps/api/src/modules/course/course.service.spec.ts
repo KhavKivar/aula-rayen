@@ -116,6 +116,22 @@ describe('CourseService', () => {
         service.getPurchasedById(course.id, 'user-id'),
       ).rejects.toThrow(ForbiddenException);
     });
+
+    it('should report access when the user already purchased the course', async () => {
+      repository.findPurchasedById.mockResolvedValue(course);
+
+      await expect(service.userHasAccess('user-id', course.id)).resolves.toBe(
+        true,
+      );
+    });
+
+    it('should report no access when the user has not purchased the course', async () => {
+      repository.findPurchasedById.mockResolvedValue(null);
+
+      await expect(service.userHasAccess('user-id', course.id)).resolves.toBe(
+        false,
+      );
+    });
   });
 
   describe('Create', () => {
