@@ -66,8 +66,8 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
   pipeline re-apunta) y Dokploy solo la ejecuta, sin `docker build` en el VPS.
 - Los cambios en `packages/contracts/**` o en archivos compartidos despliegan ambas
   aplicaciones; mantén los contratos retrocompatibles (ampliar antes de eliminar).
-- Rollback: API con `workflow_dispatch` e `image_tag=sha-<anterior>`; web con
-  `wrangler rollback <version-id>`. Las migraciones no se revierten.
+- Rollback: `pnpm rollback <commit>` desde la raíz revierte la web y luego la API a ese
+  release (`pnpm rollback --list` muestra los candidatos). Las migraciones no se revierten.
 - Secretos: `DOKPLOY_API_KEY` y credenciales de Cloudflare en GitHub; los secretos de
   ejecución de la API viven solo en Dokploy.
 - Revisa el alcance del diff antes de hacer push, porque puede iniciar un despliegue

@@ -79,11 +79,16 @@ imagen privada.
 
 ### Rollback
 
-1. Ejecuta el workflow `Deploy` con `image_tag=sha-<commit-anterior>`; el job
-   `rollback-api` re-apunta `main` a esa imagen, dispara el redeploy y espera a que
-   `/health` reporte la versión.
-2. Las migraciones no se revierten: la versión anterior debe soportar el esquema ya
-   aplicado.
+Desde la raíz del repositorio:
+
+```bash
+pnpm rollback --list        # releases exitosos recientes
+pnpm rollback <commit>      # revierte web y API a ese release
+```
+
+El comando re-apunta `main` a la imagen de ese commit, dispara el redeploy y espera a
+que `/health` reporte la versión. Las migraciones no se revierten: la versión anterior
+debe soportar el esquema ya aplicado.
 
 ### Migración desde Neon
 

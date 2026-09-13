@@ -105,12 +105,14 @@ con `wrangler deploy --tag sha-<commit>` y ejecuta un smoke test contra
 `https://psicologarayen.cl`. Cuando el release también cambia la API, la web se publica
 solo después de que `GET /health` reporte el commit desplegado.
 
-Para revertir una versión:
+Para revertir una versión, desde la raíz del repositorio:
 
 ```bash
-pnpm --dir apps/web exec wrangler versions list
-pnpm --dir apps/web exec wrangler rollback <version-id>
+pnpm rollback --list            # releases exitosos recientes
+pnpm rollback <commit>          # revierte web y API a ese release
 ```
+
+El comando revierte el Worker a la versión etiquetada con ese commit y luego la API.
 
 Consulta la [documentación de TanStack Start](https://tanstack.com/start/latest)
 y la [guía de Cloudflare Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/).

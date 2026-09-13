@@ -5,7 +5,8 @@
   "scripts": {
     "build": "pnpm --filter @aula-rayen/contracts build && pnpm --filter @aula-rayen/api build && pnpm --filter @aula-rayen/web build",
     "test": "pnpm --filter @aula-rayen/contracts test:run && pnpm --filter @aula-rayen/api test && pnpm --filter @aula-rayen/web test:run",
-    "typecheck": "pnpm --filter @aula-rayen/contracts build && pnpm --filter @aula-rayen/api typecheck && pnpm --filter @aula-rayen/web typecheck"
+    "typecheck": "pnpm --filter @aula-rayen/contracts build && pnpm --filter @aula-rayen/api typecheck && pnpm --filter @aula-rayen/web typecheck",
+    "rollback": "node scripts/rollback.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
