@@ -26,7 +26,7 @@ export type CourseFormValues = {
   videoLink: string;
   fileLink: string;
   duration: string;
-  price: number;
+  price: number | "";
 };
 
 type UseCourseFormArgs = {
@@ -69,7 +69,7 @@ export function useCourseForm({
     videoLink: course?.videoLink ?? "",
     fileLink: course?.fileLink ?? "",
     duration: course?.duration ?? "",
-    price: course?.price ?? 0,
+    price: course?.price ?? "",
   };
 
   const form = useForm({
@@ -82,28 +82,48 @@ export function useCourseForm({
         : undefined,
     onSubmit: async ({ value }) => {
       setValidationError(null);
-      if (mode === "create") {
-        await createMutation.mutateAsync(value);
-        return;
-      }
-      if (!course) return;
-      const baseline: Record<string, unknown> = { ...initialValues };
-      const diff = Object.fromEntries(
-        Object.entries(value).filter(([key, fieldValue]) => baseline[key] !== fieldValue),
-      );
 
-      const parsed = updateCourseRequestSchema.safeParse(diff);
-      if (!parsed.success) {
-        setValidationError(
-          parsed.error.issues[0]?.message ??
-            "Debes enviar al menos un campo para actualizar",
+      try {
+        if (mode === "create") {
+          const parsed = createCourseRequestSchema.safeParse(value);
+          if (!parsed.success) {
+            setValidationError(
+              parsed.error.issues[0]?.message ??
+                "Revisa los datos del curso antes de guardar",
+            );
+            return;
+          }
+
+          await createMutation.mutateAsync(parsed.data);
+          return;
+        }
+
+        if (!course) return;
+
+        const baseline: Record<string, unknown> = { ...initialValues };
+        const diff = Object.fromEntries(
+          Object.entries(value).filter(
+            ([key, fieldValue]) => baseline[key] !== fieldValue,
+          ),
         );
-        return;
+
+        const parsed = updateCourseRequestSchema.safeParse(diff);
+        if (!parsed.success) {
+          setValidationError(
+            parsed.error.issues[0]?.message ??
+              "Debes enviar al menos un campo para actualizar",
+          );
+          return;
+        }
+
+        await updateMutation.mutateAsync({
+          id: course.id,
+          data: parsed.data,
+        });
+      } catch {
+        // El error de la mutación se muestra vía `isError`; el catch evita
+        // un unhandled rejection cuando la API rechaza la petición.
       }
-      await updateMutation.mutateAsync({
-        id: course.id,
-        data: parsed.data,
-      });
     },
   });
 

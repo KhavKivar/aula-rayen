@@ -1,7 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-
 import { Navbar } from "@/components/ui/navbar";
-import { sessionQueries } from "@/lib/session-queries";
+import { usePublicSession } from "@/lib/session-queries";
 import { LandingCourses } from "@/features/landing/components/landing-courses";
 import { LandingCta } from "@/features/landing/components/landing-cta";
 import { LandingFaq } from "@/features/landing/components/landing-faq";
@@ -12,7 +10,7 @@ import { LandingServices } from "@/features/landing/components/landing-services"
 import { LandingTrustBar } from "@/features/landing/components/landing-trust-bar";
 
 export function LandingPage() {
-  const { data: session, isPending } = useQuery(sessionQueries.session);
+  const { data: session, isPending } = usePublicSession();
 
   const isLoggedIn = Boolean(session?.user);
 

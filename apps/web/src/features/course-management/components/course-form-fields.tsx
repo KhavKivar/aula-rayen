@@ -1,4 +1,4 @@
-import { FormField } from "@/components/ui/form-field";
+import { FormField, formFieldErrorId } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import type { useCourseForm } from "@/features/course-management/components/use-course-form";
 
@@ -21,6 +21,9 @@ export function CourseFormFields({
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="Ej: Arteterapia para infancias"
               />
             </FormField>
@@ -40,6 +43,9 @@ export function CourseFormFields({
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="Descripción del curso"
                 className="min-h-24 w-full rounded-xl border border-input bg-muted/50 px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
               />
@@ -61,6 +67,9 @@ export function CourseFormFields({
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="https://example.com/video"
               />
             </FormField>
@@ -85,6 +94,9 @@ export function CourseFormFields({
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="https://example.com/file"
               />
             </FormField>
@@ -104,6 +116,9 @@ export function CourseFormFields({
                 onBlur={field.handleBlur}
                 onChange={(event) => field.handleChange(event.target.value)}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="Ej: 2 horas"
               />
             </FormField>
@@ -124,10 +139,14 @@ export function CourseFormFields({
                 step={1000}
                 value={field.state.value}
                 onBlur={field.handleBlur}
-                onChange={(event) =>
-                  field.handleChange(Number(event.target.value))
-                }
+                onChange={(event) => {
+                  const next = event.target.value;
+                  field.handleChange(next === "" ? "" : Number(next));
+                }}
                 aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? formFieldErrorId(field.name) : undefined
+                }
                 placeholder="25000"
               />
             </FormField>

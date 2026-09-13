@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 
 import { Navbar } from "@/components/ui/navbar";
-import { sessionQueries } from "@/lib/session-queries";
+import { usePublicSession } from "@/lib/session-queries";
 import {
   OG_IMAGE_URL,
   SEO_PAGES,
@@ -46,7 +45,7 @@ export const Route = createFileRoute("/sobre-pamela-rayen")({
 });
 
 function AboutPage() {
-  const { data: session, isPending } = useQuery(sessionQueries.session);
+  const { data: session, isPending } = usePublicSession();
 
   const isLoggedIn = Boolean(session?.user);
 

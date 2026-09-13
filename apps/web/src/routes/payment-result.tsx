@@ -49,6 +49,9 @@ const paymentMessages = {
 
 export const Route = createFileRoute("/payment-result")({
   validateSearch: paymentResultSearchSchema,
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex" }],
+  }),
   component: PaymentResultPage,
 });
 

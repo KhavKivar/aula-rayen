@@ -16,7 +16,7 @@ export default defineConfig({
     tailwindcss(),
     viteReact(),
     devtools({
-      removeDevtoolsOnBuild: false,
+      removeDevtoolsOnBuild: true,
     }),
   ],
 });

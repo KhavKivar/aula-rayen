@@ -1,5 +1,9 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createMemoryHistory, createRouter } from "@tanstack/react-router";
+import {
+  createMemoryHistory,
+  createRouter,
+  isNotFound,
+} from "@tanstack/react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { getCoursesMock, getSessionMock } = vi.hoisted(() => ({
@@ -52,6 +56,25 @@ describe("authenticated route layout", () => {
 
     expect(router.state.location.pathname).toBe("/login");
     expect(router.state.location.search).toEqual({ redirect: "/courses/7" });
+  });
+
+  it("renders not found for a non-numeric course id", async () => {
+    getSessionMock.mockResolvedValue({
+      data: {
+        session: { id: "session-1" },
+        user: { id: "user-1", role: "user" },
+      },
+    });
+    const router = createTestRouter("/courses/abc");
+
+    await router.load();
+
+    await vi.waitFor(() => {
+      const rootMatch = router.state.matches.find(
+        ({ routeId }) => routeId === "__root__",
+      );
+      expect(isNotFound(rootMatch?.error)).toBe(true);
+    });
   });
 
   it("keeps an authenticated visitor on protected content", async () => {

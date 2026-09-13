@@ -10,7 +10,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "DM Sans", sans-serif;
-  --font-mono: "Geist Mono Variable", monospace;
   --font-heading: "Newsreader Variable", serif;
   --color-terracotta: #a85e40;
   --color-terracotta-deep: #7b4638;
@@ -153,7 +152,7 @@
 
 @layer components {
   .section-kicker {
-    @apply text-xs font-semibold uppercase tracking-[0.16em] text-terracotta;
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-terracotta-deep;
   }
 
   .section-title {
@@ -166,28 +165,28 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("/fonts/florecer/font-0.ttf") format("truetype");
+  src: url("/fonts/florecer/font-0.woff2") format("woff2");
 }
 @font-face {
   font-family: "DM Sans";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url("/fonts/florecer/font-1.ttf") format("truetype");
+  src: url("/fonts/florecer/font-1.woff2") format("woff2");
 }
 @font-face {
   font-family: "DM Sans";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url("/fonts/florecer/font-2.ttf") format("truetype");
+  src: url("/fonts/florecer/font-2.woff2") format("woff2");
 }
 @font-face {
   font-family: "DM Sans";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url("/fonts/florecer/font-3.ttf") format("truetype");
+  src: url("/fonts/florecer/font-3.woff2") format("woff2");
 }
 
 @layer components {
