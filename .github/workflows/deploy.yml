@@ -62,10 +62,10 @@ jobs:
           else
             changed="$(git diff --name-only "$base" "$head")"
             printf '%s\n' "$changed"
-            if printf '%s\n' "$changed" | grep -qE '^(apps/api/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|\.github/workflows/)'; then
+            if printf '%s\n' "$changed" | grep -qE '^(apps/api/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json)'; then
               api=true
             fi
-            if printf '%s\n' "$changed" | grep -qE '^(apps/web/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|\.github/workflows/)'; then
+            if printf '%s\n' "$changed" | grep -qE '^(apps/web/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json)'; then
               web=true
             fi
           fi
@@ -193,9 +193,9 @@ jobs:
       - name: Point main to the previous image
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          docker pull "$API_IMAGE:${{ inputs.image_tag }}"
-          docker tag "$API_IMAGE:${{ inputs.image_tag }}" "$API_IMAGE:main"
-          docker push "$API_IMAGE:main"
+          docker buildx imagetools create \
+            --tag "$API_IMAGE:main" \
+            "$API_IMAGE:${{ inputs.image_tag }}"
       - name: Trigger Dokploy deployment
         env:
           DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}

@@ -91,6 +91,16 @@ async function getApiTags() {
   }
 }
 
+async function getApiVersion() {
+  try {
+    const response = await fetch(API_HEALTH_URL, { cache: "no-store" });
+    if (!response.ok) return "";
+    return (await response.json()).version ?? "";
+  } catch {
+    return "";
+  }
+}
+
 function getWebTags() {
   try {
     const raw = run("pnpm", [
@@ -237,13 +247,13 @@ async function rollbackApi(tag) {
   return false;
 }
 
-async function confirm(tag, apiAvailable, webAvailable) {
+async function confirm(tag, apiToRollback, webToRollback) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const answer = await rl.question(
     `\nVas a revertir producción a ${tag} ` +
       `(${[
-        webAvailable ? "web" : null,
-        apiAvailable ? "API" : null,
+        webToRollback ? "web" : null,
+        apiToRollback ? "API" : null,
       ]
         .filter(Boolean)
         .join(" y ")}; orden web → API). Escribe "si" para continuar: `,
@@ -281,17 +291,34 @@ async function main() {
     );
   }
 
+  const currentApiVersion = apiAvailable ? await getApiVersion() : "";
+  const apiAlreadyCurrent = apiAvailable && currentApiVersion === tag;
+  const apiToRollback = apiAvailable && !apiAlreadyCurrent;
+
   console.log(`\nObjetivo: ${ref} → ${tag}`);
   console.log(
-    `  API: ${apiTags ? (apiAvailable ? "imagen disponible" : "sin imagen (se omite)") : "sin verificar"}`,
+    `  API: ${
+      apiTags
+        ? apiAvailable
+          ? apiAlreadyCurrent
+            ? `ya está en ${tag} (se omite)`
+            : "imagen disponible"
+          : "sin imagen (se omite)"
+        : "sin verificar"
+    }`,
   );
   console.log(
     `  Web: ${webTags ? (webAvailable ? "versión disponible" : "sin versión (se omite)") : "sin verificar"}`,
   );
 
+  if (!apiToRollback && !webAvailable) {
+    console.log("\nNada para revertir: ya está en ese release.");
+    return;
+  }
+
   if (
     !flags.has("--yes") &&
-    !(await confirm(tag, apiAvailable, webAvailable))
+    !(await confirm(tag, apiToRollback, webAvailable))
   ) {
     console.log("Cancelado.");
     return;
@@ -300,8 +327,11 @@ async function main() {
   const webRolledBack = webAvailable
     ? rollbackWeb(tag, webTags?.get(tag))
     : false;
-  const apiRolledBack = apiAvailable ? await rollbackApi(tag) : false;
+  const apiRolledBack = apiToRollback ? await rollbackApi(tag) : false;
 
+  if (apiAlreadyCurrent) {
+    console.log(`API: ya estaba en ${tag}, no se tocó.`);
+  }
   const parts = [
     webRolledBack ? "web" : null,
     apiRolledBack ? "API" : null,
