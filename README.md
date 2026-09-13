@@ -12,7 +12,6 @@ web integrada.
 - Autenticación con correo y contraseña o Google
 - Catálogo de cursos, panel de inscripciones y acceso a contenidos
 - Pagos con Webpay Plus mediante el SDK oficial de Transbank
-- Entorno local con Docker Compose
 - Pruebas unitarias, de integración y end-to-end
 
 ## Estructura del repositorio
@@ -47,12 +46,6 @@ pnpm --filter @aula-rayen/web dev
 
 Por defecto, la API escucha en `http://localhost:3000` y la aplicación web en
 `http://localhost:3001`.
-
-## Docker
-
-```bash
-docker compose up --build
-```
 
 ## Validación
 
