@@ -17,7 +17,7 @@
 - [x] 3.2 Cambiar `apps/api/docker-compose.yml` para que `api` y `migrate` usen `image:` publicado en GHCR con `IMAGE_TAG` y eliminar el bloque `build:`.
 - [x] 3.3 Mantener `migrate` one-shot y la dependencia `service_completed_successfully`.
 - [ ] 3.4 Configurar Dokploy como imagen externa de GHCR con credenciales de solo lectura y desplegar un tag fijo de prueba.
-- [ ] 3.5 Confirmar la arquitectura del VPS (el workflow asume `linux/amd64`; ajústalo si es ARM).
+- [x] 3.5 Confirmar la arquitectura del VPS y fijar `platforms` del build (`linux/arm64`).
 - [x] 3.6 Implementar el disparo del redeploy de Dokploy con `compose.deploy`, solo después de publicar la imagen.
 
 ## 4. Web trazable y verificada

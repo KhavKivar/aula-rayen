@@ -111,5 +111,5 @@ compatibles) es la que hace viable el rollback de la API.
 
 ## Open Questions
 
-- ¿El VPS es `amd64` o `arm64`? Define `platforms` del build.
-- ¿La API key de Dokploy usa el endpoint de deploy o un webhook por aplicación?
+Resueltas durante la implementación: el VPS es `arm64` (el build publica
+`linux/arm64`) y el disparo usa el endpoint `compose.deploy` con `composeId`.
