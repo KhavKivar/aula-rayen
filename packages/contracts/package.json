@@ -19,6 +19,16 @@
       "import": "./dist/api-error.js",
       "require": "./dist-cjs/api-error.js"
     },
+    "./availability": {
+      "types": "./dist/availability.d.ts",
+      "import": "./dist/availability.js",
+      "require": "./dist-cjs/availability.js"
+    },
+    "./booking": {
+      "types": "./dist/booking.d.ts",
+      "import": "./dist/booking.js",
+      "require": "./dist-cjs/booking.js"
+    },
     "./payment": {
       "types": "./dist/payment.d.ts",
       "import": "./dist/payment.js",

@@ -24,8 +24,10 @@ import { Route as AuthenticatedCoursesCourseIdRouteImport } from './routes/_auth
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard/index'
 import { Route as AuthenticatedDashboardAdminRouteImport } from './routes/_authenticated/dashboard/admin'
 import { Route as AuthenticatedDashboardAdminIndexRouteImport } from './routes/_authenticated/dashboard/admin/index'
+import { Route as AuthenticatedDashboardAdminCalendarRouteImport } from './routes/_authenticated/dashboard/admin/calendar'
 import { Route as AuthenticatedDashboardAdminCoursesRouteImport } from './routes/_authenticated/dashboard/admin/courses'
 import { Route as AuthenticatedDashboardAdminPaymentsRouteImport } from './routes/_authenticated/dashboard/admin/payments'
+import { Route as AuthenticatedDashboardAdminReservationsRouteImport } from './routes/_authenticated/dashboard/admin/reservations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -104,6 +106,12 @@ const AuthenticatedDashboardAdminIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedDashboardAdminRoute,
   } as any)
+const AuthenticatedDashboardAdminCalendarRoute =
+  AuthenticatedDashboardAdminCalendarRouteImport.update({
+    id: '/calendar',
+    path: '/calendar',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
 const AuthenticatedDashboardAdminCoursesRoute =
   AuthenticatedDashboardAdminCoursesRouteImport.update({
     id: '/courses',
@@ -114,6 +122,12 @@ const AuthenticatedDashboardAdminPaymentsRoute =
   AuthenticatedDashboardAdminPaymentsRouteImport.update({
     id: '/payments',
     path: '/payments',
+    getParentRoute: () => AuthenticatedDashboardAdminRoute,
+  } as any)
+const AuthenticatedDashboardAdminReservationsRoute =
+  AuthenticatedDashboardAdminReservationsRouteImport.update({
+    id: '/reservations',
+    path: '/reservations',
     getParentRoute: () => AuthenticatedDashboardAdminRoute,
   } as any)
 
@@ -130,8 +144,10 @@ export interface FileRoutesByFullPath {
   '/courses/$courseId': typeof AuthenticatedCoursesCourseIdRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/admin/calendar': typeof AuthenticatedDashboardAdminCalendarRoute
   '/dashboard/admin/courses': typeof AuthenticatedDashboardAdminCoursesRoute
   '/dashboard/admin/payments': typeof AuthenticatedDashboardAdminPaymentsRoute
+  '/dashboard/admin/reservations': typeof AuthenticatedDashboardAdminReservationsRoute
   '/dashboard/admin/': typeof AuthenticatedDashboardAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -145,8 +161,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof AuthResetPasswordRoute
   '/courses/$courseId': typeof AuthenticatedCoursesCourseIdRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/admin/calendar': typeof AuthenticatedDashboardAdminCalendarRoute
   '/dashboard/admin/courses': typeof AuthenticatedDashboardAdminCoursesRoute
   '/dashboard/admin/payments': typeof AuthenticatedDashboardAdminPaymentsRoute
+  '/dashboard/admin/reservations': typeof AuthenticatedDashboardAdminReservationsRoute
   '/dashboard/admin': typeof AuthenticatedDashboardAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -165,8 +183,10 @@ export interface FileRoutesById {
   '/_authenticated/courses/$courseId': typeof AuthenticatedCoursesCourseIdRoute
   '/_authenticated/dashboard/admin': typeof AuthenticatedDashboardAdminRouteWithChildren
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/admin/calendar': typeof AuthenticatedDashboardAdminCalendarRoute
   '/_authenticated/dashboard/admin/courses': typeof AuthenticatedDashboardAdminCoursesRoute
   '/_authenticated/dashboard/admin/payments': typeof AuthenticatedDashboardAdminPaymentsRoute
+  '/_authenticated/dashboard/admin/reservations': typeof AuthenticatedDashboardAdminReservationsRoute
   '/_authenticated/dashboard/admin/': typeof AuthenticatedDashboardAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -184,8 +204,10 @@ export interface FileRouteTypes {
     | '/courses/$courseId'
     | '/dashboard/admin'
     | '/dashboard/'
+    | '/dashboard/admin/calendar'
     | '/dashboard/admin/courses'
     | '/dashboard/admin/payments'
+    | '/dashboard/admin/reservations'
     | '/dashboard/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -199,8 +221,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/courses/$courseId'
     | '/dashboard'
+    | '/dashboard/admin/calendar'
     | '/dashboard/admin/courses'
     | '/dashboard/admin/payments'
+    | '/dashboard/admin/reservations'
     | '/dashboard/admin'
   id:
     | '__root__'
@@ -218,8 +242,10 @@ export interface FileRouteTypes {
     | '/_authenticated/courses/$courseId'
     | '/_authenticated/dashboard/admin'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/admin/calendar'
     | '/_authenticated/dashboard/admin/courses'
     | '/_authenticated/dashboard/admin/payments'
+    | '/_authenticated/dashboard/admin/reservations'
     | '/_authenticated/dashboard/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -339,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardAdminIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardAdminRoute
     }
+    '/_authenticated/dashboard/admin/calendar': {
+      id: '/_authenticated/dashboard/admin/calendar'
+      path: '/calendar'
+      fullPath: '/dashboard/admin/calendar'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminCalendarRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
     '/_authenticated/dashboard/admin/courses': {
       id: '/_authenticated/dashboard/admin/courses'
       path: '/courses'
@@ -351,6 +384,13 @@ declare module '@tanstack/react-router' {
       path: '/payments'
       fullPath: '/dashboard/admin/payments'
       preLoaderRoute: typeof AuthenticatedDashboardAdminPaymentsRouteImport
+      parentRoute: typeof AuthenticatedDashboardAdminRoute
+    }
+    '/_authenticated/dashboard/admin/reservations': {
+      id: '/_authenticated/dashboard/admin/reservations'
+      path: '/reservations'
+      fullPath: '/dashboard/admin/reservations'
+      preLoaderRoute: typeof AuthenticatedDashboardAdminReservationsRouteImport
       parentRoute: typeof AuthenticatedDashboardAdminRoute
     }
   }
@@ -373,17 +413,23 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface AuthenticatedDashboardAdminRouteChildren {
+  AuthenticatedDashboardAdminCalendarRoute: typeof AuthenticatedDashboardAdminCalendarRoute
   AuthenticatedDashboardAdminCoursesRoute: typeof AuthenticatedDashboardAdminCoursesRoute
   AuthenticatedDashboardAdminPaymentsRoute: typeof AuthenticatedDashboardAdminPaymentsRoute
+  AuthenticatedDashboardAdminReservationsRoute: typeof AuthenticatedDashboardAdminReservationsRoute
   AuthenticatedDashboardAdminIndexRoute: typeof AuthenticatedDashboardAdminIndexRoute
 }
 
 const AuthenticatedDashboardAdminRouteChildren: AuthenticatedDashboardAdminRouteChildren =
   {
+    AuthenticatedDashboardAdminCalendarRoute:
+      AuthenticatedDashboardAdminCalendarRoute,
     AuthenticatedDashboardAdminCoursesRoute:
       AuthenticatedDashboardAdminCoursesRoute,
     AuthenticatedDashboardAdminPaymentsRoute:
       AuthenticatedDashboardAdminPaymentsRoute,
+    AuthenticatedDashboardAdminReservationsRoute:
+      AuthenticatedDashboardAdminReservationsRoute,
     AuthenticatedDashboardAdminIndexRoute:
       AuthenticatedDashboardAdminIndexRoute,
   }

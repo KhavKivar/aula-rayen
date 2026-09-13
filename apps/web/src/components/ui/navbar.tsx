@@ -17,7 +17,7 @@ export function Navbar({
   const links = [
     { href: "#atencion", label: "Atención psicológica" },
     { href: "#profesional", label: "Sobre mí" },
-    { href: "#cursos", label: "Aula Rayen" },
+    { href: "#cursos", label: "Talleres" },
   ];
   return (
     <header className="relative z-20 border-b border-border/70 bg-background">
@@ -45,7 +45,7 @@ export function Navbar({
             className="text-sm font-medium"
             aria-busy={isPending}
           >
-            {isLoggedIn ? "Mi espacio" : "Ingresar"}
+            {isLoggedIn ? "Aula Rayen" : "Aula Rayen"}
           </Link>
           <a href="#agenda" className={buttonVariants({ size: "default" })}>
             Agendar hora <ArrowUpRight size={16} />

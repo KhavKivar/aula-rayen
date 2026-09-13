@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DbModule } from './db/db.module';
+import { AvailabilityModule } from './modules/availability/availability.module';
+import { BookingModule } from './modules/booking/booking.module';
 import { CourseModule } from './modules/course/course.module';
 import { WebPayModule } from './modules/webpay/webpay.module';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
@@ -43,6 +45,8 @@ import { APP_GUARD } from '@nestjs/core';
     }),
     DbModule,
     CourseModule,
+    AvailabilityModule,
+    BookingModule,
     WebPayModule,
     AuthModule.forRoot({ auth }),
   ],

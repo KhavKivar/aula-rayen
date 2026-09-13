@@ -4,11 +4,23 @@ import {
   BookOpenCheck,
   CreditCard,
   ArrowUpRight,
+  CalendarClock,
+  CalendarDays,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Brand, FlowerMark } from "@/components/brand";
 import { cn } from "@/lib/utils";
 const navigation = [
+  {
+    to: "/dashboard/admin/reservations" as const,
+    label: "Reservas",
+    icon: CalendarClock,
+  },
+  {
+    to: "/dashboard/admin/calendar" as const,
+    label: "Calendario",
+    icon: CalendarDays,
+  },
   {
     to: "/dashboard/admin/courses" as const,
     label: "Cursos",

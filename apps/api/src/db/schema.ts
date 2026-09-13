@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 import {
   pgTable,
@@ -10,7 +10,56 @@ import {
   numeric,
   serial,
   uniqueIndex,
+  pgEnum,
 } from 'drizzle-orm/pg-core';
+
+export const slotStatusEnum = pgEnum('slot_status', ['available', 'disabled']);
+
+export const bookingStatusEnum = pgEnum('booking_status', [
+  'pending',
+  'confirmed',
+  'expired',
+  'cancelled',
+]);
+
+export const availability_slots = pgTable('availability_slots', {
+  id: serial('id').primaryKey().notNull(),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  assignedTo: text('assigned_to')
+    .notNull()
+    .references(() => user.id, { onDelete: 'restrict' }),
+  createdBy: text('created_by')
+    .notNull()
+    .references(() => user.id, { onDelete: 'restrict' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  status: slotStatusEnum('status').notNull().default('available'),
+});
+
+export const booking_attempts = pgTable(
+  'booking_attempts',
+  {
+    id: serial('id').primaryKey().notNull(),
+    clientId: text('client_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'restrict' }),
+    slotId: integer('slot_id')
+      .notNull()
+      .references(() => availability_slots.id, { onDelete: 'restrict' }),
+    status: bookingStatusEnum('status').notNull().default('pending'),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at')
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (table) => [
+    uniqueIndex('one_active_booking_per_slot')
+      .on(table.slotId)
+      .where(sql`${table.status} IN ('pending', 'confirmed')`),
+  ],
+);
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
