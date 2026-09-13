@@ -46,4 +46,10 @@ describe('AppController', () => {
       });
     });
   });
+
+  describe('ping', () => {
+    it('should respond without side effects', () => {
+      expect(appController.ping()).toEqual({ pong: true });
+    });
+  });
 });
