@@ -17,6 +17,13 @@ export class BookingRepository {
     return this.db.select().from(booking_attempts);
   }
 
+  findAllByClientId(clientId: string): Promise<BookingAttempt[]> {
+    return this.db
+      .select()
+      .from(booking_attempts)
+      .where(eq(booking_attempts.clientId, clientId));
+  }
+
   async findById(id: number): Promise<BookingAttempt | null> {
     const [booking] = await this.db
       .select()

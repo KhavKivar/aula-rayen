@@ -30,8 +30,8 @@ export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
 
   @Get()
-  async findAll(): Promise<BookingResponse[]> {
-    const bookings = await this.bookingService.getAll();
+  async findAll(@Session() session: UserSession): Promise<BookingResponse[]> {
+    const bookings = await this.bookingService.getAll(session.user);
 
     return bookings.map(toBookingResponse);
   }
@@ -39,8 +39,9 @@ export class BookingController {
   @Get(':id')
   async findById(
     @Param('id', ParseIntPipe) id: number,
+    @Session() session: UserSession,
   ): Promise<BookingResponse> {
-    const booking = await this.bookingService.getById(id);
+    const booking = await this.bookingService.getById(id, session.user);
 
     return toBookingResponse(booking);
   }
@@ -61,8 +62,9 @@ export class BookingController {
     @Param('id', ParseIntPipe) id: number,
     @Body(new ZodValidationPipe(updateBookingRequestSchema))
     dto: UpdateBookingRequest,
+    @Session() session: UserSession,
   ): Promise<BookingResponse> {
-    const booking = await this.bookingService.update(id, dto);
+    const booking = await this.bookingService.update(id, dto, session.user);
 
     return toBookingResponse(booking);
   }
@@ -70,8 +72,9 @@ export class BookingController {
   @Delete(':id')
   async remove(
     @Param('id', ParseIntPipe) id: number,
+    @Session() session: UserSession,
   ): Promise<BookingResponse> {
-    const booking = await this.bookingService.remove(id);
+    const booking = await this.bookingService.remove(id, session.user);
 
     return toBookingResponse(booking);
   }
