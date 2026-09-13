@@ -3,7 +3,6 @@
 /packages/*/dist/
 /packages/*/dist-cjs/
 
-# Cloudflare Workers (proxy api - no commitear)
-workers/
+# Cloudflare Workers (estado local de wrangler)
 .wrangler/
 **/.wrangler/

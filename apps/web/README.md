@@ -84,7 +84,7 @@ un fallo, revisa `test-results/` y abre el trace indicado con
 Las rutas basadas en archivos viven en `src/routes/`. TanStack Router genera
 `src/routeTree.gen.ts`; el archivo generado se versiona pero no se edita a mano.
 
-La autenticación usa Better Auth contra `VITE_PUBLIC_AUTH_URL` (`https://aula-rayen.vasvani.shop/api/auth` en prod) vía `src/lib/auth-client.ts`; el Worker elimina el prefijo `/api` y reenvía `/auth/*` al origen NestJS. No existe proxy de autenticación dentro de TanStack Start.
+La autenticación usa Better Auth contra `VITE_PUBLIC_AUTH_URL` (`https://aula-rayen.vasvani.shop/api/auth` en prod) vía `src/lib/auth-client.ts`. No existe proxy de autenticación dentro de TanStack Start.
 
 ## Cloudflare Workers
 

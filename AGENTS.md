@@ -50,7 +50,7 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 ## Integración entre aplicaciones
 
 - El frontend usa `VITE_PUBLIC_API_URL` para la API general y `VITE_PUBLIC_AUTH_URL` para Better Auth (`https://aula-rayen.vasvani.shop/api/auth` en prod, `http://localhost:3000/auth` en dev).
-- Better Auth ya no usa proxy TanStack Start `/api/auth/*`; el Worker `aula-rayen.vasvani.shop/api/` reenvía `/api/*` al origen NestJS (ver `workers/index.ts`).
+- Better Auth ya no usa proxy TanStack Start `/api/auth/*`: el frontend consume `VITE_PUBLIC_API_URL` y `VITE_PUBLIC_AUTH_URL` directamente contra la API NestJS, sin Worker proxy intermedio.
 - Al agregar un origen del frontend, actualiza tanto `trustedOrigins` de Better Auth (`apps/api/src/modules/auth/auth.ts`) como CORS en NestJS (`apps/api/src/main.ts`).
 - Las cookies y peticiones autenticadas requieren `credentials: true` / `credentials: include` en ambos lados; `BETTER_AUTH_COOKIE_DOMAIN=vasvani.shop` en prod mantiene sesión cross-subdominio compatible con Worker same-origin.
 - Evita duplicar URLs o valores de entorno dentro del código; `VITE_PUBLIC_SITE_URL` es el origen del site (`https://aula-rayen.vasvani.shop`).
