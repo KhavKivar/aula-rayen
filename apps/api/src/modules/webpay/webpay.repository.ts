@@ -25,10 +25,6 @@ type CommitDetails = Pick<
 export class WebPayRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
-  findAll(): Promise<WebPaySession[]> {
-    return this.db.select().from(webpay_sessions);
-  }
-
   async findById(buyOrderId: string): Promise<WebPaySession | null> {
     const [session] = await this.db
       .select()

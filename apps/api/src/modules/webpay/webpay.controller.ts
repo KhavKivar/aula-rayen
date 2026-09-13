@@ -10,7 +10,6 @@ import type {
   CommitResult,
   CreateWebpayResponse,
   PaymentResultStatus,
-  WebpaySessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 import { env } from '@/config/env';
 
@@ -30,13 +29,6 @@ export function mapCommitToRedirectStatus(
 @Controller('webpay')
 export class WebPayController {
   constructor(private readonly webpayService: WebPayService) {}
-
-  // Seguimiento: este listado crudo no exige rol; el panel usa
-  // GET /webpay/payments. No cambiar aquí sin revisar consumidores.
-  @Get()
-  findAll(): Promise<WebpaySessionsResponse> {
-    return this.webpayService.getAll();
-  }
 
   // Return only the succesful payment
   @Get('payments')

@@ -9,10 +9,8 @@ import {
 } from '@aula-rayen/contracts/payment';
 import {
   createWebpayResponseSchema,
-  webpaySessionsResponseSchema,
   type CommitResult,
   type CreateWebpayResponse,
-  type WebpaySessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 
 import { badRequestError, notFoundError } from '@/common/errors/http-error';
@@ -86,10 +84,6 @@ export class WebPayService {
     private readonly repository: WebPayRepository,
     private readonly courseService: CourseService,
   ) {}
-
-  async getAll(): Promise<WebpaySessionsResponse> {
-    return webpaySessionsResponseSchema.parse(await this.repository.findAll());
-  }
 
   // Expected few payments rows, so we should return all payment at once
   async getPayments(): Promise<PaymentsResponse> {
