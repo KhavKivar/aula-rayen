@@ -51,6 +51,23 @@ MUST arrancar solo después de que las migraciones terminen correctamente.
 - **WHEN** la migración termina con error
 - **THEN** la API no arranca con el nuevo código y el despliegue queda en fallo visible
 
+### Requirement: La API reporta la versión desplegada
+La API MUST exponer en su endpoint de salud la versión correspondiente al tag de la
+imagen en ejecución, de forma que el pipeline pueda verificar qué commit está sirviendo
+producción en lugar de asumirlo.
+
+#### Scenario: Consulta de salud
+- **WHEN** se consulta `GET /health` en una instancia desplegada
+- **THEN** la respuesta incluye el estado y la versión asociada al tag de la imagen
+
+#### Scenario: Verificación de despliegue
+- **WHEN** el pipeline despliega el commit `sha-abc1234`
+- **THEN** considera el despliegue completado solo cuando `/health` reporta `sha-abc1234`
+
+#### Scenario: Versión ausente en desarrollo
+- **WHEN** la API corre localmente sin variable de versión configurada
+- **THEN** `/health` sigue respondiendo con estado correcto y una versión por defecto no vacía
+
 ### Requirement: Rollback por versión publicada
 El sistema MUST permitir volver a una versión anterior de la API redesplegando una
 imagen ya publicada, sin reconstruir el código.

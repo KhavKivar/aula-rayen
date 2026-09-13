@@ -1,7 +1,7 @@
 # 0003 - Despliegue de la API con Docker Compose y Dokploy
 
 - Fecha: 2026-09-13
-- Estado: aceptada
+- Estado: reemplazada parcialmente por 0007 (build y disparo del despliegue)
 - Ámbito: infra
 
 ## Contexto

@@ -19,10 +19,7 @@ x-api-environment: &api-environment
 
 services:
   api:
-    image: aula-rayen-api:${IMAGE_TAG:-latest}
-    build:
-      context: ../..
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/khavkivar/aula-rayen-api:${IMAGE_TAG:-main}
     restart: unless-stopped
     init: true
     environment: *api-environment
@@ -52,10 +49,7 @@ services:
       - no-new-privileges:true
 
   migrate:
-    image: aula-rayen-api:${IMAGE_TAG:-latest}
-    build:
-      context: ../..
-      dockerfile: apps/api/Dockerfile
+    image: ghcr.io/khavkivar/aula-rayen-api:${IMAGE_TAG:-main}
     command: ["node", "dist/db/migrate.js"]
     restart: "no"
     environment:

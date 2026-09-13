@@ -1,0 +1,313 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Tag sha-* de GHCR para revertir la API (vacío para desplegar HEAD)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  API_IMAGE: ghcr.io/khavkivar/aula-rayen-api
+  API_HEALTH_URL: https://api.psicologarayen.cl/health
+  WEB_URL: https://psicologarayen.cl
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.detect.outputs.api }}
+      web: ${{ steps.detect.outputs.web }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Detect changed areas
+        id: detect
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "${{ inputs.image_tag }}" ]; then
+              echo "api=false" >> "$GITHUB_OUTPUT"
+              echo "web=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "api=true" >> "$GITHUB_OUTPUT"
+              echo "web=true" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
+          base="${{ github.event.before }}"
+          head="${{ github.sha }}"
+          if ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            base="$(git rev-parse "${head}^" 2>/dev/null || echo "$head")"
+          fi
+
+          api=false
+          web=false
+          if [ "$base" = "$head" ]; then
+            api=true
+            web=true
+          else
+            changed="$(git diff --name-only "$base" "$head")"
+            printf '%s\n' "$changed"
+            if printf '%s\n' "$changed" | grep -qE '^(apps/api/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|\.github/workflows/)'; then
+              api=true
+            fi
+            if printf '%s\n' "$changed" | grep -qE '^(apps/web/|packages/contracts/|pnpm-lock\.yaml|pnpm-workspace\.yaml|package\.json|\.github/workflows/)'; then
+              web=true
+            fi
+          fi
+
+          echo "api=$api" >> "$GITHUB_OUTPUT"
+          echo "web=$web" >> "$GITHUB_OUTPUT"
+
+  validate-api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Install pnpm
+        run: npm install --global pnpm@10.33.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Validate API
+        run: |
+          pnpm --filter @aula-rayen/contracts build
+          pnpm --filter @aula-rayen/api exec eslint src test
+          pnpm --filter @aula-rayen/api test
+          pnpm --filter @aula-rayen/api typecheck
+          pnpm --filter @aula-rayen/api build
+
+  build-api:
+    needs: [changes, validate-api]
+    if: always() && needs.changes.outputs.api == 'true' && needs.validate-api.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+      digest: ${{ steps.push.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Compute image tag
+        id: meta
+        shell: bash
+        run: echo "tag=sha-$(git rev-parse --short=12 HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push API image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: apps/api/Dockerfile
+          push: true
+          platforms: linux/amd64
+          build-args: APP_VERSION=${{ steps.meta.outputs.tag }}
+          tags: |
+            ${{ env.API_IMAGE }}:${{ steps.meta.outputs.tag }}
+            ${{ env.API_IMAGE }}:main
+          cache-from: type=gha,scope=api-image
+          cache-to: type=gha,mode=max,scope=api-image
+      - name: Summarize image
+        run: |
+          {
+            echo "### Imagen de la API publicada"
+            echo ""
+            echo "- Tag: \`${{ steps.meta.outputs.tag }}\`"
+            echo "- Digest: \`${{ steps.push.outputs.digest }}\`"
+            echo "- Anterior referencia \`:main\` re-apuntada a esta imagen"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  deploy-api:
+    needs: [changes, build-api]
+    if: always() && needs.changes.outputs.api == 'true' && needs.build-api.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Trigger Dokploy deployment
+        env:
+          DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ vars.DOKPLOY_COMPOSE_ID }}
+        run: |
+          test -n "$DOKPLOY_URL"
+          test -n "$DOKPLOY_API_KEY"
+          test -n "$DOKPLOY_COMPOSE_ID"
+          curl -fsS -X POST "$DOKPLOY_URL/api/compose.deploy" \
+            -H "x-api-key: $DOKPLOY_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"composeId\":\"$DOKPLOY_COMPOSE_ID\"}"
+      - name: Wait until the API reports the deployed version
+        run: |
+          expected="${{ needs.build-api.outputs.image_tag }}"
+          for attempt in $(seq 1 60); do
+            version="$(curl -fsS "$API_HEALTH_URL" | jq -r '.version // empty' || true)"
+            if [ "$version" = "$expected" ]; then
+              echo "API verificada en $expected"
+              exit 0
+            fi
+            echo "Intento $attempt: versión reportada '$version'"
+            sleep 10
+          done
+          echo "La API no reportó $expected dentro del tiempo límite" >&2
+          exit 1
+
+  rollback-api:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' && inputs.image_tag != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Validate rollback tag
+        run: |
+          if ! printf '%s' "${{ inputs.image_tag }}" | grep -qE '^sha-[0-9a-f]{7,40}$'; then
+            echo "image_tag debe tener el formato sha-<commit>" >&2
+            exit 1
+          fi
+      - name: Point main to the previous image
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "$API_IMAGE:${{ inputs.image_tag }}"
+          docker tag "$API_IMAGE:${{ inputs.image_tag }}" "$API_IMAGE:main"
+          docker push "$API_IMAGE:main"
+      - name: Trigger Dokploy deployment
+        env:
+          DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_COMPOSE_ID: ${{ vars.DOKPLOY_COMPOSE_ID }}
+        run: |
+          test -n "$DOKPLOY_URL"
+          test -n "$DOKPLOY_API_KEY"
+          test -n "$DOKPLOY_COMPOSE_ID"
+          curl -fsS -X POST "$DOKPLOY_URL/api/compose.deploy" \
+            -H "x-api-key: $DOKPLOY_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{\"composeId\":\"$DOKPLOY_COMPOSE_ID\"}"
+      - name: Wait until the API reports the rolled back version
+        run: |
+          expected="${{ inputs.image_tag }}"
+          for attempt in $(seq 1 60); do
+            version="$(curl -fsS "$API_HEALTH_URL" | jq -r '.version // empty' || true)"
+            if [ "$version" = "$expected" ]; then
+              echo "API verificada en $expected"
+              exit 0
+            fi
+            echo "Intento $attempt: versión reportada '$version'"
+            sleep 10
+          done
+          echo "La API no reportó $expected dentro del tiempo límite" >&2
+          exit 1
+
+  validate-web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      VITE_PUBLIC_API_URL: ${{ secrets.VITE_PUBLIC_API_URL }}
+      VITE_PUBLIC_AUTH_URL: ${{ secrets.VITE_PUBLIC_AUTH_URL }}
+      VITE_PUBLIC_SITE_URL: ${{ secrets.VITE_PUBLIC_SITE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate public configuration
+        run: |
+          test "$VITE_PUBLIC_API_URL" = "https://api.psicologarayen.cl"
+          test "$VITE_PUBLIC_AUTH_URL" = "https://api.psicologarayen.cl/auth"
+          test "$VITE_PUBLIC_SITE_URL" = "$WEB_URL"
+      - name: Install pnpm
+        run: npm install --global pnpm@10.33.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Validate web
+        run: |
+          pnpm --filter @aula-rayen/contracts build
+          pnpm --filter @aula-rayen/web lint
+          pnpm --filter @aula-rayen/web typecheck
+          pnpm --filter @aula-rayen/web test:run
+          pnpm --filter @aula-rayen/web build
+          pnpm --filter @aula-rayen/web check:landing
+
+  deploy-web:
+    needs: [changes, validate-web, deploy-api]
+    if: |
+      always()
+      && needs.changes.outputs.web == 'true'
+      && needs.validate-web.result == 'success'
+      && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      VITE_PUBLIC_API_URL: ${{ secrets.VITE_PUBLIC_API_URL }}
+      VITE_PUBLIC_AUTH_URL: ${{ secrets.VITE_PUBLIC_AUTH_URL }}
+      VITE_PUBLIC_SITE_URL: ${{ secrets.VITE_PUBLIC_SITE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Validate public configuration
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          test "$VITE_PUBLIC_API_URL" = "https://api.psicologarayen.cl"
+          test "$VITE_PUBLIC_AUTH_URL" = "https://api.psicologarayen.cl/auth"
+          test "$VITE_PUBLIC_SITE_URL" = "$WEB_URL"
+      - name: Install pnpm
+        run: npm install --global pnpm@10.33.0
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Deploy web to Cloudflare
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          pnpm --filter @aula-rayen/contracts build
+          pnpm --filter @aula-rayen/web build
+          tag="sha-$(git rev-parse --short=12 HEAD)"
+          short="$(git rev-parse --short=12 HEAD)"
+          pnpm --dir apps/web exec wrangler deploy --tag "$tag" --message "deploy $short" | tee wrangler-deploy.log
+          version_id="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' wrangler-deploy.log | head -1 || true)"
+          {
+            echo "### Web publicada"
+            echo ""
+            echo "- Worker version: \`${version_id:-desconocida}\`"
+            echo "- Tag: \`$tag\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke test production
+        run: |
+          body="$(curl -fsS "$WEB_URL/")"
+          printf '%s' "$body" | grep -q "Aula Rayen"
+          printf '%s' "$body" | grep -q 'id="cursos"'
+          echo "Smoke test OK"

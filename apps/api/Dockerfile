@@ -19,9 +19,12 @@ RUN pnpm --filter @aula-rayen/api deploy --legacy --prod /prod
 
 FROM node:24-alpine AS runtime
 
+ARG APP_VERSION=development
+
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    APP_VERSION=$APP_VERSION
 
 COPY --from=build /prod ./
 COPY --from=build /app/apps/api/dist ./dist

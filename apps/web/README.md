@@ -84,7 +84,7 @@ un fallo, revisa `test-results/` y abre el trace indicado con
 Las rutas basadas en archivos viven en `src/routes/`. TanStack Router genera
 `src/routeTree.gen.ts`; el archivo generado se versiona pero no se edita a mano.
 
-La autenticación usa Better Auth contra `VITE_PUBLIC_AUTH_URL` (`https://aula-rayen.vasvani.shop/api/auth` en prod) vía `src/lib/auth-client.ts`. No existe proxy de autenticación dentro de TanStack Start.
+La autenticación usa Better Auth contra `VITE_PUBLIC_AUTH_URL` (`https://api.psicologarayen.cl/auth` en prod) vía `src/lib/auth-client.ts`. No existe proxy de autenticación dentro de TanStack Start.
 
 ## Cloudflare Workers
 
@@ -95,8 +95,22 @@ pnpm deploy
 ```
 
 `pnpm deploy` compila y publica el Worker `aula-rayen`. No lo ejecutes para una
-validación local; los pushes a `main` bajo `apps/web/**` activan el workflow de
-producción.
+validación local; los pushes a `main` que tocan `apps/web/**` (o archivos compartidos)
+activan `deploy.yml`.
+
+## Despliegue
+
+El pipeline valida la web (lint, typecheck, tests, build, `check:landing`), la publica
+con `wrangler deploy --tag sha-<commit>` y ejecuta un smoke test contra
+`https://psicologarayen.cl`. Cuando el release también cambia la API, la web se publica
+solo después de que `GET /health` reporte el commit desplegado.
+
+Para revertir una versión:
+
+```bash
+pnpm --dir apps/web exec wrangler versions list
+pnpm --dir apps/web exec wrangler rollback <version-id>
+```
 
 Consulta la [documentación de TanStack Start](https://tanstack.com/start/latest)
 y la [guía de Cloudflare Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/).
