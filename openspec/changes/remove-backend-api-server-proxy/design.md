@@ -1,6 +1,6 @@
 ## Context
 
-Ver `proposal.md` — la API NestJS ya es alcanzable misma-origen vía Cloudflare Tunnel `aula-rayen.vasvani.shop/api`. Antes de `01a7676` el frontend usaba `src/lib/api-client.ts` (axios `baseURL: VITE_PUBLIC_API_URL`, `withCredentials: true`, interceptor `401 → SessionExpiredError`). En `01a7676 fix: forward sessions through server functions` se borró `api-client.ts` (y `axios` de `package.json`) y se introdujo el proxy SSR `src/lib/backend-api.server.ts` (`requestBackendJson` con `getRequestHeader("cookie")` + `setResponseHeader`) y wrappers `createServerFn` en `course-dashboard` (`get-courses`, `get-course`, `create-webpay`) y `course-management` (`create-course`, `update-course`, `delete-course`). El change previo `remove-frontend-auth-proxy` eliminó el proxy de auth; queda por eliminar este segundo proxy SSR restaurando `apiClient` para **todos** los endpoints (no solo dashboard). Hoy todos esos módulos delegan en `requestBackendJson`; los tests mockean `requestBackendJson` y `createServerFn`. `VITE_PUBLIC_API_URL` ya es canónico (`https://aula-rayen.vasvani.shop/api` en prod, `http://localhost:3000` en dev).
+Ver `proposal.md` — la API NestJS es alcanzable directamente en `api.psicologarayen.cl` con CORS y cookies cross-subdominio. Antes de `01a7676` el frontend usaba `src/lib/api-client.ts` (axios `baseURL: VITE_PUBLIC_API_URL`, `withCredentials: true`, interceptor `401 → SessionExpiredError`). En `01a7676 fix: forward sessions through server functions` se borró `api-client.ts` (y `axios` de `package.json`) y se introdujo el proxy SSR `src/lib/backend-api.server.ts` (`requestBackendJson` con `getRequestHeader("cookie")` + `setResponseHeader`) y wrappers `createServerFn` en `course-dashboard` (`get-courses`, `get-course`, `create-webpay`) y `course-management` (`create-course`, `update-course`, `delete-course`). El change previo `remove-frontend-auth-proxy` eliminó el proxy de auth; queda por eliminar este segundo proxy SSR restaurando `apiClient` para **todos** los endpoints (no solo dashboard). Hoy todos esos módulos delegan en `requestBackendJson`; los tests mockean `requestBackendJson` y `createServerFn`. `VITE_PUBLIC_API_URL` ya es canónico (`https://api.psicologarayen.cl` en prod, `http://localhost:3000` en dev).
 
 ## Goals / Non-Goals
 
@@ -33,7 +33,7 @@ Ver `proposal.md` — la API NestJS ya es alcanzable misma-origen vía Cloudflar
 **Por qué:** Preserva contrato observable (tests esperan `message` + `status`) con la semántica axios previa.
 
 ### Decisión 4: Validación y `withCredentials`
-**Elegido:** Validar input con zod **antes** de `apiClient` (`courseIdSchema`, `createWebPayDtoSchema`, `createCourseRequestSchema`, `updateCourseInputSchema`, `deleteCourseInputSchema`), luego `apiClient.get/post/patch/delete` con `withCredentials` heredado. En prod el Worker es same-origin así que `withCredentials` envía `better-auth.session_token` automáticamente; en dev `localhost:3000` vs `localhost:3001` es cross-site pero `withCredentials` + CORS ya configurado lo permite. No usar `getRequestHeader`/`setResponseHeader`.  
+**Elegido:** Validar input con zod **antes** de `apiClient` (`courseIdSchema`, `createWebPayDtoSchema`, `createCourseRequestSchema`, `updateCourseInputSchema`, `deleteCourseInputSchema`), luego `apiClient.get/post/patch/delete` con `withCredentials` heredado. En prod `withCredentials` envía la cookie `Domain=.psicologarayen.cl` a `api.psicologarayen.cl`; en dev `localhost:3000` vs `localhost:3001` es cross-site pero `withCredentials` + CORS ya configurado lo permite. No usar `getRequestHeader`/`setResponseHeader`.  
 **Alternativa:** Mantener `Cache-Control: no-store` vía header. Innecesario: `useQuery` controla caché.  
 **Por qué:** Paridad con `api-client.ts` previo y con `auth/direct-transport`.
 
@@ -61,7 +61,7 @@ Ver `proposal.md` — la API NestJS ya es alcanzable misma-origen vía Cloudflar
 4. Migrar `course-management`: reescribir `create-course.ts`, `update-course.ts`, `delete-course.ts` a `apiClient` (tasks 3.x).
 5. Eliminar `src/lib/backend-api.server.ts` y `backend-api.server.test.ts`; `grep -r "backend-api.server\|requestBackendJson\|BackendApiError" apps/web/src --include="*.ts" --include="*.tsx"` → 0, y `grep -r "createServerFn" apps/web/src/features --include="*.ts"` → 0.
 6. Actualizar tests a mocks de `apiClient` y ejecutar `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm build`, `pnpm test` en `apps/web`.
-7. Smoke dev (`VITE_PUBLIC_API_URL=http://localhost:3000`) y prod/staging (`https://aula-rayen.vasvani.shop/api`): login, `/dashboard` catálogo, `/courses/:id`, Webpay `token/url`, y gestión (crear/editar/eliminar).
+7. Smoke dev (`VITE_PUBLIC_API_URL=http://localhost:3000`) y prod/staging (`https://api.psicologarayen.cl`): login, `/dashboard` catálogo, `/courses/:id`, Webpay `token/url`, y gestión (crear/editar/eliminar).
 8. Rollback: `git revert` del commit; se restaura `backend-api.server.ts` + `createServerFn` sin cambios de infra.
 
 ## Open Questions

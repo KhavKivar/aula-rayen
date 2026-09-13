@@ -31,7 +31,7 @@ Alternative considered: rewrite `Set-Cookie` in the frontend proxy. Rejected bec
 
 ### Configure the parent domain through the API environment
 
-Add `BETTER_AUTH_COOKIE_DOMAIN` as a hostname-only value. Production requires an explicit deployment-specific value; non-production environments may omit it, in which case the cross-subdomain option is absent and Better Auth retains host-only cookies.
+Add `DOMAIN` as a hostname-only value. Production requires an explicit deployment-specific value; non-production environments may omit it, in which case the cross-subdomain option is absent and Better Auth retains host-only cookies.
 
 Alternative considered: hard-code the production parent domain. Rejected because it couples application code to one deployment and would make preview, test, and local environments harder to operate safely.
 
@@ -57,14 +57,14 @@ Alternative considered: include a temporary proxy response rewriter that expires
 
 - [Every subdomain of the configured parent domain receives the session cookie] → Inventory and trust all active subdomains, remove dangling DNS records, and keep third-party or untrusted applications on separate registrable domains.
 - [Old host-only and new domain cookies can coexist] → Require reauthentication during verification, inspect browser cookie storage, and do not enable direct API traffic until duplicate-cookie behavior is understood.
-- [Production configuration typo prevents startup] → Validate the exact deployment value before release and document `BETTER_AUTH_COOKIE_DOMAIN=example.com` as a non-production placeholder in the API environment example.
+- [Production configuration typo prevents startup] → Validate the exact deployment value before release and document `DOMAIN=example.com` as a non-production placeholder in the API environment example.
 - [Cookie sharing can mask proxy architecture issues] → Test both proxied authentication operations and direct credentialed API access independently.
 - [Rollback leaves domain-scoped cookies in browsers] → Roll back application configuration, expire the domain-scoped cookie through Better Auth logout or an operational cleanup response, then require a fresh login.
 
 ## Migration Plan
 
 1. Add validation, Better Auth configuration, tests, and environment documentation.
-2. Configure `BETTER_AUTH_COOKIE_DOMAIN` with the deployment's parent domain in the production API environment before deployment.
+2. Configure `DOMAIN` with the deployment's parent domain in the production API environment before deployment.
 3. Deploy the API without changing frontend request routing.
 4. Clear test-browser authentication cookies and establish a fresh email/password session.
 5. Verify `Domain`, `Secure`, `HttpOnly`, `SameSite`, and `Path` attributes and confirm the cookie is sent to the API.

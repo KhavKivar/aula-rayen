@@ -1,6 +1,6 @@
 ## Purpose
 
-Permite al frontend TanStack Start consumir la API de cursos, pagos y gestión directamente contra `VITE_PUBLIC_API_URL` vía Cloudflare Tunnel `aula-rayen.vasvani.shop/api` a través de la capa `apiClient` (axios), eliminando el helper SSR `backend-api.server.ts` y los wrappers `createServerFn`. Restaura el patrón directo previo a `01a7676` (axios `withCredentials: true`) para todos los endpoints.
+Permite al frontend TanStack Start consumir la API de cursos, pagos y gestión directamente contra `VITE_PUBLIC_API_URL` (`api.psicologarayen.cl` en producción) a través de la capa `apiClient` (axios), eliminando el helper SSR `backend-api.server.ts` y los wrappers `createServerFn`. Restaura el patrón directo previo a `01a7676` (axios `withCredentials: true`) para todos los endpoints.
 
 ## ADDED Requirements
 
@@ -10,7 +10,7 @@ The system SHALL provide a central `apiClient` at `src/lib/api-client.ts` implem
 
 #### Scenario: apiClient is configured with env origin and credentials
 - **WHEN** `apiClient` is imported
-- **THEN** its `baseURL` equals `env.VITE_PUBLIC_API_URL` (e.g., `https://aula-rayen.vasvani.shop/api` in prod, `http://localhost:3000` in dev), `withCredentials` is `true`, and default header `Accept: application/json` is present
+- **THEN** its `baseURL` equals `env.VITE_PUBLIC_API_URL` (e.g., `https://api.psicologarayen.cl` in prod, `http://localhost:3000` in dev), `withCredentials` is `true`, and default header `Accept: application/json` is present
 
 #### Scenario: 401 is mapped to SessionExpiredError
 - **WHEN** any `apiClient` request receives a `401` response
@@ -38,7 +38,7 @@ The system SHALL fetch course catalog, course detail and Webpay creation exclusi
 
 #### Scenario: No SSR cookie forwarding code executes
 - **WHEN** any course API function runs in browser or SSR
-- **THEN** no code reads `getRequestHeader("cookie")` nor calls `setResponseHeader("Cache-Control", "no-store")` for these paths; authentication relies on `apiClient` `withCredentials: true` on the same-origin Worker
+- **THEN** no code reads `getRequestHeader("cookie")` nor calls `setResponseHeader("Cache-Control", "no-store")` for these paths; authentication relies on `apiClient` `withCredentials: true` against the API origin with CORS credentials
 
 ### Requirement: Webpay creation is performed via apiClient
 
@@ -74,11 +74,11 @@ The system SHALL preserve observable validation semantics after removing the SSR
 
 ### Requirement: Authenticated requests use withCredentials and respect env origin
 
-The system SHALL resolve the API base URL from `VITE_PUBLIC_API_URL` (e.g., `https://aula-rayen.vasvani.shop/api` in prod, `http://localhost:3000` in dev) via `src/config/env.ts`, and all course/Webpay/management calls SHALL be issued through `apiClient` with `withCredentials: true` so cookies are sent same-origin via the Cloudflare Tunnel without manual header manipulation.
+The system SHALL resolve the API base URL from `VITE_PUBLIC_API_URL` (e.g., `https://api.psicologarayen.cl` in prod, `http://localhost:3000` in dev) via `src/config/env.ts`, and all course/Webpay/management calls SHALL be issued through `apiClient` with `withCredentials: true` so the shared session cookie is sent to the API origin without manual header manipulation.
 
-#### Scenario: Production origin resolves to Worker URL
-- **WHEN** the app runs in production with `VITE_PUBLIC_API_URL=https://aula-rayen.vasvani.shop/api`
-- **THEN** course calls target `https://aula-rayen.vasvani.shop/api/courses` (and subpaths) via `apiClient` with `withCredentials: true`
+#### Scenario: Production origin resolves to API URL
+- **WHEN** the app runs in production with `VITE_PUBLIC_API_URL=https://api.psicologarayen.cl`
+- **THEN** course calls target `https://api.psicologarayen.cl/courses` (and subpaths) via `apiClient` with `withCredentials: true`
 
 #### Scenario: Development origin resolves to localhost
 - **WHEN** the app runs locally with `VITE_PUBLIC_API_URL=http://localhost:3000`

@@ -1,7 +1,7 @@
 ## 1. Environment Configuration
 
-- [x] 1.1 Add `BETTER_AUTH_COOKIE_DOMAIN` to the API environment schema as an optional hostname-only value for non-production environments.
-- [x] 1.2 Require `BETTER_AUTH_COOKIE_DOMAIN` when `NODE_ENV=production` and reject schemes, ports, paths, and malformed hostnames.
+- [x] 1.1 Add `DOMAIN` to the API environment schema as an optional hostname-only value for non-production environments.
+- [x] 1.2 Require `DOMAIN` when `NODE_ENV=production` and reject schemes, ports, paths, and malformed hostnames.
 - [x] 1.3 Document the variable with a neutral example value in `apps/api/.env.example` without exposing deployment-specific domains or changing the local default behavior.
 - [x] 1.4 Add focused environment-validation tests for valid production, missing production, local omission, and invalid URL-like values.
 
@@ -16,7 +16,7 @@
 - [x] 3.1 Inventory active subdomains of the production parent domain and confirm no untrusted application or dangling DNS record would receive the shared session cookie.
 - [x] 3.2 Document the rollout requirement to clear old host-only cookies and establish a fresh session, including how to inspect duplicate cookie names.
 - [x] 3.3 Document rollback steps that disable sharing, expire the domain-scoped cookie, and renew host-only sessions.
-- [x] 3.4 Configure `BETTER_AUTH_COOKIE_DOMAIN` with the parent domain in the external production API environment before deployment.
+- [x] 3.4 Configure `DOMAIN` with the parent domain in the external production API environment before deployment.
 
 ## 4. Verification
 
@@ -24,4 +24,4 @@
 - [ ] 4.2 Verify a fresh production login emits the configured parent `Domain`, `Secure`, `HttpOnly`, `SameSite=Lax`, and `Path=/`.
 - [ ] 4.3 Verify the browser sends the shared cookie to the API subdomain and a credentialed protected request no longer returns `401` because of a missing session.
 - [ ] 4.4 Regression-test proxied session lookup, email login, logout, password recovery, and Google OAuth callback behavior.
-- [ ] 4.5 Record the observed coexistence behavior of old host-only and new domain-scoped cookies before proposing any direct-browser API transport change.
+- [ ] 4.5 Registrar la convivencia observada de cookies host-only previas con la cookie de dominio; el transporte directo ya se adoptó después (ver `decisions/0004-retirar-proxy-worker-api.md` y `decisions/0006-cookies-cross-subdomain.md`).
