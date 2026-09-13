@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
-import { env } from './config/env';
+import { allowedOrigins, env } from './config/env';
 import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 
@@ -11,12 +11,13 @@ async function bootstrap() {
     bodyParser: false,
     bufferLogs: true,
   });
+  app.set('trust proxy', 1);
   app.use(helmet());
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
 
   app.enableCors({
-    origin: [env.FRONTEND_URL, 'http://localhost:3001'],
+    origin: allowedOrigins,
     credentials: true,
   });
   app.useGlobalPipes(

@@ -2,7 +2,7 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { Logger } from '@nestjs/common';
 import { db } from '@/db'; // your drizzle instance
-import { env } from '@/config/env';
+import { allowedOrigins, env } from '@/config/env';
 import { passwordResetMailer } from './password-reset-mailer';
 import { admin } from 'better-auth/plugins';
 
@@ -42,7 +42,7 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
   basePath: env.BASE_PATH,
-  trustedOrigins: [env.FRONTEND_URL, 'http://localhost:3001'],
+  trustedOrigins: allowedOrigins,
   advanced: {
     ...(env.DOMAIN
       ? {

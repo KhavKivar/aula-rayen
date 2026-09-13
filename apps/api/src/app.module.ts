@@ -14,6 +14,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { env } from './config/env';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { getClientIp } from './common/http/client-ip';
 
 @Module({
   imports: [
@@ -23,11 +24,20 @@ import { APP_GUARD } from '@nestjs/core';
         {
           ttl: 60_000,
           limit: 50,
+          getTracker: (request) => getClientIp(request),
         },
       ],
     }),
     LoggerModule.forRoot({
       pinoHttp: {
+        redact: {
+          paths: [
+            'req.headers.cookie',
+            'req.headers.authorization',
+            'res.headers["set-cookie"]',
+          ],
+          censor: '[REDACTED]',
+        },
         transport:
           env.NODE_ENV === 'production'
             ? undefined
