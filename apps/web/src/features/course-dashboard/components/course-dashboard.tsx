@@ -79,7 +79,7 @@ export function CourseDashboard({
             fallback={
               <div
                 role="alert"
-                className="flex items-center justify-center gap-3 rounded-[2rem] border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+                className="flex items-center justify-center gap-3 rounded-[2rem] border border-error-border bg-error-surface px-6 py-16 text-error"
               >
                 <AlertCircle aria-hidden="true" />
                 No fue posible cargar los cursos. Inténtalo nuevamente.

@@ -97,7 +97,7 @@ export function PurchasersDialog({
             ) : purchasersQuery.isError ? (
               <div
                 role="alert"
-                className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-[#fff8f4] px-5 py-10 text-[#934d3b]"
+                className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-error-surface px-5 py-10 text-error"
               >
                 <AlertCircle className="size-5" aria-hidden="true" />
                 No fue posible cargar los compradores.

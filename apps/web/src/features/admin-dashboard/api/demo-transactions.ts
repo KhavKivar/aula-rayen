@@ -1,7 +1,5 @@
 import type { Payment } from "@aula-rayen/contracts/payment";
 
-export const DEMO_TODAY = "2026-09-03";
-
 export const demoTransactions: readonly Payment[] = [
   {
     orderId: "AR-1048",

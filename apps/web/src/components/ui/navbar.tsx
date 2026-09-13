@@ -45,7 +45,7 @@ export function Navbar({
             className="text-sm font-medium"
             aria-busy={isPending}
           >
-            {isLoggedIn ? "Aula Rayen" : "Aula Rayen"}
+            Aula Rayen
           </Link>
           <a href="#agenda" className={buttonVariants({ size: "default" })}>
             Agendar hora <ArrowUpRight size={16} />

@@ -28,7 +28,7 @@ export function CourseContent({ courseId }: { courseId: number }) {
 
   if (courseQuery.isError) {
     return (
-      <main className="grid min-h-svh place-items-center bg-background px-5 text-[#934d3b]">
+      <main className="grid min-h-svh place-items-center bg-background px-5 text-error">
         <div className="max-w-md text-center" role="alert">
           <AlertCircle className="mx-auto" aria-hidden="true" size={36} />
           <h1 className="mt-4 font-heading text-2xl font-semibold">

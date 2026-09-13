@@ -1,23 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { DEMO_TODAY, demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
+import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
 import {
   filterPayments,
-  getCoursePurchasers,
   getPaymentMetrics,
 } from "@/features/admin-dashboard/api/payment-selectors";
 
-const demoToday = new Date(`${DEMO_TODAY}T23:59:59.999Z`);
+const demoToday = new Date("2026-09-03T23:59:59.999Z");
 
 describe("admin dashboard payments", () => {
-  it("derives approved purchasers by course", () => {
-    const purchasers = getCoursePurchasers(1);
-
-    expect(purchasers).toHaveLength(2);
-    expect(purchasers.every(({ paymentStatus }) => paymentStatus === "approved")).toBe(true);
-    expect(getCoursePurchasers(999)).toEqual([]);
-  });
-
   it("combines payment filters and computes metrics from visible rows", () => {
     const filtered = filterPayments(
       demoTransactions,

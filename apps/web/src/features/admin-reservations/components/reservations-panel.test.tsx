@@ -8,8 +8,8 @@ import type {
 } from "@aula-rayen/contracts/availability";
 import {
   ReservationsCalendar,
-  ReservationsPanel,
-} from "@/features/admin-reservations/components/reservations-panel";
+} from "@/features/admin-reservations/components/reservations-calendar";
+import { ReservationsPanel } from "@/features/admin-reservations/components/reservations-panel";
 import { createTestQueryClient, render } from "@/testing/test-utils";
 
 vi.mock("@/lib/api-client", () => ({

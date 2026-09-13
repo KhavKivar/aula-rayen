@@ -86,48 +86,6 @@ export function assertCourseCatalog(catalog: readonly Course[]) {
 
 assertCourseCatalog(courses);
 
-export const benefits = [
-  {
-    number: "01",
-    title: "Menos horas frente a una hoja en blanco",
-    description:
-      "Parte desde una estructura profesional y concentra tu energía en acompañar al grupo.",
-  },
-  {
-    number: "02",
-    title: "Una ruta clara para facilitar",
-    description:
-      "Comprende el propósito de cada momento, sus tiempos y cómo sostener la experiencia.",
-  },
-  {
-    number: "03",
-    title: "Materiales que se sienten tuyos",
-    description:
-      "Adapta los recursos a tu identidad visual y al contexto de las personas con quienes trabajas.",
-  },
-] as const;
-
-export const methodSteps = [
-  {
-    label: "Aprende",
-    title: "Comprende el fundamento",
-    description:
-      "Revisa el enfoque psicológico y los criterios que orientan cada decisión del taller.",
-  },
-  {
-    label: "Prepara",
-    title: "Haz tuya la propuesta",
-    description:
-      "Ajusta el guion, la presentación y los recursos a tu estilo profesional y a tu grupo.",
-  },
-  {
-    label: "Facilita",
-    title: "Llévalo a la práctica",
-    description:
-      "Apóyate en una secuencia clara para abrir, acompañar y cerrar la experiencia con cuidado.",
-  },
-] as const;
-
 export const faqs = [
   {
     question: "¿A quiénes están dirigidos los cursos?",

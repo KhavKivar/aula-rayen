@@ -16,6 +16,9 @@
   --color-terracotta-deep: #7b4638;
   --color-sage: #dce5cb;
   --color-clay: #efe2d6;
+  --color-error: #934d3b;
+  --color-error-surface: #fff8f4;
+  --color-error-border: #e4c5b9;
   --shadow-soft: 0 12px 40px rgb(36 61 50 / 5%);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

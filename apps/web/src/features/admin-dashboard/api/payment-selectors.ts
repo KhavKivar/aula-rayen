@@ -3,17 +3,6 @@ import type {
   PaymentStatus,
 } from "@aula-rayen/contracts/payment";
 
-import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
-
-export interface CoursePurchaser {
-  userId: string;
-  name: string;
-  email: string;
-  purchasedAt: string;
-  paymentStatus: PaymentStatus;
-  orderId: string;
-}
-
 export interface PaymentFilters {
   query: string;
   status: PaymentStatus | "all";
@@ -26,25 +15,6 @@ export interface PaymentMetrics {
   approved: number;
   pending: number;
   rejected: number;
-}
-
-export function getCoursePurchasers(
-  courseId: number,
-  transactions: readonly Payment[] = demoTransactions,
-): CoursePurchaser[] {
-  return transactions
-    .filter(
-      (transaction) =>
-        transaction.courseId === courseId && transaction.status === "approved",
-    )
-    .map((transaction) => ({
-      userId: transaction.userId,
-      name: transaction.buyerName,
-      email: transaction.buyerEmail,
-      purchasedAt: transaction.date,
-      paymentStatus: transaction.status,
-      orderId: transaction.orderId,
-    }));
 }
 
 export function filterPayments(

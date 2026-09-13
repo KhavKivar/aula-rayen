@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-panel";
+import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-calendar";
 
 export const Route = createFileRoute(
   "/_authenticated/dashboard/admin/calendar",

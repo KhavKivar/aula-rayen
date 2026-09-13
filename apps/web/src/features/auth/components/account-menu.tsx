@@ -65,7 +65,7 @@ export function AccountMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
       {logoutMutation.isError ? (
-        <p role="alert" className="sr-only">
+        <p role="alert" className="max-w-48 text-xs text-destructive">
           {logoutMutation.error.message}
         </p>
       ) : null}
