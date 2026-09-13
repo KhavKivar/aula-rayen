@@ -1,4 +1,5 @@
 import {
+  AlertCircle,
   CreditCard,
   FilterX,
   LoaderCircle,
@@ -23,7 +24,6 @@ import {
   DialogViewport,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
 import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 import {
   filterPayments,
@@ -150,7 +150,7 @@ export function PaymentsPanel() {
   const deferredQuery = useDeferredSearch(filters.query);
   const paymentsQuery = useQuery(adminDashboardQueries.payments);
 
-  const payments = paymentsQuery.data ?? demoTransactions;
+  const payments = paymentsQuery.data ?? [];
 
   const [details, setDetails] = useState<{
     open: boolean;
@@ -200,9 +200,24 @@ export function PaymentsPanel() {
           <LoaderCircle className="animate-spin" aria-hidden="true" />
           Cargando pagos…
         </div>
-      ) : null}
-
-      {paymentsQuery.isPending ? null : (
+      ) : paymentsQuery.isLoadingError ? (
+        <div
+          role="alert"
+          className="mt-7 flex flex-col items-center justify-center gap-3 rounded-2xl border border-[#e4c5b9] bg-[#fff8f4] px-6 py-16 text-[#934d3b]"
+        >
+          <div className="flex items-center gap-2">
+            <AlertCircle aria-hidden="true" />
+            No fue posible cargar los pagos. Inténtalo nuevamente.
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => paymentsQuery.refetch()}
+            className="mt-2"
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : (
         <>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {metricCards.map(({ label, value }, index) => (

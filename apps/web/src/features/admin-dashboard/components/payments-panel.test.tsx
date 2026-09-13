@@ -50,30 +50,43 @@ describe("PaymentsPanel", () => {
     expect(dialog).not.toHaveTextContent("Datos de demostración");
   });
 
-  it("falls back to demo fixtures without demo labeling when the query fails", async () => {
+  it("shows an error state without demo data when the query fails", async () => {
     mockGetPayments.mockRejectedValue(new Error("Sin conexión"));
     render(<PaymentsPanel />);
 
-    expect(await screen.findByText("$119.000")).toBeVisible();
-    expect(
-      screen.queryByText("Datos de demostración"),
-    ).not.toBeInTheDocument();
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(
+      "No fue posible cargar los pagos. Inténtalo nuevamente.",
+    );
+    expect(screen.queryByText("Camila Rojas")).not.toBeInTheDocument();
+    expect(screen.queryByText("$119.000")).not.toBeInTheDocument();
   });
 
-  it("keeps live labeling when a background refetch fails with cached data", async () => {
+  it("retries the query and renders live data after a failure", async () => {
+    const user = userEvent.setup();
+    mockGetPayments
+      .mockRejectedValueOnce(new Error("Sin conexión"))
+      .mockResolvedValue(demoTransactions);
+    render(<PaymentsPanel />);
+
+    await user.click(await screen.findByRole("button", { name: "Reintentar" }));
+
+    expect((await screen.findAllByText("Camila Rojas"))[0]).toBeVisible();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("keeps cached data when a background refetch fails", async () => {
     const live = [{ ...demoTransactions[0], orderId: "AR-REAL" }];
     mockGetPayments.mockResolvedValueOnce(live).mockRejectedValue(new Error("caída"));
     const queryClient = createTestQueryClient();
     render(<PaymentsPanel />, { queryClient });
 
     expect((await screen.findAllByText("Camila Rojas"))[0]).toBeVisible();
-    expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
 
     await act(async () => {
       await queryClient.invalidateQueries({ queryKey: ["payments"] });
     });
 
     expect(screen.getAllByText("Camila Rojas")[0]).toBeVisible();
-    expect(screen.queryByText("Datos de demostración")).not.toBeInTheDocument();
   });
 });
