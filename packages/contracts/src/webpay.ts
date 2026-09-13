@@ -40,8 +40,43 @@ export const paymentResultStatusSchema = z.enum([
   "timeout",
 ]);
 
+// GET /webpay — fila de webpay_sessions para el panel de administración.
+// NO incluye tokenWs ni cardNumber: el endpoint es admin-only y nunca debe
+// exponer credenciales de pago. Espejo manual de WebPaySession (Drizzle
+// $inferSelect no puede entrar a contracts por ser neutral al framework): si
+// cambia apps/api/src/db/schema.ts hay que actualizarlo a mano.
+export const webpayAdminSessionSchema = z
+  .object({
+    buyOrderId: z.string().trim().min(1),
+    userId: z.string().trim().min(1),
+    courseId: z.number().int().positive(),
+    amount: z.number().int().nonnegative(),
+    vci: z.string().nullable(),
+    tbAmount: z.number().nullable(),
+    tbStatus: z.string().nullable(),
+    accountingDate: z.string().nullable(),
+    transactionDate: z.date().nullable(),
+    authorizationCode: z.string().nullable(),
+    paymentTypeCode: z.string().nullable(),
+    responseCode: z.number().int().nullable(),
+    installmentsAmount: z.number().nullable(),
+    installmentsNumber: z.number().int().nullable(),
+    createdAt: z.date().nullable(),
+    committedAt: z.date().nullable(),
+    takenAt: z.date().nullable(),
+  })
+  .strict();
+
+export const webpayAdminSessionsResponseSchema = z.array(
+  webpayAdminSessionSchema,
+);
+
 export type CreateWebpayRequest = z.infer<typeof createWebpayRequestSchema>;
 export type CreateWebpayResponse = z.infer<typeof createWebpayResponseSchema>;
 export type CommitResult = z.infer<typeof commitResultSchema>;
 export type CommitRedirect = z.infer<typeof commitRedirectSchema>;
 export type PaymentResultStatus = z.infer<typeof paymentResultStatusSchema>;
+export type WebpayAdminSession = z.infer<typeof webpayAdminSessionSchema>;
+export type WebpayAdminSessionsResponse = z.infer<
+  typeof webpayAdminSessionsResponseSchema
+>;

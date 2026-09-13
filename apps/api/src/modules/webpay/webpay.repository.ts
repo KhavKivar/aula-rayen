@@ -33,6 +33,10 @@ export class WebPayRepository {
     return session ?? null;
   }
 
+  findAll(): Promise<WebPaySession[]> {
+    return this.db.select().from(webpay_sessions);
+  }
+
   async takeSession(buyOrderId: string): Promise<WebPaySession | null> {
     const [session] = await this.db
       .update(webpay_sessions)

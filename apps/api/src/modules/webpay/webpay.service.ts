@@ -9,8 +9,10 @@ import {
 } from '@aula-rayen/contracts/payment';
 import {
   createWebpayResponseSchema,
+  webpayAdminSessionsResponseSchema,
   type CommitResult,
   type CreateWebpayResponse,
+  type WebpayAdminSessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 
 import { badRequestError, notFoundError } from '@/common/errors/http-error';
@@ -92,6 +94,34 @@ export class WebPayService {
     private readonly repository: WebPayRepository,
     private readonly courseService: CourseService,
   ) {}
+
+  // Admin-only raw session listing. Explicit allowlist: tokenWs and
+  // cardNumber are never included, and future sensitive columns stay out.
+  async getAll(): Promise<WebpayAdminSessionsResponse> {
+    const rows = await this.repository.findAll();
+
+    return webpayAdminSessionsResponseSchema.parse(
+      rows.map((row) => ({
+        buyOrderId: row.buyOrderId,
+        userId: row.userId,
+        courseId: row.courseId,
+        amount: row.amount,
+        vci: row.vci,
+        tbAmount: row.tbAmount,
+        tbStatus: row.tbStatus,
+        accountingDate: row.accountingDate,
+        transactionDate: row.transactionDate,
+        authorizationCode: row.authorizationCode,
+        paymentTypeCode: row.paymentTypeCode,
+        responseCode: row.responseCode,
+        installmentsAmount: row.installmentsAmount,
+        installmentsNumber: row.installmentsNumber,
+        createdAt: row.createdAt,
+        committedAt: row.committedAt,
+        takenAt: row.takenAt,
+      })),
+    );
+  }
 
   // Expected few payments rows, so we should return all payment at once
   async getPayments(): Promise<PaymentsResponse> {

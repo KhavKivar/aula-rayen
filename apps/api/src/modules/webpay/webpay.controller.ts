@@ -10,6 +10,7 @@ import type {
   CommitResult,
   CreateWebpayResponse,
   PaymentResultStatus,
+  WebpayAdminSessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 import { env } from '@/config/env';
 
@@ -29,6 +30,14 @@ export function mapCommitToRedirectStatus(
 @Controller('webpay')
 export class WebPayController {
   constructor(private readonly webpayService: WebPayService) {}
+
+  // Raw session listing for admin support. Sanitized: never returns
+  // tokenWs or cardNumber (see webpayAdminSessionSchema).
+  @Get()
+  @Roles(['admin'])
+  findAll(): Promise<WebpayAdminSessionsResponse> {
+    return this.webpayService.getAll();
+  }
 
   // Return only the succesful payment
   @Get('payments')

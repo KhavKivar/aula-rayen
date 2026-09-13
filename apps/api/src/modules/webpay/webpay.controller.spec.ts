@@ -17,6 +17,12 @@ describe('WebPayController roles', () => {
       Reflect.getMetadata('ROLES', WebPayController.prototype.findPayments),
     ).toEqual(['admin']);
   });
+
+  it('restricts the raw session listing to admins', () => {
+    expect(
+      Reflect.getMetadata('ROLES', WebPayController.prototype.findAll),
+    ).toEqual(['admin']);
+  });
 });
 
 describe('mapCommitToRedirectStatus', () => {

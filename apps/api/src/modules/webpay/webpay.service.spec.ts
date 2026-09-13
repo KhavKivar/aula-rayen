@@ -49,6 +49,7 @@ describe('WebPayService', () => {
     completeAuthorizedPayment: jest.fn(),
     recordAttempt: jest.fn(),
     findPayments: jest.fn(),
+    findAll: jest.fn(),
   };
   const service = new WebPayService(
     repository as unknown as WebPayRepository,
@@ -286,5 +287,45 @@ describe('WebPayService', () => {
       }),
     ]);
     expect(payments[2]).not.toHaveProperty('authorizationCode');
+  });
+
+  it('maps admin sessions without tokenWs or cardNumber', async () => {
+    repository.findAll.mockResolvedValue([
+      {
+        buyOrderId,
+        userId: 'user-id',
+        courseId: 1,
+        amount,
+        tokenWs: 'token-secreto',
+        vci: 'TSY',
+        tbAmount: amount,
+        tbStatus: 'AUTHORIZED',
+        cardNumber: '6623123456788034',
+        accountingDate: '08192026',
+        transactionDate: new Date('2026-08-19T12:00:00.000Z'),
+        authorizationCode: '123456',
+        paymentTypeCode: 'VN',
+        responseCode: 0,
+        installmentsAmount: 0,
+        installmentsNumber: 0,
+        createdAt: new Date('2026-09-01T00:00:00.000Z'),
+        committedAt: new Date('2026-09-01T00:05:00.000Z'),
+        takenAt: new Date('2026-09-01T00:04:00.000Z'),
+      },
+    ]);
+
+    const sessions = await service.getAll();
+
+    expect(repository.findAll).toHaveBeenCalledWith();
+    expect(sessions).toEqual([
+      expect.objectContaining({
+        buyOrderId,
+        userId: 'user-id',
+        tbStatus: 'AUTHORIZED',
+        authorizationCode: '123456',
+      }),
+    ]);
+    expect(sessions[0]).not.toHaveProperty('tokenWs');
+    expect(sessions[0]).not.toHaveProperty('cardNumber');
   });
 });

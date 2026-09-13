@@ -6,6 +6,7 @@ import {
   createWebpayRequestSchema,
   createWebpayResponseSchema,
   paymentResultStatusSchema,
+  webpayAdminSessionsResponseSchema,
 } from "./webpay.js";
 
 describe("createWebpayRequestSchema", () => {
@@ -94,5 +95,46 @@ describe("paymentResultStatusSchema", () => {
   it("rejects the internal commit outcomes", () => {
     expect(() => paymentResultStatusSchema.parse("ok")).toThrow();
     expect(() => paymentResultStatusSchema.parse("canceled")).toThrow();
+  });
+});
+
+describe("webpayAdminSessionSchema", () => {
+  const session = {
+    buyOrderId: "W8uYkq2mN5pLx1vBz9cD4aF6h",
+    userId: "user-camila",
+    courseId: 1,
+    amount: 42000,
+    vci: "TSY",
+    tbAmount: 42000,
+    tbStatus: "AUTHORIZED",
+    accountingDate: "08192026",
+    transactionDate: new Date("2026-08-19T12:00:00.000Z"),
+    authorizationCode: "872193",
+    paymentTypeCode: "VN",
+    responseCode: 0,
+    installmentsAmount: 0,
+    installmentsNumber: 0,
+    createdAt: new Date("2026-09-01T00:00:00.000Z"),
+    committedAt: new Date("2026-09-01T00:05:00.000Z"),
+    takenAt: new Date("2026-09-01T00:04:00.000Z"),
+  };
+
+  it("accepts sanitized session rows", () => {
+    expect(webpayAdminSessionsResponseSchema.parse([session])).toEqual([
+      session,
+    ]);
+  });
+
+  it("rejects rows exposing tokenWs or cardNumber", () => {
+    expect(() =>
+      webpayAdminSessionsResponseSchema.parse([
+        { ...session, tokenWs: "token-ws" },
+      ]),
+    ).toThrow();
+    expect(() =>
+      webpayAdminSessionsResponseSchema.parse([
+        { ...session, cardNumber: "6623123456788034" },
+      ]),
+    ).toThrow();
   });
 });
