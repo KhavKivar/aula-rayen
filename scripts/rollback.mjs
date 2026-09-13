@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const API_IMAGE = process.env.API_IMAGE ?? "ghcr.io/khavkivar/aula-rayen-api";
 const API_HEALTH_URL =
   process.env.API_HEALTH_URL ?? "https://api.psicologarayen.cl/health";
 const HEALTH_ATTEMPTS = 48;
@@ -45,8 +46,8 @@ function usage() {
 Rollback de producción (web primero, API después)
 
 Uso:
-  pnpm rollback --list             Lista los últimos releases exitosos
-  pnpm rollback <commit> [--yes]   Revierte web y API al release de ese commit
+  pnpm rollback --list             Lista releases y qué artefactos tiene cada uno
+  pnpm rollback <commit> [--yes]   Revierte web y API a ese release
   pnpm rollback --help             Muestra esta ayuda
 
 Ejemplos:
@@ -54,12 +55,71 @@ Ejemplos:
   pnpm rollback sha-7d4c8badcbdb --yes
 
 Variables opcionales:
+  API_IMAGE        Imagen de la API (por defecto ghcr.io/khavkivar/aula-rayen-api)
   API_HEALTH_URL   URL de /health (por defecto https://api.psicologarayen.cl/health)
   GITHUB_REPO      owner/repo (por defecto se detecta desde git remote)
 `);
 }
 
-function listReleases() {
+function tagFor(sha) {
+  return `sha-${sha.slice(0, 12)}`;
+}
+
+async function getApiTags() {
+  try {
+    const path = API_IMAGE.replace(/^ghcr\.io\//, "");
+    const tokenResponse = await fetch(
+      `https://ghcr.io/token?scope=repository:${path}:pull&service=ghcr.io`,
+    );
+    if (!tokenResponse.ok) {
+      throw new Error(`token ${tokenResponse.status}`);
+    }
+    const { token } = await tokenResponse.json();
+    const tagsResponse = await fetch(`https://ghcr.io/v2/${path}/tags/list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!tagsResponse.ok) {
+      throw new Error(`tags ${tagsResponse.status}`);
+    }
+    const data = await tagsResponse.json();
+    return new Set(data.tags ?? []);
+  } catch (error) {
+    console.warn(
+      `Aviso: no pude consultar GHCR (${error.message}); no verificaré las imágenes de la API.`,
+    );
+    return null;
+  }
+}
+
+function getWebTags() {
+  try {
+    const raw = run("pnpm", [
+      "--dir",
+      "apps/web",
+      "exec",
+      "wrangler",
+      "versions",
+      "list",
+      "--json",
+    ]);
+    const versions = JSON.parse(raw);
+    return new Map(
+      versions
+        .filter((version) => version.annotations?.["workers/tag"])
+        .map((version) => [
+          version.annotations["workers/tag"],
+          version.id,
+        ]),
+    );
+  } catch (error) {
+    console.warn(
+      `Aviso: no pude consultar las versiones del Worker (${error.message.split("\n")[0]}).`,
+    );
+    return null;
+  }
+}
+
+async function listReleases() {
   const raw = run("gh", [
     "run",
     "list",
@@ -72,41 +132,58 @@ function listReleases() {
     "conclusion,headSha,createdAt,displayTitle",
   ]);
   const runs = JSON.parse(raw).filter((entry) => entry.conclusion === "success");
+  const [apiTags, webTags] = await Promise.all([getApiTags(), getWebTags()]);
+
   console.log(`\nReleases recientes (workflow Deploy · ${REPO}):\n`);
   for (const entry of runs) {
+    const tag = tagFor(entry.headSha);
+    const api = apiTags ? (apiTags.has(tag) ? "API" : " - ") : " ? ";
+    const web = webTags ? (webTags.has(tag) ? "WEB" : " - ") : " ? ";
     console.log(
-      `  ${entry.headSha.slice(0, 12)}  ${new Date(entry.createdAt).toLocaleString("es-CL")}  ${entry.displayTitle}`,
+      `  ${entry.headSha.slice(0, 12)}  [${api} ${web}]  ${new Date(entry.createdAt).toLocaleString("es-CL")}  ${entry.displayTitle}`,
     );
   }
-  console.log(`\nRollback: pnpm rollback <commit> [--yes]\n`);
+  console.log(`\n  API = imagen publicada en GHCR · WEB = versión publicada del Worker`);
+  console.log(`  Rollback: pnpm rollback <commit> [--yes]\n`);
 }
 
 function resolveTag(ref) {
-  const short = run("git", ["rev-parse", "--short=12", ref]);
+  const result = spawnSync("git", ["rev-parse", "--short=12", ref], {
+    cwd: ROOT,
+    encoding: "utf8",
+  });
+  const short = `${result.stdout ?? ""}`.trim();
+  if (result.status !== 0 || short.length === 0) {
+    throw new Error(
+      `No encontré el commit "${ref}". Usa al menos 4 caracteres del sha (mira pnpm rollback --list).`,
+    );
+  }
   return `sha-${short}`;
 }
 
-function rollbackWeb(tag) {
-  const raw = run("pnpm", [
-    "--dir",
-    "apps/web",
-    "exec",
-    "wrangler",
-    "versions",
-    "list",
-    "--json",
-  ]);
-  const versions = JSON.parse(raw);
-  const target = versions.find(
-    (version) => version.annotations?.["workers/tag"] === tag,
-  );
-  if (!target) {
-    console.warn(
-      `\nWeb: no encontré una versión del Worker con tag ${tag} entre las últimas ${versions.length}; se omite la web.`,
+function rollbackWeb(tag, versionId) {
+  let targetId = versionId;
+  if (!targetId) {
+    const raw = run("pnpm", [
+      "--dir",
+      "apps/web",
+      "exec",
+      "wrangler",
+      "versions",
+      "list",
+      "--json",
+    ]);
+    const versions = JSON.parse(raw);
+    const target = versions.find(
+      (version) => version.annotations?.["workers/tag"] === tag,
     );
+    targetId = target?.id;
+  }
+  if (!targetId) {
+    console.warn(`\nWeb: no hay una versión con tag ${tag}; se omite.`);
     return false;
   }
-  console.log(`\nWeb: revirtiendo a ${tag} (worker version ${target.id})...`);
+  console.log(`\nWeb: revirtiendo a ${tag} (worker version ${targetId})...`);
   run(
     "pnpm",
     [
@@ -115,7 +192,7 @@ function rollbackWeb(tag) {
       "exec",
       "wrangler",
       "rollback",
-      target.id,
+      targetId,
       "--yes",
       "--message",
       `rollback ${tag}`,
@@ -145,7 +222,7 @@ async function rollbackApi(tag) {
     }
     if (version === tag) {
       console.log(`API: /health reporta ${tag}`);
-      return;
+      return true;
     }
     console.log(
       `API: esperando ${tag} (intento ${attempt}/${HEALTH_ATTEMPTS}, versión actual: ${version || "sin respuesta"})`,
@@ -153,16 +230,23 @@ async function rollbackApi(tag) {
     await new Promise((resolve) => setTimeout(resolve, HEALTH_INTERVAL_MS));
   }
 
-  throw new Error(
-    `La API no reportó ${tag} dentro del tiempo límite.\n` +
+  console.warn(
+    `Aviso: la API no reportó ${tag} dentro del tiempo límite.\n` +
       `Revisa el run con: gh run list --repo ${REPO} --workflow=Deploy`,
   );
+  return false;
 }
 
-async function confirm(tag) {
+async function confirm(tag, apiAvailable, webAvailable) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   const answer = await rl.question(
-    `\nVas a revertir producción a ${tag} (primero web, después API). Escribe "si" para continuar: `,
+    `\nVas a revertir producción a ${tag} ` +
+      `(${[
+        webAvailable ? "web" : null,
+        apiAvailable ? "API" : null,
+      ]
+        .filter(Boolean)
+        .join(" y ")}; orden web → API). Escribe "si" para continuar: `,
   );
   rl.close();
   return answer.trim().toLowerCase() === "si";
@@ -178,23 +262,54 @@ async function main() {
     return;
   }
   if (flags.has("--list") || positional.length === 0) {
-    listReleases();
+    await listReleases();
     return;
   }
 
-  const tag = resolveTag(positional[0]);
+  const ref = positional[0];
+  const tag = resolveTag(ref);
   run("gh", ["auth", "status"]);
 
-  console.log(`\nObjetivo: ${positional[0]} → ${tag}`);
-  if (!flags.has("--yes") && !(await confirm(tag))) {
+  const [apiTags, webTags] = await Promise.all([getApiTags(), getWebTags()]);
+  const apiAvailable = apiTags ? apiTags.has(tag) : true;
+  const webAvailable = webTags ? webTags.has(tag) : true;
+
+  if (apiTags && webTags && !apiAvailable && !webAvailable) {
+    throw new Error(
+      `El commit ${ref} (${tag}) no tiene imagen de API ni versión web publicadas: fue un release sin cambios de aplicación.\n` +
+        `Elige otro con: pnpm rollback --list`,
+    );
+  }
+
+  console.log(`\nObjetivo: ${ref} → ${tag}`);
+  console.log(
+    `  API: ${apiTags ? (apiAvailable ? "imagen disponible" : "sin imagen (se omite)") : "sin verificar"}`,
+  );
+  console.log(
+    `  Web: ${webTags ? (webAvailable ? "versión disponible" : "sin versión (se omite)") : "sin verificar"}`,
+  );
+
+  if (
+    !flags.has("--yes") &&
+    !(await confirm(tag, apiAvailable, webAvailable))
+  ) {
     console.log("Cancelado.");
     return;
   }
 
-  const webRolledBack = rollbackWeb(tag);
-  await rollbackApi(tag);
+  const webRolledBack = webAvailable
+    ? rollbackWeb(tag, webTags?.get(tag))
+    : false;
+  const apiRolledBack = apiAvailable ? await rollbackApi(tag) : false;
+
+  const parts = [
+    webRolledBack ? "web" : null,
+    apiRolledBack ? "API" : null,
+  ].filter(Boolean);
   console.log(
-    `\nRollback completo: ${webRolledBack ? "web y API" : "solo API"} en ${tag}`,
+    parts.length > 0
+      ? `\nRollback completo: ${parts.join(" y ")} en ${tag}`
+      : `\nNo se revirtió nada.`,
   );
 }
 
