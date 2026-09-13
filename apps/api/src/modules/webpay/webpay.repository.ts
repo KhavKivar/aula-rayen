@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE } from '@/db';
 import { course_purchases, courses, user, webpay_sessions } from '@/db/schema';
 import type { Database, NewWebPaySession, WebPaySession } from '@/db/types';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, isNull, lt } from 'drizzle-orm';
 
 // Todo clean this shit
 type CommitDetails = Pick<
@@ -43,6 +43,33 @@ export class WebPayRepository {
         and(
           eq(webpay_sessions.buyOrderId, buyOrderId),
           isNull(webpay_sessions.takenAt),
+        ),
+      )
+      .returning();
+
+    return session ?? null;
+  }
+
+  /**
+   * Reclama una sesión cuyo claim quedó huérfano (proceso o red caídos
+   * después de `takeSession` y antes de persistir el commit). Solo aplica
+   * a sesiones tomadas antes de `staleBefore` y nunca completadas.
+   */
+  async reclaimStaleSession(
+    buyOrderId: string,
+    staleBefore: Date,
+  ): Promise<WebPaySession | null> {
+    const [session] = await this.db
+      .update(webpay_sessions)
+      .set({
+        takenAt: new Date(),
+      })
+      .where(
+        and(
+          eq(webpay_sessions.buyOrderId, buyOrderId),
+          isNotNull(webpay_sessions.takenAt),
+          lt(webpay_sessions.takenAt, staleBefore),
+          isNull(webpay_sessions.committedAt),
         ),
       )
       .returning();

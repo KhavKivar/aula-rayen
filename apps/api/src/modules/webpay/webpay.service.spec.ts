@@ -10,6 +10,7 @@ import { WebPayService } from './webpay.service';
 jest.mock('./infrastructure/transbank.client', () => ({
   webpayTransaction: {
     commit: jest.fn(),
+    status: jest.fn(),
   },
 }));
 
@@ -44,6 +45,7 @@ describe('WebPayService', () => {
   const repository = {
     findById: jest.fn(),
     takeSession: jest.fn(),
+    reclaimStaleSession: jest.fn(),
     completeAuthorizedPayment: jest.fn(),
     recordAttempt: jest.fn(),
     findPayments: jest.fn(),
@@ -56,6 +58,7 @@ describe('WebPayService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     repository.takeSession.mockResolvedValue(webpaySession);
+    repository.reclaimStaleSession.mockResolvedValue(null);
   });
 
   it('stores the authorized commit and grants access to the course', async () => {
@@ -121,14 +124,53 @@ describe('WebPayService', () => {
   it('returns pending without calling Transbank when the claim is lost', async () => {
     repository.findById.mockResolvedValue(webpaySession);
     repository.takeSession.mockResolvedValue(null);
+    repository.reclaimStaleSession.mockResolvedValue(null);
     jest.mocked(webpayTransaction.commit).mockResolvedValue(commitResponse);
 
     await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
       paymentStatus: 'pending',
     });
+    expect(repository.reclaimStaleSession).toHaveBeenCalledWith(
+      buyOrderId,
+      expect.any(Date),
+    );
     expect(webpayTransaction.commit).not.toHaveBeenCalled();
     expect(repository.completeAuthorizedPayment).not.toHaveBeenCalled();
     expect(repository.recordAttempt).not.toHaveBeenCalled();
+  });
+
+  it('returns ok for a repeated callback after a successful commit', async () => {
+    repository.findById.mockResolvedValue({
+      ...webpaySession,
+      committedAt: new Date('2026-09-01T00:05:00.000Z'),
+    });
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'ok',
+    });
+    expect(repository.takeSession).not.toHaveBeenCalled();
+    expect(webpayTransaction.commit).not.toHaveBeenCalled();
+  });
+
+  it('recovers a stale claim through the Transbank status query', async () => {
+    const staleSession = {
+      ...webpaySession,
+      takenAt: new Date(Date.now() - 10 * 60 * 1000),
+    };
+    repository.findById.mockResolvedValue(staleSession);
+    repository.takeSession.mockResolvedValue(null);
+    repository.reclaimStaleSession.mockResolvedValue(staleSession);
+    repository.completeAuthorizedPayment.mockResolvedValue(staleSession);
+    jest
+      .mocked(webpayTransaction.commit)
+      .mockRejectedValue(new Error('token ya utilizado'));
+    jest.mocked(webpayTransaction.status).mockResolvedValue(commitResponse);
+
+    await expect(service.checkCommit(buyOrderId, 'token')).resolves.toEqual({
+      paymentStatus: 'ok',
+    });
+    expect(webpayTransaction.status).toHaveBeenCalledWith('token');
+    expect(repository.completeAuthorizedPayment).toHaveBeenCalled();
   });
 
   it('returns canceled without calling Transbank when the token is missing', async () => {

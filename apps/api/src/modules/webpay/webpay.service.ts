@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { WebPayRepository } from './webpay.repository';
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { nanoid } from 'nanoid';
@@ -16,11 +16,17 @@ import {
 import { badRequestError, notFoundError } from '@/common/errors/http-error';
 
 import { webpayTransaction } from './infrastructure/transbank.client';
-import type { Course, NewWebPaySession } from '@/db/types';
+import type { Course, NewWebPaySession, WebPaySession } from '@/db/types';
 import { z } from 'zod';
 
 import { CourseService } from '../course/course.service';
 import { env } from '@/config/env';
+
+/**
+ * Ventana tras la cual un claim sin commit se considera huérfano y puede
+ * reintentarse. En el flujo normal Transbank responde en segundos.
+ */
+const STALE_CLAIM_MS = 2 * 60 * 1000;
 
 function isCreateResponse(value: unknown): value is CreateWebpayResponse {
   return createWebpayResponseSchema.safeParse(value).success;
@@ -80,6 +86,8 @@ const CommitResponseSchema = z
 
 @Injectable()
 export class WebPayService {
+  private readonly logger = new Logger(WebPayService.name);
+
   constructor(
     private readonly repository: WebPayRepository,
     private readonly courseService: CourseService,
@@ -174,17 +182,36 @@ export class WebPayService {
       );
     }
 
+    // Un refresh posterior al commit debe responder ok sin volver a cobrar.
+    if (webpaySession.committedAt !== null) {
+      return { paymentStatus: 'ok' };
+    }
+
     // Only one callback may consume the Transbank commit token.
     const claimed = await this.repository.takeSession(buyOrderId);
     if (!claimed) {
-      return { paymentStatus: 'pending' };
+      // El claim puede pertenecer a un intento que falló antes de persistir.
+      // Pasada la ventana de gracia se reintenta el commit con el token nuevo.
+      const staleClaim = await this.repository.reclaimStaleSession(
+        buyOrderId,
+        new Date(Date.now() - STALE_CLAIM_MS),
+      );
+      if (!staleClaim) {
+        return { paymentStatus: 'pending' };
+      }
+
+      return this.finalizeCommit(staleClaim, tokenNormal);
     }
 
-    const parsedCommit = CommitResponseSchema.safeParse(
-      await webpayTransaction.commit(tokenNormal),
-    );
+    return this.finalizeCommit(claimed, tokenNormal);
+  }
+
+  private async finalizeCommit(
+    webpaySession: WebPaySession,
+    tokenNormal: string,
+  ): Promise<CommitResult> {
+    const parsedCommit = await this.readCommitResult(tokenNormal);
     if (!parsedCommit.success) {
-      //Todo: Capture as Critical
       throw badRequestError(
         API_ERROR_CODES.WEBPAY_INVALID_RESPONSE,
         'Respuesta inválida de Transbank',
@@ -202,18 +229,20 @@ export class WebPayService {
       committedBuyOrderId !== webpaySession.buyOrderId ||
       commitDetails.tbAmount !== webpaySession.amount
     ) {
-      await this.repository.recordAttempt(buyOrderId, commitDetails);
+      await this.repository.recordAttempt(
+        webpaySession.buyOrderId,
+        commitDetails,
+      );
       return { paymentStatus: 'canceled' };
     }
 
     const completedSession = await this.repository.completeAuthorizedPayment(
-      buyOrderId,
+      webpaySession.buyOrderId,
       webpaySession.userId,
       webpaySession.courseId,
       commitDetails,
     );
     if (!completedSession) {
-      // Todo:Capture as critical
       throw notFoundError(
         API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
         'Sesión de Webpay no encontrada',
@@ -221,5 +250,27 @@ export class WebPayService {
     }
 
     return { paymentStatus: 'ok' };
+  }
+
+  /**
+   * Si un intento anterior alcanzó a procesar el commit pero no a persistirlo,
+   * el reintento con `commit` es rechazado por Transbank y `status` permite
+   * recuperar el resultado real.
+   */
+  private async readCommitResult(token: string) {
+    try {
+      return CommitResponseSchema.safeParse(
+        await webpayTransaction.commit(token),
+      );
+    } catch (error) {
+      this.logger.warn(
+        `Commit falló, consultando estado de la transacción: ${
+          error instanceof Error ? error.message : 'error desconocido'
+        }`,
+      );
+      return CommitResponseSchema.safeParse(
+        await webpayTransaction.status(token),
+      );
+    }
   }
 }
