@@ -2,7 +2,7 @@
 
 - [x] 1.1 Definir el nombre comercial visible, los cursos iniciales, sus estados, precios y destinos de CTA en un inventario editorial
 - [x] 1.2 Confirmar las credenciales, textos biográficos y alcance definitivo de la licencia de materiales
-- [ ] 1.3 Reunir fotografías y publicaciones de talleres autorizadas para uso comercial, con sus textos alternativos y enlaces de origen
+- [x] 1.3 Reunir fotografías y publicaciones de talleres autorizadas para uso comercial, con sus textos alternativos y enlaces de origen
 - [x] 1.4 Preparar la fotografía principal y la imagen de vista previa social en formatos y dimensiones optimizados
 
 ## 2. Modelo de contenido y estructura pública
@@ -34,4 +34,4 @@
 - [x] 5.2 Añadir pruebas o comprobaciones de las secciones y metadatos públicos requeridos
 - [x] 5.3 Ejecutar lint y build de producción del frontend y resolver las incidencias relacionadas con la landing
 - [x] 5.4 Revisar manualmente todos los textos, enlaces externos, atribuciones y activos contra el inventario aprobado
-- [ ] 5.5 Obtener aprobación editorial final antes de activar ofertas o evidencia para producción
+- [x] 5.5 Obtener aprobación editorial final antes de activar ofertas o evidencia para producción

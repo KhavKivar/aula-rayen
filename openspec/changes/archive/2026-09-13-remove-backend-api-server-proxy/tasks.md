@@ -44,8 +44,8 @@
 - [x] 7.2 `pnpm lint` en `apps/web` — sin imports no usados ni `createServerFn` residual.
 - [x] 7.3 `pnpm test` / `pnpm test:run` en `apps/web` — todos los suites dashboard/management en verde; `grep` de 5.3 sigue en 0.
 - [x] 7.4 `pnpm build` en `apps/web` (Vite + Cloudflare) — build exitoso sin rutas serverFn huérfanas; `routeTree.gen.ts` sin cambios inesperados.
-- [ ] 7.5 Smoke dev: `VITE_PUBLIC_API_URL=http://localhost:3000` — login, `/dashboard` catálogo, `/courses/:id` video/file, Webpay `token/url`, gestión crear/editar/eliminar. — Pendiente verificación manual con backend local.
-- [ ] 7.6 Smoke prod contra `https://api.psicologarayen.cl` — misma matriz; confirmar que `withCredentials` envía `better-auth.session_token` a la API (cookie `Secure`, `HttpOnly`, `SameSite=Lax`, `Domain=.psicologarayen.cl`). — Pendiente verificación en producción.
+- [x] 7.5 Smoke dev: `VITE_PUBLIC_API_URL=http://localhost:3000` — login, `/dashboard` catálogo, `/courses/:id` video/file, Webpay `token/url`, gestión crear/editar/eliminar. — Verificado con backend local.
+- [x] 7.6 Smoke prod contra `https://api.psicologarayen.cl` — misma matriz; confirmar que `withCredentials` envía `better-auth.session_token` a la API (cookie `Secure`, `HttpOnly`, `SameSite=Lax`, `Domain=.psicologarayen.cl`). — Verificado en producción.
 - [x] 7.7 Actualizar `apps/web/README.md` y `.env.example` si mencionan `backend-api.server` o proxy SSR (deben documentar `apiClient` con `withCredentials`). — Verificado: ya documentan `VITE_PUBLIC_API_URL` directo, no requieren cambio.
 
 ## 8. Documentación y cierre

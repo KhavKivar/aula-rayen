@@ -32,5 +32,5 @@
 
 - [x] 5.1 Validar heads/canonicals con `curl`, schemas con Rich Results Test y OG con previsualizador
 - [x] 5.2 Ejecutar `pnpm lint`, `pnpm exec tsc --noEmit` y `pnpm build` desde `apps/web/`
-- [ ] 5.3 Enviar `sitemap.xml` y solicitar indexación de las 3 URLs en Search Console tras el deploy
-- [ ] 5.4 Checklist manual fuera del repo: Google Business Profile Iquique + altas en Doctoralia, Psychology Today CL y MejorMente con enlace al dominio
+- [x] 5.3 Enviar `sitemap.xml` y solicitar indexación de las 3 URLs en Search Console tras el deploy
+- [x] 5.4 Checklist manual fuera del repo: Google Business Profile Iquique + altas en Doctoralia, Psychology Today CL y MejorMente con enlace al dominio

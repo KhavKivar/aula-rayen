@@ -30,4 +30,4 @@
 - [x] 5.1 Verificar representaciones de tabla y tarjeta en viewports de escritorio y móvil, corrigiendo cualquier desbordamiento horizontal de página.
 - [x] 5.2 Verificar navegación por teclado, foco visible y restaurado, labels, encabezados, estados expresados sin depender solo de color y regiones `status`/`alert`.
 - [x] 5.3 Ejecutar `pnpm lint`, `pnpm exec tsc --noEmit`, `pnpm test:run` y `pnpm build` desde `apps/web` y corregir los hallazgos.
-- [ ] 5.4 Realizar QA manual con sesiones admin y user: rutas y redirecciones, CRUD real de cursos y compradores/pagos mock.
+- [x] 5.4 Realizar QA manual con sesiones admin y user: rutas y redirecciones, CRUD real de cursos y compradores/pagos mock.

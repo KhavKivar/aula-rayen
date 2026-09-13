@@ -25,5 +25,5 @@
 
 ## 5. QA y despliegue
 
-- [ ] 5.1 QA manual en integración Transbank: aprobado, rechazado, timeout y doble callback; verificar métricas y acceso otorgado/sin acceso.
-- [ ] 5.2 Push por etapas (contracts+api, luego web) considerando que el contrato dispara ambos deploys.
+- [x] 5.1 QA manual en integración Transbank: aprobado, rechazado, timeout y doble callback; verificar métricas y acceso otorgado/sin acceso.
+- [x] 5.2 Push por etapas (contracts+api, luego web) considerando que el contrato dispara ambos deploys.

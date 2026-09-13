@@ -21,7 +21,7 @@
 ## 4. Verification
 
 - [x] 4.1 Run API ESLint, unit tests, and production build from `apps/api`.
-- [ ] 4.2 Verify a fresh production login emits the configured parent `Domain`, `Secure`, `HttpOnly`, `SameSite=Lax`, and `Path=/`.
-- [ ] 4.3 Verify the browser sends the shared cookie to the API subdomain and a credentialed protected request no longer returns `401` because of a missing session.
-- [ ] 4.4 Regression-test proxied session lookup, email login, logout, password recovery, and Google OAuth callback behavior.
-- [ ] 4.5 Registrar la convivencia observada de cookies host-only previas con la cookie de dominio; el transporte directo ya se adoptó después (ver `decisions/0004-retirar-proxy-worker-api.md` y `decisions/0006-cookies-cross-subdomain.md`).
+- [x] 4.2 Verify a fresh production login emits the configured parent `Domain`, `Secure`, `HttpOnly`, `SameSite=Lax`, and `Path=/`.
+- [x] 4.3 Verify the browser sends the shared cookie to the API subdomain and a credentialed protected request no longer returns `401` because of a missing session.
+- [x] 4.4 Regression-test proxied session lookup, email login, logout, password recovery, and Google OAuth callback behavior.
+- [x] 4.5 Registrar la convivencia observada de cookies host-only previas con la cookie de dominio; el transporte directo ya se adoptó después (ver `decisions/0004-retirar-proxy-worker-api.md` y `decisions/0006-cookies-cross-subdomain.md`).

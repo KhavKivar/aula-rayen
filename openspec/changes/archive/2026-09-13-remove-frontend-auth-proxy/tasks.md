@@ -49,13 +49,13 @@
 
 ## 9. Verificación en producción (arquitectura final: sin Worker)
 
-- [ ] 9.1 Desplegar la API en `api.psicologarayen.cl` y el frontend en `psicologarayen.cl`; el Worker same-origin quedó descartado en `chore: retirar worker proxy de API en desuso`.
-- [ ] 9.2 Verificar con navegador: login email/password, registro, sesión, logout, `requestPasswordReset`/`resetPassword`, Google OAuth (callback y errorCallback), y acceso a endpoints protegidos (`/courses`, Webpay) contra `VITE_PUBLIC_AUTH_URL`/`VITE_PUBLIC_API_URL` directos.
-- [ ] 9.3 Inspeccionar `Set-Cookie` en DevTools: `Secure`, `HttpOnly`, `SameSite=Lax`, `Path=/`, `Domain=.psicologarayen.cl` (configurado vía `DOMAIN`).
-- [ ] 9.4 Verificar CORS: respuestas incluyen `Access-Control-Allow-Credentials: true` y `Access-Control-Allow-Origin: https://psicologarayen.cl`; en desarrollo `http://localhost:3001`.
-- [ ] 9.5 Confirmar que no coexisten cookies duplicadas con `Domain` distinto que causen `401` ambiguo.
+- [x] 9.1 Desplegar la API en `api.psicologarayen.cl` y el frontend en `psicologarayen.cl`; el Worker same-origin quedó descartado en `chore: retirar worker proxy de API en desuso`.
+- [x] 9.2 Verificar con navegador: login email/password, registro, sesión, logout, `requestPasswordReset`/`resetPassword`, Google OAuth (callback y errorCallback), y acceso a endpoints protegidos (`/courses`, Webpay) contra `VITE_PUBLIC_AUTH_URL`/`VITE_PUBLIC_API_URL` directos.
+- [x] 9.3 Inspeccionar `Set-Cookie` en DevTools: `Secure`, `HttpOnly`, `SameSite=Lax`, `Path=/`, `Domain=.psicologarayen.cl` (configurado vía `DOMAIN`).
+- [x] 9.4 Verificar CORS: respuestas incluyen `Access-Control-Allow-Credentials: true` y `Access-Control-Allow-Origin: https://psicologarayen.cl`; en desarrollo `http://localhost:3001`.
+- [x] 9.5 Confirmar que no coexisten cookies duplicadas con `Domain` distinto que causen `401` ambiguo.
 
 ## 10. Rollback y cierre
 
-- [ ] 10.1 Documentar procedimiento de rollback (`git revert` restaura `auth-proxy` y `auth-client` previos, revierte env y redeplega frontend) y criterios de disparo (falla OAuth, CORS o cookies tras 9.2-9.5).
-- [ ] 10.2 Cerrar la decisión en `AGENTS.md` y en `decisions/0004-retirar-proxy-worker-api.md`; no se restauró el proxy.
+- [x] 10.1 Documentar procedimiento de rollback (`git revert` restaura `auth-proxy` y `auth-client` previos, revierte env y redeplega frontend) y criterios de disparo (falla OAuth, CORS o cookies tras 9.2-9.5).
+- [x] 10.2 Cerrar la decisión en `AGENTS.md` y en `decisions/0004-retirar-proxy-worker-api.md`; no se restauró el proxy.
