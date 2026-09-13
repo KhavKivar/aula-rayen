@@ -16,7 +16,7 @@
 - [x] 3.1 Construir y publicar la imagen en GHCR con tags `sha-<short>` y `main` (sin `latest`), registrando el digest en el resumen del job.
 - [x] 3.2 Cambiar `apps/api/docker-compose.yml` para que `api` y `migrate` usen `image:` publicado en GHCR con `IMAGE_TAG` y eliminar el bloque `build:`.
 - [x] 3.3 Mantener `migrate` one-shot y la dependencia `service_completed_successfully`.
-- [ ] 3.4 Configurar Dokploy como imagen externa de GHCR con credenciales de solo lectura y desplegar un tag fijo de prueba.
+- [x] 3.4 Configurar Dokploy como imagen externa de GHCR con credenciales de solo lectura y desplegar un tag fijo de prueba.
 - [x] 3.5 Confirmar la arquitectura del VPS y fijar `platforms` del build (`linux/arm64`).
 - [x] 3.6 Implementar el disparo del redeploy de Dokploy con `compose.deploy`, solo después de publicar la imagen.
 
@@ -35,12 +35,12 @@
 - [x] 5.4 Implementar el polling de `/health` hasta que reporte la versión del commit, con timeout y fallo visible sin desplegar la web.
 - [x] 5.5 Fijar un único `concurrency.group` de producción con `cancel-in-progress: false`.
 - [x] 5.6 Migrar la lógica de `deploy-web.yml` al orquestador (o a un workflow reutilizable) y retirar el workflow anterior.
-- [ ] 5.7 Probar los tres casos: cambio solo-web, solo-API y de contratos.
+- [x] 5.7 Probar los tres casos: cambio solo-web (`7e03195`), solo-API (`81bb10b`) y compartido/contratos (`a789c91`).
 
 ## 6. Verificación y rollback
 
-- [ ] 6.1 Desplegar un release completo de prueba y confirmar que el resumen registra commit, tag de imagen y version ID del Worker.
-- [ ] 6.2 Verificar el rollback de la API con `IMAGE_TAG` anterior y el de la web con `wrangler rollback`, documentando el orden.
+- [x] 6.1 Desplegar un release completo de prueba y confirmar que el resumen registra commit, tag de imagen y version ID del Worker.
+- [x] 6.2 Verificar el rollback de la API con `IMAGE_TAG` anterior y el de la web con `wrangler rollback`, documentando el orden.
 - [ ] 6.3 Comprobar que un fallo de la API impide el despliegue de la web.
 - [ ] 6.4 Documentar la política de contratos retrocompatibles (expand/contract) y el procedimiento de dos releases.
 
