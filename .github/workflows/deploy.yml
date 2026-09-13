@@ -262,7 +262,7 @@ jobs:
       always()
       && needs.changes.outputs.web == 'true'
       && needs.validate-web.result == 'success'
-      && (needs.deploy-api.result == 'success' || needs.deploy-api.result == 'skipped')
+      && (needs.changes.outputs.api != 'true' || needs.deploy-api.result == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production
