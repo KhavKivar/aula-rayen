@@ -1,11 +1,9 @@
-import { useForm } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
+import { useAppForm, TextField } from "@/components/ui/form";
 import { requestPasswordReset } from "@/features/auth/api/password-recovery";
 import { AuthError } from "@/features/auth/errors/auth-error";
 import {
@@ -22,7 +20,7 @@ export function ForgotPasswordForm() {
   const mutation = useMutation<void, AuthError, PasswordResetRequest>({
     mutationFn: requestPasswordReset,
   });
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: { email: "" },
     validators: { onSubmit: passwordResetRequestSchema },
     onSubmit: ({ value }) => {
@@ -61,34 +59,17 @@ export function ForgotPasswordForm() {
       }}
       noValidate
     >
-      <form.Field name="email">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
-
-          return (
-            <FormField
-              inputId={field.name}
-              label="Correo electrónico"
-              error={error}
-              errorId="reset-email-error"
-            >
-              <Input
-                id={field.name}
-                name={field.name}
-                type="email"
-                autoComplete="email"
-                placeholder="nombre@ejemplo.com"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? "reset-email-error" : undefined}
-                className="h-11 bg-card px-4 shadow-none"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <form.AppField name="email">
+        {() => (
+          <TextField
+            label="Correo electrónico"
+            type="email"
+            autoComplete="email"
+            placeholder="nombre@ejemplo.com"
+            inputClassName="h-11 bg-card px-4 shadow-none"
+          />
+        )}
+      </form.AppField>
 
       {mutation.isError ? (
         <p role="alert" className="text-sm text-destructive">

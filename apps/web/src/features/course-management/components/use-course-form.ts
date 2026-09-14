@@ -1,6 +1,6 @@
-import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 
+import { useAppForm } from "@/components/ui/form";
 import {
   createCourseRequestSchema,
   updateCourseRequestSchema,
@@ -72,7 +72,7 @@ export function useCourseForm({
     price: course?.price ?? "",
   };
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: initialValues,
     validators:
       mode === "create"

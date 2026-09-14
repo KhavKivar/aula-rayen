@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { QueryState } from "@/components/ui/query-state";
 import { availabilityQueries } from "@/features/admin-reservations/api/queries";
 import {
   useCreateAvailabilitySlots,
@@ -112,21 +113,16 @@ export function ReservationsPanel() {
         <p role="status" className="mt-8 text-sm text-muted-foreground">
           Cargando horarios guardados…
         </p>
-      ) : null}
-      {slotsQuery.isError ? (
-        <div
-          role="alert"
-          className="mt-8 flex flex-col items-center justify-center gap-3 rounded-[2rem] border border-error-border bg-error-surface px-6 py-10 text-error"
+      ) : slotsQuery.isLoadingError ? (
+        <QueryState
+          query={slotsQuery}
+          loading="Cargando horarios guardados…"
+          error="No fue posible cargar los horarios guardados."
+          onRetry={() => slotsQuery.refetch()}
+          errorClassName="mt-8 rounded-[2rem] px-6 py-10"
         >
-          <p>No fue posible cargar los horarios guardados.</p>
-          <Button
-            variant="outline"
-            onClick={() => slotsQuery.refetch()}
-            className="mt-2"
-          >
-            Reintentar
-          </Button>
-        </div>
+          {null}
+        </QueryState>
       ) : null}
       {actionError ? (
         <p

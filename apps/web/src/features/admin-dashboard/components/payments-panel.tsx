@@ -1,9 +1,10 @@
-import { AlertCircle, LoaderCircle, ReceiptText } from "lucide-react";
+import { ReceiptText } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { QueryState } from "@/components/ui/query-state";
 import { adminDashboardQueries } from "@/features/admin-dashboard/api/queries";
 import {
   filterPayments,
@@ -23,6 +24,39 @@ const initialFilters: PaymentFilters = {
   status: "all",
   period: "all",
 };
+
+function MetricCard({
+  label,
+  value,
+  variant = "default",
+}: {
+  label: string;
+  value: string;
+  variant?: "default" | "highlight";
+}) {
+  const highlighted = variant === "highlight";
+
+  return (
+    <article
+      className={cn(
+        "relative overflow-hidden rounded-2xl border p-5",
+        highlighted ? "border-[#294944] bg-primary text-white" : "border-border bg-card",
+      )}
+    >
+      <p
+        className={cn(
+          "text-xs font-bold uppercase tracking-[0.12em]",
+          highlighted ? "text-primary-foreground" : "text-muted-foreground",
+        )}
+      >
+        {label}
+      </p>
+      <p className="mt-3 font-heading text-3xl font-normal tracking-[-0.03em]">
+        {value}
+      </p>
+    </article>
+  );
+}
 
 export function PaymentsPanel() {
   const [filters, setFilters] = useState<PaymentFilters>(initialFilters);
@@ -45,12 +79,13 @@ export function PaymentsPanel() {
   });
   const metrics = getPaymentMetrics(visiblePayments);
   const metricCards = [
-    { label: "Monto aprobado", value: formatCurrency(metrics.approvedAmount) },
-    { label: "Transacciones", value: String(metrics.total) },
-    { label: "Aprobadas", value: String(metrics.approved) },
+    { label: "Monto aprobado", value: formatCurrency(metrics.approvedAmount), variant: "highlight" as const },
+    { label: "Transacciones", value: String(metrics.total), variant: "default" as const },
+    { label: "Aprobadas", value: String(metrics.approved), variant: "default" as const },
     {
       label: "Pendientes / rechazadas",
       value: `${metrics.pending} / ${metrics.rejected}`,
+      variant: "default" as const,
     },
   ];
 
@@ -71,56 +106,18 @@ export function PaymentsPanel() {
         </div>
       </div>
 
-      {paymentsQuery.isPending ? (
-        <div
-          role="status"
-          className="mt-7 flex items-center justify-center gap-3 rounded-2xl border border-border bg-card px-6 py-16 text-muted-foreground"
-        >
-          <LoaderCircle className="animate-spin" aria-hidden="true" />
-          Cargando pagos…
-        </div>
-      ) : paymentsQuery.isLoadingError ? (
-        <div
-          role="alert"
-          className="mt-7 flex flex-col items-center justify-center gap-3 rounded-2xl border border-error-border bg-error-surface px-6 py-16 text-error"
-        >
-          <div className="flex items-center gap-2">
-            <AlertCircle aria-hidden="true" />
-            No fue posible cargar los pagos. Inténtalo nuevamente.
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => paymentsQuery.refetch()}
-            className="mt-2"
-          >
-            Reintentar
-          </Button>
-        </div>
-      ) : (
+      <QueryState
+        query={paymentsQuery}
+        loading="Cargando pagos…"
+        error="No fue posible cargar los pagos. Inténtalo nuevamente."
+        onRetry={() => paymentsQuery.refetch()}
+        loadingClassName="mt-7 rounded-2xl"
+        errorClassName="mt-7 rounded-2xl"
+      >
         <>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {metricCards.map(({ label, value }, index) => (
-              <article
-                key={label}
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border p-5",
-                  index === 0
-                    ? "border-[#294944] bg-primary text-white"
-                    : "border-border bg-card",
-                )}
-              >
-                <p
-                  className={cn(
-                    "text-xs font-bold uppercase tracking-[0.12em]",
-                    index === 0 ? "text-primary-foreground" : "text-muted-foreground",
-                  )}
-                >
-                  {label}
-                </p>
-                <p className="mt-3 font-heading text-3xl font-normal tracking-[-0.03em]">
-                  {value}
-                </p>
-              </article>
+            {metricCards.map(({ label, value, variant }) => (
+              <MetricCard key={label} label={label} value={value} variant={variant} />
             ))}
           </div>
 
@@ -161,7 +158,7 @@ export function PaymentsPanel() {
             />
           )}
         </>
-      )}
+      </QueryState>
 
       <PaymentDetailDialog
         isOpen={details.open}

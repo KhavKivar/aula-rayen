@@ -1,5 +1,6 @@
-import { FormField, formFieldErrorId } from "@/components/ui/form-field";
+import { TextareaField, TextField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 import type { useCourseForm } from "@/features/course-management/components/use-course-form";
 
 export function CourseFormFields({
@@ -9,122 +10,41 @@ export function CourseFormFields({
 }) {
   return (
     <>
-      <form.Field name="title">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
+      <form.AppField name="title">
+        {() => (
+          <TextField label="Título" placeholder="Ej: Arteterapia para infancias" />
+        )}
+      </form.AppField>
 
-          return (
-            <FormField inputId={field.name} label="Título" error={error}>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
-                }
-                placeholder="Ej: Arteterapia para infancias"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <form.AppField name="description">
+        {() => (
+          <TextareaField label="Descripción" placeholder="Descripción del curso" />
+        )}
+      </form.AppField>
 
-      <form.Field name="description">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
+      <form.AppField name="videoLink">
+        {() => (
+          <TextField
+            label="Link del video"
+            type="url"
+            placeholder="https://example.com/video"
+          />
+        )}
+      </form.AppField>
 
-          return (
-            <FormField inputId={field.name} label="Descripción" error={error}>
-              <textarea
-                id={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
-                }
-                placeholder="Descripción del curso"
-                className="min-h-24 w-full rounded-xl border border-input bg-muted/50 px-3 py-2 text-sm focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <form.AppField name="fileLink">
+        {() => (
+          <TextField
+            label="Link del material"
+            type="url"
+            placeholder="https://example.com/file"
+          />
+        )}
+      </form.AppField>
 
-      <form.Field name="videoLink">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
-
-          return (
-            <FormField inputId={field.name} label="Link del video" error={error}>
-              <Input
-                id={field.name}
-                type="url"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
-                }
-                placeholder="https://example.com/video"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
-
-      <form.Field name="fileLink">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
-
-          return (
-            <FormField
-              inputId={field.name}
-              label="Link del material"
-              error={error}
-            >
-              <Input
-                id={field.name}
-                type="url"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
-                }
-                placeholder="https://example.com/file"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
-
-      <form.Field name="duration">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
-
-          return (
-            <FormField inputId={field.name} label="Duración" error={error}>
-              <Input
-                id={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
-                }
-                placeholder="Ej: 2 horas"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <form.AppField name="duration">
+        {() => <TextField label="Duración" placeholder="Ej: 2 horas" />}
+      </form.AppField>
 
       <form.Field name="price">
         {(field) => {
@@ -145,7 +65,7 @@ export function CourseFormFields({
                 }}
                 aria-invalid={Boolean(error)}
                 aria-describedby={
-                  error ? formFieldErrorId(field.name) : undefined
+                  error ? `${field.name}-error` : undefined
                 }
                 placeholder="25000"
               />

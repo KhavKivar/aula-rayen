@@ -5,3 +5,7 @@ export function formatCurrency(amount: number) {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+
+export function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("es-CL");
+}
