@@ -80,12 +80,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Validate API
@@ -236,17 +236,17 @@ jobs:
       VITE_PUBLIC_SITE_URL: ${{ secrets.VITE_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
       - name: Validate public configuration
         run: |
           test "$VITE_PUBLIC_API_URL" = "https://api.psicologarayen.cl"
           test "$VITE_PUBLIC_AUTH_URL" = "https://api.psicologarayen.cl/auth"
           test "$VITE_PUBLIC_SITE_URL" = "$WEB_URL"
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Validate web
@@ -276,9 +276,11 @@ jobs:
       VITE_PUBLIC_SITE_URL: ${{ secrets.VITE_PUBLIC_SITE_URL }}
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
       - name: Validate public configuration
         run: |
@@ -287,8 +289,6 @@ jobs:
           test "$VITE_PUBLIC_API_URL" = "https://api.psicologarayen.cl"
           test "$VITE_PUBLIC_AUTH_URL" = "https://api.psicologarayen.cl/auth"
           test "$VITE_PUBLIC_SITE_URL" = "$WEB_URL"
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Deploy web to Cloudflare

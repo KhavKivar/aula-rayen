@@ -18,12 +18,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Validate contracts
@@ -37,12 +37,12 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Validate API
@@ -62,12 +62,12 @@ jobs:
       VITE_PUBLIC_SITE_URL: http://127.0.0.1:3001
     steps:
       - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v5
         with:
           node-version: 24
+          cache: pnpm
           package-manager-cache: false
-      - name: Install pnpm
-        run: npm install --global pnpm@10.33.0
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --child-concurrency=1
       - name: Validate web
