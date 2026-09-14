@@ -5,7 +5,7 @@ import { course_purchases, courses, user, webpay_sessions } from '@/db/schema';
 import type { Database, NewWebPaySession, WebPaySession } from '@/db/types';
 import { and, desc, eq, isNull } from 'drizzle-orm';
 
-// Todo clean this shit
+/** Campos de la respuesta de Transbank que se persisten en la sesión. */
 type CommitDetails = Pick<
   NewWebPaySession,
   | 'vci'

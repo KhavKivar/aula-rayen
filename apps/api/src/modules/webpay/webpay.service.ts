@@ -232,7 +232,8 @@ export class WebPayService {
       await webpayTransaction.commit(tokenNormal),
     );
     if (!parsedCommit.success) {
-      //Todo: Capture as Critical
+      // La respuesta de Transbank no corresponde al formato esperado:
+      // la sesión queda claimed sin commit y requiere reconciliación.
       throw badRequestError(
         API_ERROR_CODES.WEBPAY_INVALID_RESPONSE,
         'Respuesta inválida de Transbank',
@@ -261,7 +262,8 @@ export class WebPayService {
       commitDetails,
     );
     if (!completedSession) {
-      // Todo:Capture as critical
+      // La sesión desapareció entre el claim y el commit: posible carrera
+      // con la reconciliación. No se otorga acceso sin registro válido.
       throw notFoundError(
         API_ERROR_CODES.WEBPAY_SESSION_NOT_FOUND,
         'Sesión de Webpay no encontrada',
