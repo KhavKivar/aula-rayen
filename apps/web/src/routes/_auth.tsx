@@ -20,18 +20,15 @@ function AuthLayout() {
             El aprendizaje también nos hace{" "}
             <em className="text-terracotta">florecer.</em>
           </p>
-          <picture className="mt-8 block">
-            <source srcSet="/images/florecer.webp" type="image/webp" />
-            <img
-              src="/images/florecer.png"
-              alt="Flor escultórica de pétalos verdes y terracota"
-              width={1000}
-              height={1100}
-              loading="lazy"
-              decoding="async"
-              className="max-h-80 w-full rounded-[10rem_10rem_2rem_2rem] object-cover object-center"
-            />
-          </picture>
+          <img
+            src="/images/florecer.webp"
+            alt="Flor escultórica de pétalos verdes y terracota"
+            width={1000}
+            height={1100}
+            loading="lazy"
+            decoding="async"
+            className="mt-8 block max-h-80 w-full rounded-[10rem_10rem_2rem_2rem] object-cover object-center"
+          />
           <p className="mt-6 max-w-sm text-sm leading-7 text-muted-foreground">
             Herramientas, ideas y nuevos caminos para acompañar desde el
             cuidado.

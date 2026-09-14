@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
+import { fixturePayments } from "@/features/admin-dashboard/testing/payment-fixtures";
 import {
   filterPayments,
   getPaymentMetrics,
@@ -11,7 +11,7 @@ const demoToday = new Date("2026-09-03T23:59:59.999Z");
 describe("admin dashboard payments", () => {
   it("combines payment filters and computes metrics from visible rows", () => {
     const filtered = filterPayments(
-      demoTransactions,
+      fixturePayments,
       {
         query: "camila",
         status: "approved",

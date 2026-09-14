@@ -18,6 +18,12 @@
   --color-error: #934d3b;
   --color-error-surface: #fff8f4;
   --color-error-border: #e4c5b9;
+  --color-success: #e4f2e8;
+  --color-success-foreground: #286044;
+  --color-warning: #fff0cc;
+  --color-warning-foreground: #76540e;
+  --color-border-strong: #bfcac3;
+  --color-highlight-border: #294944;
   --shadow-soft: 0 12px 40px rgb(36 61 50 / 5%);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);

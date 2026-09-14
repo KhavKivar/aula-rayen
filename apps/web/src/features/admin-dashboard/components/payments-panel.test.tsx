@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PaymentsPanel } from "@/features/admin-dashboard/components/payments-panel";
-import { demoTransactions } from "@/features/admin-dashboard/api/demo-transactions";
+import { fixturePayments } from "@/features/admin-dashboard/testing/payment-fixtures";
 import { createTestQueryClient, render } from "@/testing/test-utils";
 
 const mockGetPayments = vi.fn();
@@ -18,7 +18,7 @@ describe("PaymentsPanel", () => {
 
   it("calculates metrics from combined filters and can clear an empty result", async () => {
     const user = userEvent.setup();
-    mockGetPayments.mockResolvedValue(demoTransactions);
+    mockGetPayments.mockResolvedValue(fixturePayments);
     render(<PaymentsPanel />);
 
     expect(await screen.findByText("$119.000")).toBeVisible();
@@ -39,7 +39,7 @@ describe("PaymentsPanel", () => {
 
   it("opens complete payment detail without demo labeling on live data", async () => {
     const user = userEvent.setup();
-    mockGetPayments.mockResolvedValue(demoTransactions);
+    mockGetPayments.mockResolvedValue(fixturePayments);
     render(<PaymentsPanel />);
 
     await user.click((await screen.findAllByRole("button", { name: "Ver detalle" }))[0]);
@@ -66,7 +66,7 @@ describe("PaymentsPanel", () => {
     const user = userEvent.setup();
     mockGetPayments
       .mockRejectedValueOnce(new Error("Sin conexión"))
-      .mockResolvedValue(demoTransactions);
+      .mockResolvedValue(fixturePayments);
     render(<PaymentsPanel />);
 
     await user.click(await screen.findByRole("button", { name: "Reintentar" }));
@@ -76,7 +76,7 @@ describe("PaymentsPanel", () => {
   });
 
   it("keeps cached data when a background refetch fails", async () => {
-    const live = [{ ...demoTransactions[0], orderId: "AR-REAL" }];
+    const live = [{ ...fixturePayments[0], orderId: "AR-REAL" }];
     mockGetPayments.mockResolvedValueOnce(live).mockRejectedValue(new Error("caída"));
     const queryClient = createTestQueryClient();
     render(<PaymentsPanel />, { queryClient });

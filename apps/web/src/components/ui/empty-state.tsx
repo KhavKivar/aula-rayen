@@ -25,7 +25,7 @@ function EmptyState({
     <section
       aria-labelledby={titleId}
       className={cn(
-        "rounded-[2rem] border border-dashed border-[#bfcac3] bg-card px-6 py-16 text-center",
+        "rounded-[2rem] border border-dashed border-border-strong bg-card px-6 py-16 text-center",
         className,
       )}
     >

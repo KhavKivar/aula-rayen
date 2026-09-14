@@ -40,7 +40,7 @@ function MetricCard({
     <article
       className={cn(
         "relative overflow-hidden rounded-2xl border p-5",
-        highlighted ? "border-[#294944] bg-primary text-white" : "border-border bg-card",
+        highlighted ? "border-highlight-border bg-primary text-white" : "border-border bg-card",
       )}
     >
       <p
