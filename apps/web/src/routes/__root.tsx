@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { OG_IMAGE_URL } from "@/config/seo";
+import { SessionExpiryListener } from "@/components/session-expiry-listener";
 import appCss from "@/styles/app.css?url";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -67,6 +68,7 @@ function RootDocument() {
       </head>
       <body className="flex min-h-full flex-col">
         <Outlet />
+        <SessionExpiryListener />
         <Scripts />
         {AppDevtools ? (
           <Suspense fallback={null}>
