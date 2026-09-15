@@ -9,6 +9,7 @@ import { availabilityQueries } from "@/features/admin-reservations/api/queries";
 import {
   useCreateAvailabilitySlots,
   useDeleteAvailabilitySlot,
+  useDeleteAvailabilitySlots,
 } from "@/features/admin-reservations/api/use-availability-mutations";
 import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-calendar";
 import {
@@ -65,6 +66,7 @@ export function ReservationsPanel() {
   const sessionQuery = useQuery(sessionQueries.session);
   const createSlots = useCreateAvailabilitySlots();
   const deleteSlot = useDeleteAvailabilitySlot();
+  const deleteSlots = useDeleteAvailabilitySlots();
 
   const schedules = useMemo(
     () =>
@@ -130,13 +132,11 @@ export function ReservationsPanel() {
     const ids = schedules
       .filter((schedule) => schedule.validFrom === date)
       .map((schedule) => schedule.id);
-    void Promise.all(ids.map((id) => deleteSlot.mutateAsync({ id }))).catch(
-      (error: unknown) => {
-        setActionError(
-          toApiErrorMessage(error, "No se pudieron eliminar los horarios"),
-        );
-      },
-    );
+    void deleteSlots.mutateAsync(ids).catch((error: unknown) => {
+      setActionError(
+        toApiErrorMessage(error, "No se pudieron eliminar los horarios"),
+      );
+    });
   };
 
   return (

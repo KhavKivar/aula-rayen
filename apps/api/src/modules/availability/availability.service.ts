@@ -3,6 +3,7 @@ import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 import type {
   AvailabilitySlotCreateRequest,
   AvailabilitySlotBulkCreateRequest,
+  AvailabilitySlotBulkDeleteRequest,
   AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
 
@@ -141,5 +142,9 @@ export class AvailabilityService {
       );
     }
     return deletedSlot;
+  }
+
+  async removeMany(ids: AvailabilitySlotBulkDeleteRequest) {
+    return await this.repository.removeMany(ids);
   }
 }

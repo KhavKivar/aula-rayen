@@ -47,6 +47,11 @@ export const availabilitySlotBulkCreateRequestSchema = z
   .min(1)
   .max(MAX_AVAILABILITY_SLOTS_BATCH);
 
+export const availabilitySlotBulkDeleteRequestSchema = z
+  .array(z.number().int().positive())
+  .min(1)
+  .max(MAX_AVAILABILITY_SLOTS_BATCH);
+
 export type AvailabilitySlotStatus = z.infer<
   typeof availabilitySlotStatusSchema
 >;
@@ -62,4 +67,7 @@ export type AvailabilitySlotUpdateRequest = z.infer<
 >;
 export type AvailabilitySlotBulkCreateRequest = z.infer<
   typeof availabilitySlotBulkCreateRequestSchema
+>;
+export type AvailabilitySlotBulkDeleteRequest = z.infer<
+  typeof availabilitySlotBulkDeleteRequestSchema
 >;

@@ -13,12 +13,14 @@ import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
   availabilitySlotCreateRequestSchema,
   availabilitySlotBulkCreateRequestSchema,
+  availabilitySlotBulkDeleteRequestSchema,
   availabilitySlotUpdateRequestSchema,
 } from '@aula-rayen/contracts/availability';
 import type {
   AvailabilitySlotResponse,
   AvailabilitySlotCreateRequest,
   AvailabilitySlotBulkCreateRequest,
+  AvailabilitySlotBulkDeleteRequest,
   AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
 
@@ -83,6 +85,16 @@ export class AvailabilityController {
     const slot = await this.availabilityService.update(id, dto);
 
     return toAvailabilitySlotResponse(slot);
+  }
+
+  @Delete('batch')
+  async removeMany(
+    @Body(new ZodValidationPipe(availabilitySlotBulkDeleteRequestSchema))
+    ids: AvailabilitySlotBulkDeleteRequest,
+  ): Promise<AvailabilitySlotResponse[]> {
+    const slots = await this.availabilityService.removeMany(ids);
+
+    return slots.map(toAvailabilitySlotResponse);
   }
 
   @Delete(':id')

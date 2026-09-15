@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
+  AvailabilitySlotBulkDeleteRequest,
   AvailabilitySlotCreateRequest,
   AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 
 import { DRIZZLE } from '@/db';
 import { availability_slots } from '@/db/schema';
@@ -106,5 +107,14 @@ export class AvailabilityRepository {
       .returning();
 
     return deletedSlot ?? null;
+  }
+
+  async removeMany(
+    ids: AvailabilitySlotBulkDeleteRequest,
+  ): Promise<AvailabilitySlot[]> {
+    return await this.db
+      .delete(availability_slots)
+      .where(inArray(availability_slots.id, ids))
+      .returning();
   }
 }

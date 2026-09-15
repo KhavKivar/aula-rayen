@@ -68,13 +68,31 @@ function mockBackend() {
       return { data: created };
     },
   );
-  vi.mocked(apiClient.delete).mockImplementation(async (url: string) => {
-    const id = Number(String(url).split("/").pop());
-    const index = storedSlots.findIndex((slot) => slot.id === id);
-    if (index === -1) throw new Error(`slot ${id} not found`);
-    const [removed] = storedSlots.splice(index, 1);
-    return { data: removed };
-  });
+  vi.mocked(apiClient.delete).mockImplementation(
+    async (url: string, config?: unknown) => {
+      const ids =
+        (
+          config as { data?: number[] } | undefined
+        )?.data instanceof Array
+          ? (config as { data: number[] }).data
+          : [];
+      if (url === "/availability-slots/batch" && ids.length > 0) {
+        const removed: AvailabilitySlotResponse[] = [];
+        for (const id of ids) {
+          const index = storedSlots.findIndex((slot) => slot.id === id);
+          if (index === -1) throw new Error(`slot ${id} not found`);
+          const [removedSlot] = storedSlots.splice(index, 1);
+          removed.push(removedSlot);
+        }
+        return { data: removed };
+      }
+      const id = Number(String(url).split("/").pop());
+      const index = storedSlots.findIndex((slot) => slot.id === id);
+      if (index === -1) throw new Error(`slot ${id} not found`);
+      const [removedSlot] = storedSlots.splice(index, 1);
+      return { data: removedSlot };
+    },
+  );
 }
 
 describe("ReservationsPanel", () => {
