@@ -39,8 +39,19 @@ export const bookingUpdateRequestSchema = z
     message: "Debes enviar al menos un campo para actualizar",
   });
 
+export const bookingGetRequestSchema = z
+  .object({
+    search: z.string().optional(),
+    status: bookingStatusSchema.optional(),
+    sortOrder: z.enum(["asc", "desc"]).optional(),
+    page: z.coerce.number().int().positive().optional(),
+    limit: z.coerce.number().int().positive().max(100).optional(),
+  })
+  .strict();
+
 export type BookingStatus = z.infer<typeof bookingStatusSchema>;
 export type BookingResponse = z.infer<typeof bookingResponseSchema>;
 export type BookingListResponse = z.infer<typeof bookingListResponseSchema>;
 export type BookingCreateRequest = z.infer<typeof bookingCreateRequestSchema>;
 export type BookingUpdateRequest = z.infer<typeof bookingUpdateRequestSchema>;
+export type BookingGetRequest = z.infer<typeof bookingGetRequestSchema>;

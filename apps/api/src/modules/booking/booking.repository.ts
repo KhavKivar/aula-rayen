@@ -1,85 +1,79 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
   BookingCreateRequest,
+  BookingGetRequest,
   BookingUpdateRequest,
 } from '@aula-rayen/contracts/booking';
-import { eq } from 'drizzle-orm';
 
 import { DRIZZLE } from '@/db';
+import type { BookingAttempt, Database } from '@/db/types';
+import { asc, desc, eq, and } from 'drizzle-orm';
 import { booking_attempts } from '@/db/schema';
-import type { BookingAttempt, Database, NewBookingAttempt } from '@/db/types';
 
+const DEFAULT_LIMIT = 50;
 @Injectable()
 export class BookingRepository {
   constructor(@Inject(DRIZZLE) private readonly db: Database) {}
 
-  findAll(): Promise<BookingAttempt[]> {
-    return this.db.select().from(booking_attempts);
+  findAll(query: BookingGetRequest): Promise<BookingAttempt[]> {
+    const orderByDir =
+      query.sortOrder === 'asc'
+        ? asc(booking_attempts.createdAt)
+        : desc(booking_attempts.createdAt);
+
+    const conditions = [
+      query.search ? eq(booking_attempts.clientId, query.search) : undefined,
+      query.status ? eq(booking_attempts.status, query.status) : undefined,
+    ].filter(Boolean);
+
+    const result = this.db
+      .select()
+      .from(booking_attempts)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(orderByDir)
+      .offset(
+        query.page ? (query.page - 1) * (query.limit ?? DEFAULT_LIMIT) : 0,
+      )
+      .limit(query.limit ?? 50);
+
+    return result;
   }
 
   findAllByClientId(clientId: string): Promise<BookingAttempt[]> {
-    return this.db
-      .select()
-      .from(booking_attempts)
-      .where(eq(booking_attempts.clientId, clientId));
+    throw new Error('Not implemented');
   }
 
-  async findById(id: number): Promise<BookingAttempt | null> {
-    const [booking] = await this.db
-      .select()
-      .from(booking_attempts)
-      .where(eq(booking_attempts.id, id));
-
-    return booking ?? null;
+  findById(id: number): Promise<BookingAttempt | null> {
+    throw new Error('Not implemented');
   }
 
   async create(
     dto: BookingCreateRequest & { clientId: string },
   ): Promise<BookingAttempt> {
-    const [createdBooking] = await this.db
+    const [created] = await this.db
       .insert(booking_attempts)
       .values({
         clientId: dto.clientId,
         slotId: dto.slotId,
+        status: dto.status ?? 'pending',
         expiresAt: new Date(dto.expiresAt),
-        ...(dto.status !== undefined ? { status: dto.status } : {}),
       })
       .returning();
 
-    if (!createdBooking) {
+    if (!created) {
       throw new Error('No se pudo crear la reserva');
     }
-    return createdBooking;
+    return created;
   }
 
-  async update(
+  update(
     id: number,
     dto: BookingUpdateRequest,
   ): Promise<BookingAttempt | null> {
-    const set: Partial<NewBookingAttempt> = {};
-
-    if (dto.expiresAt !== undefined) {
-      set.expiresAt = new Date(dto.expiresAt);
-    }
-    if (dto.status !== undefined) {
-      set.status = dto.status;
-    }
-
-    const [updatedBooking] = await this.db
-      .update(booking_attempts)
-      .set(set)
-      .where(eq(booking_attempts.id, id))
-      .returning();
-
-    return updatedBooking ?? null;
+    throw new Error('Not implemented');
   }
 
-  async remove(id: number): Promise<BookingAttempt | null> {
-    const [deletedBooking] = await this.db
-      .delete(booking_attempts)
-      .where(eq(booking_attempts.id, id))
-      .returning();
-
-    return deletedBooking ?? null;
+  remove(id: number): Promise<BookingAttempt | null> {
+    throw new Error('Not implemented');
   }
 }

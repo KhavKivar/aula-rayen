@@ -1,38 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 import type {
   BookingCreateRequest,
+  BookingGetRequest,
   BookingUpdateRequest,
 } from '@aula-rayen/contracts/booking';
 
-import {
-  badRequestError,
-  forbiddenError,
-  notFoundError,
-} from '@/common/errors/http-error';
 import { AvailabilityService } from '../availability/availability.service';
 import { BookingRepository } from './booking.repository';
 import type { BookingAttempt } from '@/db/types';
+import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
+import { conflictError } from '@/common/errors/http-error';
 
 export type BookingRequester = {
   id: string;
   role?: string | string[];
 };
 
-function isAdminRole(role: string | string[] | undefined): boolean {
-  if (Array.isArray(role)) {
-    return role.includes('admin');
+function isActiveBookingConflictError(error: unknown): boolean {
+  const seen = new Set<unknown>();
+  let current: unknown = error;
+  while (typeof current === 'object' && current !== null && !seen.has(current)) {
+    seen.add(current);
+    const { code, constraint } = current as { code?: unknown; constraint?: unknown };
+    if (code === '23505' || constraint === 'one_active_booking_per_slot') {
+      return true;
+    }
+    current = (current as { cause?: unknown }).cause;
   }
-  return role?.split(',').some((value) => value.trim() === 'admin') ?? false;
-}
-
-function assertFutureExpiration(expiresAt: string) {
-  if (new Date(expiresAt).getTime() <= Date.now()) {
-    throw badRequestError(
-      API_ERROR_CODES.VALIDATION_ERROR,
-      'La fecha de expiración debe ser futura',
-    );
-  }
+  return false;
 }
 
 @Injectable()
@@ -42,92 +37,55 @@ export class BookingService {
     private readonly availabilityService: AvailabilityService,
   ) {}
 
-  getAll(requester: BookingRequester) {
-    if (isAdminRole(requester.role)) {
-      return this.repository.findAll();
-    }
-
-    return this.repository.findAllByClientId(requester.id);
+  async getAll(query: BookingGetRequest): Promise<BookingAttempt[]> {
+    return this.repository.findAll(query);
   }
 
-  async getById(id: number, requester: BookingRequester) {
-    const booking = await this.findByIdOrThrow(id);
-    this.assertCanAccess(booking, requester);
-
-    return booking;
+  async getById(
+    id: number,
+    requester: BookingRequester,
+  ): Promise<BookingAttempt> {
+    throw new Error('Not implemented');
   }
 
-  async create(dto: BookingCreateRequest, clientId: string) {
+  async create(
+    dto: BookingCreateRequest,
+    clientId: string,
+  ): Promise<BookingAttempt> {
     const slot = await this.availabilityService.getById(dto.slotId);
 
     if (slot.status !== 'available') {
-      throw badRequestError(
+      throw conflictError(
         API_ERROR_CODES.BOOKING_SLOT_UNAVAILABLE,
-        'El bloque de disponibilidad no está disponible para reservar',
+        `El slot ${dto.slotId} no está disponible para reservar`,
       );
     }
-    assertFutureExpiration(dto.expiresAt);
 
-    return this.repository.create({ ...dto, clientId });
+    try {
+      return await this.repository.create({ ...dto, clientId });
+    } catch (error: unknown) {
+      if (isActiveBookingConflictError(error)) {
+        throw conflictError(
+          API_ERROR_CODES.BOOKING_SLOT_UNAVAILABLE,
+          `Ya existe una reserva activa para el slot ${dto.slotId}`,
+        );
+      }
+      throw error;
+    }
   }
 
   async update(
     id: number,
     dto: BookingUpdateRequest,
     requester: BookingRequester,
-  ) {
-    await this.getById(id, requester);
-
-    if (dto.expiresAt !== undefined) {
-      assertFutureExpiration(dto.expiresAt);
-    }
-
-    const updatedBooking = await this.repository.update(id, dto);
-
-    if (!updatedBooking) {
-      throw notFoundError(
-        API_ERROR_CODES.BOOKING_NOT_FOUND,
-        `Reserva con ID ${id} no encontrada`,
-      );
-    }
-    return updatedBooking;
+  ): Promise<BookingAttempt> {
+    throw new Error('Not implemented');
   }
 
-  async remove(id: number, requester: BookingRequester) {
-    await this.getById(id, requester);
-
-    const deletedBooking = await this.repository.remove(id);
-
-    if (!deletedBooking) {
-      throw notFoundError(
-        API_ERROR_CODES.BOOKING_NOT_FOUND,
-        `Reserva con ID ${id} no encontrada`,
-      );
-    }
-    return deletedBooking;
-  }
-
-  private async findByIdOrThrow(id: number) {
-    const booking = await this.repository.findById(id);
-
-    if (!booking) {
-      throw notFoundError(
-        API_ERROR_CODES.BOOKING_NOT_FOUND,
-        `Reserva con ID ${id} no encontrada`,
-      );
-    }
-    return booking;
-  }
-
-  private assertCanAccess(
-    booking: BookingAttempt,
+  async remove(
+    id: number,
     requester: BookingRequester,
-  ) {
-    if (!isAdminRole(requester.role) && booking.clientId !== requester.id) {
-      throw forbiddenError(
-        API_ERROR_CODES.BOOKING_FORBIDDEN,
-        'No puedes acceder a reservas de otros usuarios',
-      );
-    }
+  ): Promise<BookingAttempt> {
+    throw new Error('Not implemented');
   }
 }
