@@ -47,6 +47,14 @@ export function ReservationsCalendar({
 }: ReservationsCalendarProps) {
   const [monthOffset, setMonthOffset] = useState(0);
   const [deleteDate, setDeleteDate] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  // Se limpia el dato después de la animación de cierre para que el título
+  // no pase a la versión vacía mientras el diálogo sale de pantalla.
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    window.setTimeout(() => setDeleteDate(null), 250);
+  };
   const reference = new Date(
     Date.UTC(
       today.getFullYear(),
@@ -156,7 +164,10 @@ export function ReservationsCalendar({
                           variant="ghost"
                           size="icon-xs"
                           aria-label={`Eliminar todos los horarios del ${previewDateFormatter.format(new Date(`${isoDate}T00:00:00Z`))}`}
-                          onClick={() => setDeleteDate(isoDate)}
+                          onClick={() => {
+                            setDeleteDate(isoDate);
+                            setDeleteDialogOpen(true);
+                          }}
                         >
                           <Trash2 />
                         </Button>
@@ -215,9 +226,9 @@ export function ReservationsCalendar({
         ) : null}
       </div>
       <ConfirmDialog
-        open={deleteDate !== null}
+        open={deleteDialogOpen}
         onOpenChange={(open) => {
-          if (!open) setDeleteDate(null);
+          if (!open) closeDeleteDialog();
         }}
         title={`¿Eliminar horarios del ${deleteDate ? previewDateFormatter.format(new Date(`${deleteDate}T00:00:00Z`)) : ""}?`}
         description="Se quitarán todos los bloques de esta fecha. Los bloques de otras fechas no se verán afectados."
@@ -225,7 +236,7 @@ export function ReservationsCalendar({
         destructive
         onConfirm={() => {
           if (deleteDate) onDeleteDate?.(deleteDate);
-          setDeleteDate(null);
+          closeDeleteDialog();
         }}
       />
     </section>
