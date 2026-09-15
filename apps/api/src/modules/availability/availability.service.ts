@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 import type {
-  CreateAvailabilitySlotRequest,
-  CreateAvailabilitySlotsRequest,
-  UpdateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
+  AvailabilitySlotBulkCreateRequest,
+  AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
 
 import {
@@ -75,7 +75,7 @@ export class AvailabilityService {
     return slot;
   }
 
-  async create(dto: CreateAvailabilitySlotRequest, createdBy: string) {
+  async create(dto: AvailabilitySlotCreateRequest, createdBy: string) {
     assertValidRange(dto.startTime, dto.endTime);
     try {
       return await this.repository.create({ ...dto, createdBy });
@@ -87,7 +87,7 @@ export class AvailabilityService {
     }
   }
 
-  async createMany(dtos: CreateAvailabilitySlotsRequest, createdBy: string) {
+  async createMany(dtos: AvailabilitySlotBulkCreateRequest, createdBy: string) {
     for (const dto of dtos) {
       assertValidRange(dto.startTime, dto.endTime);
     }
@@ -103,7 +103,7 @@ export class AvailabilityService {
     }
   }
 
-  async update(id: number, dto: UpdateAvailabilitySlotRequest) {
+  async update(id: number, dto: AvailabilitySlotUpdateRequest) {
     if (dto.startTime !== undefined || dto.endTime !== undefined) {
       const current = await this.getById(id);
       assertValidRange(

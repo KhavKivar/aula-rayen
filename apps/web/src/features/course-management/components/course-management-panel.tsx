@@ -11,7 +11,7 @@ import { CourseFormDialog } from "@/features/course-management/components/course
 import { DeleteCourseDialog } from "@/features/course-management/components/delete-course-dialog";
 import type {
   CourseCatalogItem,
-  CourseDetail,
+  CourseDetailResponse,
 } from "@aula-rayen/contracts/course";
 
 export function CourseManagementPanel({
@@ -25,14 +25,14 @@ export function CourseManagementPanel({
     CourseCatalogItem[],
     readonly ["courses"]
   >;
-  fetchCourseDetail: (courseId: number) => Promise<CourseDetail>;
+  fetchCourseDetail: (courseId: number) => Promise<CourseDetailResponse>;
   onViewPurchasers?: (course: CourseCatalogItem) => void;
 }) {
   const queryClient = useQueryClient();
   const coursesQuery = useQuery(coursesQueryOptions);
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [editCourse, setEditCourse] = useState<CourseDetail | null>(null);
+  const [editCourse, setEditCourse] = useState<CourseDetailResponse | null>(null);
   const [deleteCourse, setDeleteCourse] = useState<CourseCatalogItem | null>(
     null,
   );

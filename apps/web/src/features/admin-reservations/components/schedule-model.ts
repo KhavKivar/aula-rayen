@@ -1,6 +1,6 @@
 import type {
   AvailabilitySlotResponse,
-  CreateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
 } from "@aula-rayen/contracts/availability";
 
 export const weekDays = [
@@ -198,7 +198,7 @@ function toSlotPayload(
   startTime: string,
   duration: 1 | 2,
   assignedTo: string,
-): CreateAvailabilitySlotRequest {
+): AvailabilitySlotCreateRequest {
   const endTime = minutesToTime(timeToMinutes(startTime) + duration * 60);
   return {
     startTime: `${date}T${startTime}:00.000Z`,
@@ -208,9 +208,9 @@ function toSlotPayload(
 }
 
 export function findConflictingSlots(
-  payloads: CreateAvailabilitySlotRequest[],
+  payloads: AvailabilitySlotCreateRequest[],
   existing: AvailabilitySlotResponse[],
-): CreateAvailabilitySlotRequest[] {
+): AvailabilitySlotCreateRequest[] {
   return payloads.filter((payload) => {
     const date = slotDatePart(payload.startTime);
     const startMinutes = timeToMinutes(slotTimePart(payload.startTime));
@@ -225,7 +225,7 @@ export function findConflictingSlots(
 }
 
 export function describeSlotConflict(
-  payload: CreateAvailabilitySlotRequest,
+  payload: AvailabilitySlotCreateRequest,
 ): string {
   const date = slotDatePart(payload.startTime);
   const start = slotTimePart(payload.startTime);
@@ -256,8 +256,8 @@ export function scheduleHasConflict(
 export function expandSchedulesToSlots(
   schedules: Omit<FixedSchedule, "id">[],
   assignedTo: string,
-): CreateAvailabilitySlotRequest[] {
-  const payloads: CreateAvailabilitySlotRequest[] = [];
+): AvailabilitySlotCreateRequest[] {
+  const payloads: AvailabilitySlotCreateRequest[] = [];
   for (const schedule of schedules) {
     const start = Date.parse(`${schedule.validFrom}T00:00:00Z`);
     const end = Date.parse(`${schedule.validUntil}T00:00:00Z`);

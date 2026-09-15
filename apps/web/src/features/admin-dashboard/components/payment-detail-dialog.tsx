@@ -1,7 +1,7 @@
 import { FormDialog } from "@/components/ui/form-dialog";
 import { formatCurrency, formatDate } from "@/features/admin-dashboard/components/payment-format";
 import { PaymentStatusBadge } from "@/features/admin-dashboard/components/payment-status-badge";
-import type { Payment } from "@aula-rayen/contracts/payment";
+import type { PaymentResponse } from "@aula-rayen/contracts/payment";
 
 export function PaymentDetailDialog({
   payment,
@@ -9,7 +9,7 @@ export function PaymentDetailDialog({
   onOpenChange,
 }: {
   isOpen: boolean;
-  payment: Payment | null;
+  payment: PaymentResponse | null;
   onOpenChange: (open: boolean) => void;
 }) {
   const rows = payment

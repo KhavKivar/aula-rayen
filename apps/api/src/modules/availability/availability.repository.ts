@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
-  CreateAvailabilitySlotRequest,
-  UpdateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
+  AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
 import { eq } from 'drizzle-orm';
 
@@ -31,7 +31,7 @@ export class AvailabilityRepository {
   }
 
   async create(
-    dto: CreateAvailabilitySlotRequest & { createdBy: string },
+    dto: AvailabilitySlotCreateRequest & { createdBy: string },
   ): Promise<AvailabilitySlot> {
     const [createdSlot] = await this.db
       .insert(availability_slots)
@@ -51,7 +51,7 @@ export class AvailabilityRepository {
   }
 
   async createMany(
-    dtos: (CreateAvailabilitySlotRequest & { createdBy: string })[],
+    dtos: (AvailabilitySlotCreateRequest & { createdBy: string })[],
   ): Promise<AvailabilitySlot[]> {
     if (dtos.length === 0) {
       return [];
@@ -73,7 +73,7 @@ export class AvailabilityRepository {
 
   async update(
     id: number,
-    dto: UpdateAvailabilitySlotRequest,
+    dto: AvailabilitySlotUpdateRequest,
   ): Promise<AvailabilitySlot | null> {
     const set: Partial<NewAvailabilitySlot> = {};
 

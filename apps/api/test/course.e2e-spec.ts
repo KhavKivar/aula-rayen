@@ -6,8 +6,8 @@ import { PostgreSqlContainer } from '@testcontainers/postgresql';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { apiErrorSchema } from '@aula-rayen/contracts/api-error';
 import {
-  courseCatalogSchema,
-  courseDetailSchema,
+  courseCatalogResponseSchema,
+  courseDetailResponseSchema,
   courseMutationResponseSchema,
 } from '@aula-rayen/contracts/course';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -113,7 +113,7 @@ describe('CourseController (integration)', () => {
     const catalogResponse = await request(app.getHttpServer())
       .get('/courses')
       .expect(200);
-    const catalog = courseCatalogSchema.parse(catalogResponse.body);
+    const catalog = courseCatalogResponseSchema.parse(catalogResponse.body);
 
     expect(catalog).toEqual([
       expect.objectContaining({ id: created.id, hasAccess: false }),
@@ -141,7 +141,9 @@ describe('CourseController (integration)', () => {
       .get(`/courses/${created.id}`)
       .expect(200);
 
-    expect(courseDetailSchema.parse(detailResponse.body)).toEqual(created);
+    expect(courseDetailResponseSchema.parse(detailResponse.body)).toEqual(
+      created,
+    );
   });
 
   it('returns shared API errors for invalid mutations and missing courses', async () => {

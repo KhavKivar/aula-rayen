@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type {
-  CreateCourseRequest,
-  UpdateCourseRequest,
+  CourseCreateRequest,
+  CourseUpdateRequest,
   CourseBuyerResponse,
 } from '@aula-rayen/contracts/course';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
@@ -64,11 +64,11 @@ export class CourseService {
     return course !== null;
   }
 
-  create(dto: CreateCourseRequest) {
+  create(dto: CourseCreateRequest) {
     return this.repository.create(dto);
   }
 
-  async update(id: number, dto: UpdateCourseRequest) {
+  async update(id: number, dto: CourseUpdateRequest) {
     const updatedCourse = await this.repository.update(id, dto);
     if (!updatedCourse) {
       throw notFoundError(

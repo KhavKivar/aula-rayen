@@ -24,18 +24,18 @@ export const courseCatalogItemSchema = coursePublicFieldsSchema
   })
   .strict();
 
-export const courseCatalogSchema = z.array(courseCatalogItemSchema);
+export const courseCatalogResponseSchema = z.array(courseCatalogItemSchema);
 
-export const courseDetailSchema = coursePublicFieldsSchema
+export const courseDetailResponseSchema = coursePublicFieldsSchema
   .extend({
     videoLink: z.url(),
     fileLink: z.url(),
   })
   .strict();
 
-export const createCourseRequestSchema = courseMutableFieldsSchema;
+export const courseCreateRequestSchema = courseMutableFieldsSchema;
 
-export const updateCourseRequestSchema = courseMutableFieldsSchema
+export const courseUpdateRequestSchema = courseMutableFieldsSchema
   .partial()
   .refine((value) => Object.keys(value).length > 0, {
     message: "Debes enviar al menos un campo para actualizar",
@@ -53,17 +53,17 @@ export const courseBuyerResponseSchema = userPublicResponseSchema
   })
   .strict();
 
-export const courseBuyersResponseSchema = z.array(courseBuyerResponseSchema);
-export const courseMutationResponseSchema = courseDetailSchema;
+export const courseBuyerListResponseSchema = z.array(courseBuyerResponseSchema);
+export const courseMutationResponseSchema = courseDetailResponseSchema;
 
 export type UserPublicResponse = z.infer<typeof userPublicResponseSchema>;
 export type CourseBuyerResponse = z.infer<typeof courseBuyerResponseSchema>;
-export type CourseBuyersResponse = z.infer<typeof courseBuyersResponseSchema>;
+export type CourseBuyerListResponse = z.infer<typeof courseBuyerListResponseSchema>;
 export type CourseCatalogItem = z.infer<typeof courseCatalogItemSchema>;
-export type CourseCatalog = z.infer<typeof courseCatalogSchema>;
-export type CourseDetail = z.infer<typeof courseDetailSchema>;
-export type CreateCourseRequest = z.infer<typeof createCourseRequestSchema>;
-export type UpdateCourseRequest = z.infer<typeof updateCourseRequestSchema>;
+export type CourseCatalogResponse = z.infer<typeof courseCatalogResponseSchema>;
+export type CourseDetailResponse = z.infer<typeof courseDetailResponseSchema>;
+export type CourseCreateRequest = z.infer<typeof courseCreateRequestSchema>;
+export type CourseUpdateRequest = z.infer<typeof courseUpdateRequestSchema>;
 export type CourseMutationResponse = z.infer<
   typeof courseMutationResponseSchema
 >;

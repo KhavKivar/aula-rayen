@@ -11,13 +11,13 @@ import {
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
-  createBookingRequestSchema,
-  updateBookingRequestSchema,
+  bookingCreateRequestSchema,
+  bookingUpdateRequestSchema,
 } from '@aula-rayen/contracts/booking';
 import type {
   BookingResponse,
-  CreateBookingRequest,
-  UpdateBookingRequest,
+  BookingCreateRequest,
+  BookingUpdateRequest,
 } from '@aula-rayen/contracts/booking';
 
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
@@ -49,8 +49,8 @@ export class BookingController {
   @Post()
   async create(
     @Session() session: UserSession,
-    @Body(new ZodValidationPipe(createBookingRequestSchema))
-    dto: CreateBookingRequest,
+    @Body(new ZodValidationPipe(bookingCreateRequestSchema))
+    dto: BookingCreateRequest,
   ): Promise<BookingResponse> {
     const booking = await this.bookingService.create(dto, session.user.id);
 
@@ -60,8 +60,8 @@ export class BookingController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(updateBookingRequestSchema))
-    dto: UpdateBookingRequest,
+    @Body(new ZodValidationPipe(bookingUpdateRequestSchema))
+    dto: BookingUpdateRequest,
     @Session() session: UserSession,
   ): Promise<BookingResponse> {
     const booking = await this.bookingService.update(id, dto, session.user);

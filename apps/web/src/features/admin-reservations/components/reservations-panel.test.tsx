@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   AvailabilitySlotResponse,
-  CreateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
 } from "@aula-rayen/contracts/availability";
 import { ReservationsPanel } from "@/features/admin-reservations/components/reservations-panel";
 import { createTestQueryClient, render } from "@/testing/test-utils";
@@ -52,7 +52,7 @@ function mockBackend() {
       if (url !== "/availability-slots/batch" || !Array.isArray(payload)) {
         throw new Error(`unexpected POST ${url}`);
       }
-      const created = (payload as CreateAvailabilitySlotRequest[]).map(
+      const created = (payload as AvailabilitySlotCreateRequest[]).map(
         (body) => {
           const slot: AvailabilitySlotResponse = {
             id: nextSlotId++,

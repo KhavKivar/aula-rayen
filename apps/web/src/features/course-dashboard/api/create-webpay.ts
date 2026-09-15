@@ -1,9 +1,9 @@
 import axios from "axios";
 import {
-  createWebpayRequestSchema,
-  createWebpayResponseSchema,
-  type CreateWebpayRequest,
-  type CreateWebpayResponse,
+  webpayCreateRequestSchema,
+  webpayCreateResponseSchema,
+  type WebpayCreateRequest,
+  type WebpayCreateResponse,
 } from "@aula-rayen/contracts/webpay";
 
 import { apiClient } from "@/lib/api-client";
@@ -24,17 +24,17 @@ export class CreateWebPayError extends UserFacingError {
 }
 
 export async function createWebPay(
-  createWebPayDto: CreateWebpayRequest,
-): Promise<CreateWebpayResponse> {
-  const parsedDto = createWebpayRequestSchema.parse(createWebPayDto);
+  createWebPayDto: WebpayCreateRequest,
+): Promise<WebpayCreateResponse> {
+  const parsedDto = webpayCreateRequestSchema.parse(createWebPayDto);
 
   try {
-    const { data } = await apiClient.post<CreateWebpayResponse>(
+    const { data } = await apiClient.post<WebpayCreateResponse>(
       "/webpay",
       parsedDto,
     );
 
-    return createWebpayResponseSchema.parse(data);
+    return webpayCreateResponseSchema.parse(data);
   } catch (error: unknown) {
     if (axios.isAxiosError<ApiErrorResponse>(error)) {
       const apiMessage = error.response?.data?.message;

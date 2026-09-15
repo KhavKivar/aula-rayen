@@ -19,9 +19,9 @@ export const bookingResponseSchema = z
   })
   .strict();
 
-export const bookingListSchema = z.array(bookingResponseSchema);
+export const bookingListResponseSchema = z.array(bookingResponseSchema);
 
-export const createBookingRequestSchema = z
+export const bookingCreateRequestSchema = z
   .object({
     slotId: z.number().int().positive(),
     expiresAt: z.iso.datetime(),
@@ -29,7 +29,7 @@ export const createBookingRequestSchema = z
   })
   .strict();
 
-export const updateBookingRequestSchema = z
+export const bookingUpdateRequestSchema = z
   .object({
     expiresAt: z.iso.datetime().optional(),
     status: bookingStatusSchema.optional(),
@@ -41,6 +41,6 @@ export const updateBookingRequestSchema = z
 
 export type BookingStatus = z.infer<typeof bookingStatusSchema>;
 export type BookingResponse = z.infer<typeof bookingResponseSchema>;
-export type BookingList = z.infer<typeof bookingListSchema>;
-export type CreateBookingRequest = z.infer<typeof createBookingRequestSchema>;
-export type UpdateBookingRequest = z.infer<typeof updateBookingRequestSchema>;
+export type BookingListResponse = z.infer<typeof bookingListResponseSchema>;
+export type BookingCreateRequest = z.infer<typeof bookingCreateRequestSchema>;
+export type BookingUpdateRequest = z.infer<typeof bookingUpdateRequestSchema>;

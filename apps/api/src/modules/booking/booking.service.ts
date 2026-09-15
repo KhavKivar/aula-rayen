@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 import type {
-  CreateBookingRequest,
-  UpdateBookingRequest,
+  BookingCreateRequest,
+  BookingUpdateRequest,
 } from '@aula-rayen/contracts/booking';
 
 import {
@@ -57,7 +57,7 @@ export class BookingService {
     return booking;
   }
 
-  async create(dto: CreateBookingRequest, clientId: string) {
+  async create(dto: BookingCreateRequest, clientId: string) {
     const slot = await this.availabilityService.getById(dto.slotId);
 
     if (slot.status !== 'available') {
@@ -73,7 +73,7 @@ export class BookingService {
 
   async update(
     id: number,
-    dto: UpdateBookingRequest,
+    dto: BookingUpdateRequest,
     requester: BookingRequester,
   ) {
     await this.getById(id, requester);

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
-  CreateBookingRequest,
-  UpdateBookingRequest,
+  BookingCreateRequest,
+  BookingUpdateRequest,
 } from '@aula-rayen/contracts/booking';
 import { eq } from 'drizzle-orm';
 
@@ -34,7 +34,7 @@ export class BookingRepository {
   }
 
   async create(
-    dto: CreateBookingRequest & { clientId: string },
+    dto: BookingCreateRequest & { clientId: string },
   ): Promise<BookingAttempt> {
     const [createdBooking] = await this.db
       .insert(booking_attempts)
@@ -54,7 +54,7 @@ export class BookingRepository {
 
   async update(
     id: number,
-    dto: UpdateBookingRequest,
+    dto: BookingUpdateRequest,
   ): Promise<BookingAttempt | null> {
     const set: Partial<NewBookingAttempt> = {};
 

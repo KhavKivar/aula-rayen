@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 import { apiErrorSchema } from "./api-error.js";
 import {
   courseCatalogItemSchema,
-  courseBuyersResponseSchema,
-  courseDetailSchema,
-  createCourseRequestSchema,
-  updateCourseRequestSchema,
+  courseBuyerListResponseSchema,
+  courseDetailResponseSchema,
+  courseCreateRequestSchema,
+  courseUpdateRequestSchema,
 } from "./course.js";
 
 const course = {
@@ -33,9 +33,9 @@ describe("Course contracts", () => {
   });
 
   it("requires content links in purchased course details", () => {
-    expect(() => courseDetailSchema.parse(course)).toThrow();
+    expect(() => courseDetailResponseSchema.parse(course)).toThrow();
     expect(
-      courseDetailSchema.parse({
+      courseDetailResponseSchema.parse({
         ...course,
         videoLink: "https://example.com/video",
         fileLink: "https://example.com/file",
@@ -53,16 +53,16 @@ describe("Course contracts", () => {
       price: course.price,
     };
 
-    expect(createCourseRequestSchema.parse(request)).toEqual(request);
+    expect(courseCreateRequestSchema.parse(request)).toEqual(request);
     expect(() =>
-      createCourseRequestSchema.parse({ ...request, price: -1 }),
+      courseCreateRequestSchema.parse({ ...request, price: -1 }),
     ).toThrow();
-    expect(updateCourseRequestSchema.parse({ title: "Nuevo título" })).toEqual({
+    expect(courseUpdateRequestSchema.parse({ title: "Nuevo título" })).toEqual({
       title: "Nuevo título",
     });
-    expect(() => updateCourseRequestSchema.parse({})).toThrow();
+    expect(() => courseUpdateRequestSchema.parse({})).toThrow();
     expect(() =>
-      updateCourseRequestSchema.parse({ title: "Título", unknown: true }),
+      courseUpdateRequestSchema.parse({ title: "Título", unknown: true }),
     ).toThrow();
   });
 
@@ -76,9 +76,9 @@ describe("Course contracts", () => {
       },
     ];
 
-    expect(courseBuyersResponseSchema.parse(buyers)).toEqual(buyers);
+    expect(courseBuyerListResponseSchema.parse(buyers)).toEqual(buyers);
     expect(() =>
-      courseBuyersResponseSchema.parse([{ ...buyers[0], purchasedAt: "ayer" }]),
+      courseBuyerListResponseSchema.parse([{ ...buyers[0], purchasedAt: "ayer" }]),
     ).toThrow();
   });
 

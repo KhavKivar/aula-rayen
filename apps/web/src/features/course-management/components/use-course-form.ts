@@ -2,8 +2,8 @@ import { useState } from "react";
 
 import { useAppForm } from "@/components/ui/form";
 import {
-  createCourseRequestSchema,
-  updateCourseRequestSchema,
+  courseCreateRequestSchema,
+  courseUpdateRequestSchema,
 } from "@aula-rayen/contracts/course";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
 import {
@@ -77,7 +77,7 @@ export function useCourseForm({
     validators:
       mode === "create"
         ? {
-            onSubmit: createCourseRequestSchema,
+            onSubmit: courseCreateRequestSchema,
           }
         : undefined,
     onSubmit: async ({ value }) => {
@@ -85,7 +85,7 @@ export function useCourseForm({
 
       try {
         if (mode === "create") {
-          const parsed = createCourseRequestSchema.safeParse(value);
+          const parsed = courseCreateRequestSchema.safeParse(value);
           if (!parsed.success) {
             setValidationError(
               parsed.error.issues[0]?.message ??
@@ -107,7 +107,7 @@ export function useCourseForm({
           ),
         );
 
-        const parsed = updateCourseRequestSchema.safeParse(diff);
+        const parsed = courseUpdateRequestSchema.safeParse(diff);
         if (!parsed.success) {
           setValidationError(
             parsed.error.issues[0]?.message ??
