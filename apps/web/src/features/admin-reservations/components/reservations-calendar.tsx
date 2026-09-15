@@ -9,6 +9,7 @@ import {
   previewDateFormatter,
   scheduleRange,
   timeToMinutes,
+  toLocalIsoDate,
   toIsoDate,
   weekDays,
   type FixedSchedule,
@@ -59,7 +60,7 @@ export function ReservationsCalendar({
   const firstWeekday = mondayBasedWeekday(toIsoDate(reference));
   const cells = daysInMonth + firstWeekday;
   const monthLabel = `${capitalize(monthFormatter.format(reference))} ${year}`;
-  const todayIso = toIsoDate(today);
+  const todayIso = toLocalIsoDate(today);
 
   return (
     <section

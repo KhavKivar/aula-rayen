@@ -67,8 +67,15 @@ export function toIsoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
-/** Fecha de referencia "hoy" de la aplicación (lunes, alineada con la vista semanal). */
-export const todayReference = "2026-09-07";
+/** Fecha de referencia "hoy" de la aplicación (alineada con la vista semanal). */
+export const toLocalIsoDate = (date: Date) =>
+  [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+
+export const todayReference = toLocalIsoDate(new Date());
 
 export function plusDays(isoDate: string, days: number) {
   return toIsoDate(

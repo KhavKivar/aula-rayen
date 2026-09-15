@@ -184,6 +184,11 @@ describe("ReservationsPanel", () => {
     const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
 
+    const todayLabel = new Intl.DateTimeFormat("es-CL", {
+      day: "numeric",
+      month: "long",
+    }).format(new Date());
+
     await user.click(
       screen.getByRole("button", { name: "Agregar un horario" }),
     );
@@ -194,12 +199,12 @@ describe("ReservationsPanel", () => {
       ),
     );
     const deleteDayButton = await screen.findByRole("button", {
-      name: "Eliminar todos los horarios del 7 de septiembre",
+      name: `Eliminar todos los horarios del ${todayLabel}`,
     });
     await user.click(deleteDayButton);
 
     const confirmation = screen.getByRole("dialog", {
-      name: "¿Eliminar horarios del 7 de septiembre?",
+      name: `¿Eliminar horarios del ${todayLabel}?`,
     });
     expect(confirmation).toBeVisible();
     await user.click(
@@ -208,7 +213,7 @@ describe("ReservationsPanel", () => {
     await waitFor(() => {
       expect(
         screen.queryByRole("button", {
-          name: "Eliminar todos los horarios del 7 de septiembre",
+          name: `Eliminar todos los horarios del ${todayLabel}`,
         }),
       ).not.toBeInTheDocument();
     });

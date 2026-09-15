@@ -10,14 +10,9 @@ import {
 } from "@/components/ui/popover";
 import {
   previewDateFormatter,
+  toLocalIsoDate,
+  todayReference,
 } from "@/features/admin-reservations/components/schedule-model";
-
-const toLocalIsoDate = (date: Date) =>
-  [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("-");
 
 export function DatePicker({
   label,
@@ -48,6 +43,7 @@ export function DatePicker({
         </PopoverTrigger>
         <PopoverContent align="start" className="w-auto p-0">
           <Calendar
+            key={value}
             mode="single"
             locale={es}
             selected={selected}
@@ -55,6 +51,17 @@ export function DatePicker({
               if (date) onChange(toLocalIsoDate(date));
             }}
           />
+          <div className="border-t border-border p-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() => onChange(todayReference)}
+            >
+              Volver a hoy
+            </Button>
+          </div>
         </PopoverContent>
       </Popover>
     </div>
