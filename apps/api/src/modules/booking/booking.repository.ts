@@ -40,11 +40,19 @@ export class BookingRepository {
   }
 
   findAllByClientId(clientId: string): Promise<BookingAttempt[]> {
-    throw new Error('Not implemented');
+    return this.db
+      .select()
+      .from(booking_attempts)
+      .where(eq(booking_attempts.clientId, clientId))
+      .orderBy(desc(booking_attempts.createdAt));
   }
 
   findById(id: number): Promise<BookingAttempt | null> {
-    throw new Error('Not implemented');
+    return this.db
+      .select()
+      .from(booking_attempts)
+      .where(eq(booking_attempts.id, id))
+      .then((rows) => rows[0] ?? null);
   }
 
   async create(
@@ -66,14 +74,33 @@ export class BookingRepository {
     return created;
   }
 
-  update(
+  async update(
     id: number,
     dto: BookingUpdateRequest,
   ): Promise<BookingAttempt | null> {
-    throw new Error('Not implemented');
+    const values: Partial<typeof booking_attempts.$inferInsert> = {};
+    if (dto.status !== undefined) {
+      values.status = dto.status;
+    }
+    if (dto.expiresAt !== undefined) {
+      values.expiresAt = new Date(dto.expiresAt);
+    }
+
+    const [updated] = await this.db
+      .update(booking_attempts)
+      .set(values)
+      .where(eq(booking_attempts.id, id))
+      .returning();
+
+    return updated ?? null;
   }
 
-  remove(id: number): Promise<BookingAttempt | null> {
-    throw new Error('Not implemented');
+  async remove(id: number): Promise<BookingAttempt | null> {
+    const [removed] = await this.db
+      .delete(booking_attempts)
+      .where(eq(booking_attempts.id, id))
+      .returning();
+
+    return removed ?? null;
   }
 }

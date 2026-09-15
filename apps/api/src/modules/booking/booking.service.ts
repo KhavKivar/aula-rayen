@@ -9,19 +9,49 @@ import { AvailabilityService } from '../availability/availability.service';
 import { BookingRepository } from './booking.repository';
 import type { BookingAttempt } from '@/db/types';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
-import { conflictError } from '@/common/errors/http-error';
+import {
+  conflictError,
+  forbiddenError,
+  notFoundError,
+} from '@/common/errors/http-error';
 
 export type BookingRequester = {
   id: string;
   role?: string | string[];
 };
 
+function isAdminRequester(requester: BookingRequester): boolean {
+  const roles = Array.isArray(requester.role)
+    ? requester.role
+    : [requester.role ?? ''];
+  return roles.includes('admin');
+}
+
+function assertBookingAccess(
+  booking: BookingAttempt,
+  requester: BookingRequester,
+): void {
+  if (booking.clientId !== requester.id && !isAdminRequester(requester)) {
+    throw forbiddenError(
+      API_ERROR_CODES.BOOKING_FORBIDDEN,
+      'No tienes acceso a esta reserva',
+    );
+  }
+}
+
 function isActiveBookingConflictError(error: unknown): boolean {
   const seen = new Set<unknown>();
   let current: unknown = error;
-  while (typeof current === 'object' && current !== null && !seen.has(current)) {
+  while (
+    typeof current === 'object' &&
+    current !== null &&
+    !seen.has(current)
+  ) {
     seen.add(current);
-    const { code, constraint } = current as { code?: unknown; constraint?: unknown };
+    const { code, constraint } = current as {
+      code?: unknown;
+      constraint?: unknown;
+    };
     if (code === '23505' || constraint === 'one_active_booking_per_slot') {
       return true;
     }
@@ -45,7 +75,16 @@ export class BookingService {
     id: number,
     requester: BookingRequester,
   ): Promise<BookingAttempt> {
-    throw new Error('Not implemented');
+    const booking = await this.repository.findById(id);
+
+    if (!booking) {
+      throw notFoundError(
+        API_ERROR_CODES.BOOKING_NOT_FOUND,
+        `Reserva con ID ${id} no encontrada`,
+      );
+    }
+    assertBookingAccess(booking, requester);
+    return booking;
   }
 
   async create(
@@ -79,13 +118,33 @@ export class BookingService {
     dto: BookingUpdateRequest,
     requester: BookingRequester,
   ): Promise<BookingAttempt> {
-    throw new Error('Not implemented');
+    await this.getById(id, requester);
+
+    const updated = await this.repository.update(id, dto);
+
+    if (!updated) {
+      throw notFoundError(
+        API_ERROR_CODES.BOOKING_NOT_FOUND,
+        `Reserva con ID ${id} no encontrada`,
+      );
+    }
+    return updated;
   }
 
   async remove(
     id: number,
     requester: BookingRequester,
   ): Promise<BookingAttempt> {
-    throw new Error('Not implemented');
+    await this.getById(id, requester);
+
+    const removed = await this.repository.remove(id);
+
+    if (!removed) {
+      throw notFoundError(
+        API_ERROR_CODES.BOOKING_NOT_FOUND,
+        `Reserva con ID ${id} no encontrada`,
+      );
+    }
+    return removed;
   }
 }
