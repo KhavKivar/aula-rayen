@@ -15,7 +15,7 @@ import { PaymentDetailDialog } from "@/features/admin-dashboard/components/payme
 import { PaymentFiltersBar } from "@/features/admin-dashboard/components/payment-filters";
 import { formatCurrency } from "@/features/admin-dashboard/components/payment-format";
 import { PaymentsTable } from "@/features/admin-dashboard/components/payments-table";
-import type { Payment } from "@aula-rayen/contracts/payment";
+import type { PaymentResponse } from "@aula-rayen/contracts/payment";
 import { cn } from "@/lib/utils";
 import { useDeferredSearch } from "@/hooks/use-deferred-search";
 
@@ -67,7 +67,7 @@ export function PaymentsPanel() {
 
   const [details, setDetails] = useState<{
     open: boolean;
-    selectPayment: Payment | null;
+    selectPayment: PaymentResponse | null;
   }>({
     open: false,
     selectPayment: null,

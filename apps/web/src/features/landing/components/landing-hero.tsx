@@ -10,8 +10,8 @@ export function LandingHero({
   kicker = "Psicología con calidez",
   title = (
     <>
-      Un espacio para <em className="font-normal text-terracotta">florecer</em> a
-      tu ritmo.
+      Un espacio para <em className="font-normal text-terracotta">florecer</em>{" "}
+      a tu ritmo.
     </>
   ),
   description = "Te acompaño a comprender lo que sientes y a cuidar de ti y de tus vínculos, con sesiones online y presenciales.",

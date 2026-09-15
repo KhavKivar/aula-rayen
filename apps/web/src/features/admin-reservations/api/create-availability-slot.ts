@@ -1,21 +1,21 @@
 import {
-  availabilitySlotListSchema,
+  availabilitySlotListResponseSchema,
   availabilitySlotResponseSchema,
-  createAvailabilitySlotRequestSchema,
-  createAvailabilitySlotsRequestSchema,
+  availabilitySlotCreateRequestSchema,
+  availabilitySlotBulkCreateRequestSchema,
 } from "@aula-rayen/contracts/availability";
 import type {
   AvailabilitySlotResponse,
-  CreateAvailabilitySlotRequest,
-  CreateAvailabilitySlotsRequest,
+  AvailabilitySlotCreateRequest,
+  AvailabilitySlotBulkCreateRequest,
 } from "@aula-rayen/contracts/availability";
 
 import { apiClient } from "@/lib/api-client";
 
 export async function createAvailabilitySlot(
-  data: CreateAvailabilitySlotRequest,
+  data: AvailabilitySlotCreateRequest,
 ): Promise<AvailabilitySlotResponse> {
-  const parsed = createAvailabilitySlotRequestSchema.parse(data);
+  const parsed = availabilitySlotCreateRequestSchema.parse(data);
 
   const { data: response } = await apiClient.post<unknown>(
     "/availability-slots",
@@ -26,14 +26,14 @@ export async function createAvailabilitySlot(
 }
 
 export async function createAvailabilitySlots(
-  slots: CreateAvailabilitySlotsRequest,
+  slots: AvailabilitySlotBulkCreateRequest,
 ): Promise<AvailabilitySlotResponse[]> {
-  const parsed = createAvailabilitySlotsRequestSchema.parse(slots);
+  const parsed = availabilitySlotBulkCreateRequestSchema.parse(slots);
 
   const { data: response } = await apiClient.post<unknown>(
     "/availability-slots/batch",
     parsed,
   );
 
-  return availabilitySlotListSchema.parse(response);
+  return availabilitySlotListResponseSchema.parse(response);
 }

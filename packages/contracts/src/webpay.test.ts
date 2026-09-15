@@ -3,33 +3,33 @@ import { describe, expect, it } from "vitest";
 import {
   commitRedirectSchema,
   commitResultSchema,
-  createWebpayRequestSchema,
-  createWebpayResponseSchema,
+  webpayCreateRequestSchema,
+  webpayCreateResponseSchema,
   paymentResultStatusSchema,
   webpayAdminSessionsResponseSchema,
 } from "./webpay.js";
 
-describe("createWebpayRequestSchema", () => {
+describe("webpayCreateRequestSchema", () => {
   it("accepts a valid course id", () => {
-    expect(createWebpayRequestSchema.parse({ course_id: 4 })).toEqual({
+    expect(webpayCreateRequestSchema.parse({ course_id: 4 })).toEqual({
       course_id: 4,
     });
   });
 
   it("rejects non-positive course ids and unknown fields", () => {
     expect(() =>
-      createWebpayRequestSchema.parse({ course_id: 0 }),
+      webpayCreateRequestSchema.parse({ course_id: 0 }),
     ).toThrow();
     expect(() =>
-      createWebpayRequestSchema.parse({ course_id: 4, amount: 100 }),
+      webpayCreateRequestSchema.parse({ course_id: 4, amount: 100 }),
     ).toThrow();
   });
 });
 
-describe("createWebpayResponseSchema", () => {
+describe("webpayCreateResponseSchema", () => {
   it("accepts the Transbank token and url", () => {
     expect(
-      createWebpayResponseSchema.parse({
+      webpayCreateResponseSchema.parse({
         token: "token-ws",
         url: "https://webpay.example.com/tbk",
       }),
@@ -41,13 +41,13 @@ describe("createWebpayResponseSchema", () => {
 
   it("rejects empty tokens and non-urls", () => {
     expect(() =>
-      createWebpayResponseSchema.parse({
+      webpayCreateResponseSchema.parse({
         token: "",
         url: "https://webpay.example.com/tbk",
       }),
     ).toThrow();
     expect(() =>
-      createWebpayResponseSchema.parse({
+      webpayCreateResponseSchema.parse({
         token: "token-ws",
         url: "not-a-url",
       }),

@@ -1,20 +1,20 @@
 import { z } from "zod";
 import {
-  courseDetailSchema,
-  updateCourseRequestSchema,
+  courseDetailResponseSchema,
+  courseUpdateRequestSchema,
 } from "@aula-rayen/contracts/course";
-import type { CourseDetail } from "@aula-rayen/contracts/course";
+import type { CourseDetailResponse } from "@aula-rayen/contracts/course";
 
 import { apiClient } from "@/lib/api-client";
 
 const updateCourseInputSchema = z.object({
   id: z.number().int().positive(),
-  data: updateCourseRequestSchema,
+  data: courseUpdateRequestSchema,
 });
 
 export async function updateCourse(
   input: z.infer<typeof updateCourseInputSchema>,
-): Promise<CourseDetail> {
+): Promise<CourseDetailResponse> {
   const parsed = updateCourseInputSchema.parse(input);
 
   const { data: response } = await apiClient.patch<unknown>(
@@ -22,5 +22,5 @@ export async function updateCourse(
     parsed.data,
   );
 
-  return courseDetailSchema.parse(response);
+  return courseDetailResponseSchema.parse(response);
 }

@@ -78,6 +78,13 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 
 - TypeScript estricto; evita `any` nuevo y aserciones `!` para ocultar configuración
   ausente.
+- Contratos HTTP en `packages/contracts`: los esquemas se nombran con el recurso
+  primero y la acción al final, formato `{recurso}{Acción}`. Requests:
+  `{recurso}CreateRequestSchema`, `{recurso}UpdateRequestSchema`;
+  operaciones masivas: `{recurso}BulkCreateRequestSchema` /
+  `{recurso}BulkDeleteRequestSchema`. Responses: `{recurso}ResponseSchema`,
+  `{recurso}ListResponseSchema`. Los tipos `z.infer` correspondientes comparten el
+  mismo nombre quitando el sufijo `Schema`.
 - Usa imports absolutos con `@/` dentro de cada aplicación cuando estén disponibles.
 - Prefiere módulos pequeños con una responsabilidad clara.
 - Conserva los nombres del dominio en inglés en código y los mensajes visibles al

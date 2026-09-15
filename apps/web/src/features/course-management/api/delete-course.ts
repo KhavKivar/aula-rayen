@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { courseDetailSchema } from "@aula-rayen/contracts/course";
-import type { CourseDetail } from "@aula-rayen/contracts/course";
+import { courseDetailResponseSchema } from "@aula-rayen/contracts/course";
+import type { CourseDetailResponse } from "@aula-rayen/contracts/course";
 
 import { apiClient } from "@/lib/api-client";
 
@@ -10,12 +10,12 @@ const deleteCourseInputSchema = z.object({
 
 export async function deleteCourse(
   input: z.infer<typeof deleteCourseInputSchema>,
-): Promise<CourseDetail> {
+): Promise<CourseDetailResponse> {
   const parsed = deleteCourseInputSchema.parse(input);
 
   const { data: response } = await apiClient.delete<unknown>(
     `/courses/${parsed.id}`,
   );
 
-  return courseDetailSchema.parse(response);
+  return courseDetailResponseSchema.parse(response);
 }

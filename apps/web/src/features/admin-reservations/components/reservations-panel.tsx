@@ -1,24 +1,38 @@
 import { useQuery } from "@tanstack/react-query";
+import { API_ERROR_CODES } from "@aula-rayen/contracts/api-error";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { QueryState } from "@/components/ui/query-state";
 import { availabilityQueries } from "@/features/admin-reservations/api/queries";
 import {
   useCreateAvailabilitySlots,
   useDeleteAvailabilitySlot,
+  useDeleteAvailabilitySlots,
 } from "@/features/admin-reservations/api/use-availability-mutations";
-import { ScheduleBuilder } from "@/features/admin-reservations/components/schedule-builder";
+import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-calendar";
 import {
+  describeSlotConflict,
   expandSchedulesToSlots,
+  findConflictingSlots,
+  previewDateFormatter,
+  scheduleHasConflict,
+  scheduleRange,
   toFixedSchedule,
   type FixedSchedule,
   type WeekDay,
 } from "@/features/admin-reservations/components/schedule-model";
 import { SingleScheduleDialog } from "@/features/admin-reservations/components/single-schedule-dialog";
+import { ScheduleGeneratorForm } from "@/features/admin-reservations/components/schedule-generator-form";
 import { toApiErrorMessage } from "@/lib/api-error";
 import { sessionQueries } from "@/lib/session-queries";
+
+const deleteSlotCodeMessages: Record<string, string> = {
+  [API_ERROR_CODES.AVAILABILITY_SLOT_HAS_BOOKINGS]:
+    "No se puede eliminar el horario porque ya tiene reservas asociadas. Cancela las reservas de ese bloque antes de eliminarlo.",
+};
 
 function PageHeader({ onAddOne }: { onAddOne: () => void }) {
   return (
@@ -29,11 +43,11 @@ function PageHeader({ onAddOne }: { onAddOne: () => void }) {
           id="reservations-title"
           className="mt-3 font-heading text-4xl leading-none tracking-[-0.04em] sm:text-5xl"
         >
-          Reservas
+          Disponibilidad
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-          Organiza tus horarios fijos y revisa las próximas sesiones desde un
-          solo lugar.
+          Publica tus horarios fijos y gestiona los bloques en los que puedes
+          recibir sesiones.
         </p>
       </div>
       <Button type="button" onClick={onAddOne}>
@@ -45,14 +59,34 @@ function PageHeader({ onAddOne }: { onAddOne: () => void }) {
 
 export function ReservationsPanel() {
   const [singleScheduleOpen, setSingleScheduleOpen] = useState(false);
+  const [scheduleDraft, setScheduleDraft] = useState<{
+    date?: string;
+    day?: WeekDay;
+  }>({});
   const [actionError, setActionError] = useState<string | null>(null);
+  const [conflictError, setConflictError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<FixedSchedule | null>(
+    null,
+  );
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const slotsQuery = useQuery(availabilityQueries.slots);
   const sessionQuery = useQuery(sessionQueries.session);
   const createSlots = useCreateAvailabilitySlots();
-  const deleteSlot = useDeleteAvailabilitySlot();
+  const deleteSlot = useDeleteAvailabilitySlot({
+    onSuccess: () => setPendingDelete(null),
+  });
+  const deleteSlots = useDeleteAvailabilitySlots();
 
   const schedules = useMemo(
-    () => (slotsQuery.data ?? []).map(toFixedSchedule),
+    () =>
+      (slotsQuery.data ?? [])
+        .map(toFixedSchedule)
+        .sort((a, b) => {
+          const dateOrder = a.validFrom.localeCompare(b.validFrom);
+          return dateOrder !== 0
+            ? dateOrder
+            : a.startTime.localeCompare(b.startTime);
+        }),
     [slotsQuery.data],
   );
   const assigneeId = sessionQuery.data?.user.id;
@@ -70,6 +104,16 @@ export function ReservationsPanel() {
     try {
       const payloads = expandSchedulesToSlots(generated, requireAssignee());
       if (payloads.length === 0) return;
+      const conflict = findConflictingSlots(
+        payloads,
+        slotsQuery.data ?? [],
+      )[0];
+      if (conflict) {
+        setConflictError(
+          `El bloque (${describeSlotConflict(conflict)}) se superpone con un horario existente. Ajusta las horas o elige otra fecha.`,
+        );
+        return;
+      }
       setActionError(null);
       void createSlots.mutateAsync(payloads).catch((error: unknown) => {
         setActionError(
@@ -84,25 +128,32 @@ export function ReservationsPanel() {
   };
 
   const deleteSchedule = (id: number) => {
-    setActionError(null);
+    setDeleteError(null);
     void deleteSlot.mutateAsync({ id }).catch((error: unknown) => {
-      setActionError(
-        toApiErrorMessage(error, "No se pudo eliminar el horario"),
+      setDeleteError(
+        toApiErrorMessage(
+          error,
+          "No se pudo eliminar el horario",
+          deleteSlotCodeMessages,
+        ),
       );
     });
   };
 
-  const deleteSchedulesByDay = (day: WeekDay) => {
-    setActionError(null);
+  const deleteSchedulesByDate = (
+    date: string,
+  ): Promise<string | null> => {
     const ids = schedules
-      .filter((schedule) => schedule.days.includes(day))
+      .filter((schedule) => schedule.validFrom === date)
       .map((schedule) => schedule.id);
-    void Promise.all(ids.map((id) => deleteSlot.mutateAsync({ id }))).catch(
-      (error: unknown) => {
-        setActionError(
-          toApiErrorMessage(error, "No se pudieron eliminar los horarios"),
-        );
-      },
+    return deleteSlots.mutateAsync(ids).then(
+      () => null,
+      (error: unknown) =>
+        toApiErrorMessage(
+          error,
+          "No se pudieron eliminar los horarios",
+          deleteSlotCodeMessages,
+        ),
     );
   };
 
@@ -133,17 +184,72 @@ export function ReservationsPanel() {
         </p>
       ) : null}
       <div className="mt-8">
-        <ScheduleBuilder
+        <ScheduleGeneratorForm onSave={saveSchedules} />
+      </div>
+      <div className="mt-8">
+        <ReservationsCalendar
           schedules={schedules}
-          onSave={saveSchedules}
-          onDelete={deleteSchedule}
-          onDeleteDay={deleteSchedulesByDay}
+          onAddForDate={(date, day) => {
+            setScheduleDraft({ date, day });
+            setSingleScheduleOpen(true);
+          }}
+          onDelete={(id) => setPendingDelete(
+            schedules.find((schedule) => schedule.id === id) ?? null,
+          )}
+          onDeleteDate={deleteSchedulesByDate}
         />
       </div>
       <SingleScheduleDialog
+        key={scheduleDraft.date ?? "default"}
+        initialDate={scheduleDraft.date}
+        initialDay={scheduleDraft.day}
         open={singleScheduleOpen}
         onOpenChange={setSingleScheduleOpen}
         onSave={(schedule) => saveSchedules([schedule])}
+        checkConflict={(schedule) =>
+          scheduleHasConflict(schedule, schedules)
+        }
+      />
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDelete(null);
+            setDeleteError(null);
+          }
+        }}
+        title={"¿Eliminar este horario de disponibilidad?"}
+        description={
+          pendingDelete
+            ? `Se quitará el bloque ${pendingDelete.days[0]} de ${scheduleRange(pendingDelete)} del ${previewDateFormatter.format(new Date(`${pendingDelete.validFrom}T00:00:00Z`))}.`
+            : undefined
+        }
+        confirmLabel="Sí, eliminar"
+        pendingLabel="Eliminando…"
+        destructive
+        isPending={deleteSlot.isPending}
+        onConfirm={() => {
+          if (pendingDelete) deleteSchedule(pendingDelete.id);
+        }}
+      >
+        {deleteError ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-error-surface px-4 py-3 text-sm text-error"
+          >
+            {deleteError}
+          </p>
+        ) : null}
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={conflictError !== null}
+        onOpenChange={(open) => {
+          if (!open) setConflictError(null);
+        }}
+        title="Conflicto de horarios"
+        description={conflictError ?? ""}
+        confirmLabel="Entendido"
+        onConfirm={() => setConflictError(null)}
       />
     </section>
   );

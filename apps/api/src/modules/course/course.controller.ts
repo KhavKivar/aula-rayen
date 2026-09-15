@@ -11,14 +11,14 @@ import {
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
-  createCourseRequestSchema,
-  updateCourseRequestSchema,
+  courseCreateRequestSchema,
+  courseUpdateRequestSchema,
 } from '@aula-rayen/contracts/course';
 import type {
   CourseCatalogItem,
-  CourseDetail,
-  CreateCourseRequest as CreateCourseDto,
-  UpdateCourseRequest as UpdateCourseDto,
+  CourseDetailResponse,
+  CourseCreateRequest as CreateCourseDto,
+  CourseUpdateRequest as UpdateCourseDto,
   CourseBuyerResponse,
 } from '@aula-rayen/contracts/course';
 
@@ -44,7 +44,7 @@ export class CourseController {
   async findById(
     @Param('id', ParseIntPipe) id: number,
     @Session() session: UserSession,
-  ): Promise<CourseDetail> {
+  ): Promise<CourseDetailResponse> {
     const course = await this.courseService.getPurchasedById(
       id,
       session.user.id,
@@ -63,9 +63,9 @@ export class CourseController {
   @Post()
   async create(
     @Session() _session: UserSession,
-    @Body(new ZodValidationPipe(createCourseRequestSchema))
+    @Body(new ZodValidationPipe(courseCreateRequestSchema))
     dto: CreateCourseDto,
-  ): Promise<CourseDetail> {
+  ): Promise<CourseDetailResponse> {
     const course = await this.courseService.create(dto);
 
     return toCourseDetail(course);
@@ -75,16 +75,18 @@ export class CourseController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Session() _session: UserSession,
-    @Body(new ZodValidationPipe(updateCourseRequestSchema))
+    @Body(new ZodValidationPipe(courseUpdateRequestSchema))
     dto: UpdateCourseDto,
-  ): Promise<CourseDetail> {
+  ): Promise<CourseDetailResponse> {
     const course = await this.courseService.update(id, dto);
 
     return toCourseDetail(course);
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<CourseDetail> {
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CourseDetailResponse> {
     const course = await this.courseService.remove(id);
 
     return toCourseDetail(course);

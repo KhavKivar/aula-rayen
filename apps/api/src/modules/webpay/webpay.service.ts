@@ -4,14 +4,14 @@ import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { nanoid } from 'nanoid';
 import { API_ERROR_CODES } from '@aula-rayen/contracts/api-error';
 import {
-  paymentsResponseSchema,
-  type PaymentsResponse,
+  paymentListResponseSchema,
+  type PaymentListResponse,
 } from '@aula-rayen/contracts/payment';
 import {
-  createWebpayResponseSchema,
+  webpayCreateResponseSchema,
   webpayAdminSessionsResponseSchema,
   type CommitResult,
-  type CreateWebpayResponse,
+  type WebpayCreateResponse,
   type WebpayAdminSessionsResponse,
 } from '@aula-rayen/contracts/webpay';
 
@@ -28,8 +28,8 @@ import { z } from 'zod';
 import { CourseService } from '../course/course.service';
 import { env } from '@/config/env';
 
-function isCreateResponse(value: unknown): value is CreateWebpayResponse {
-  return createWebpayResponseSchema.safeParse(value).success;
+function isCreateResponse(value: unknown): value is WebpayCreateResponse {
+  return webpayCreateResponseSchema.safeParse(value).success;
 }
 
 const CommitResponseSchema = z
@@ -120,10 +120,10 @@ export class WebPayService {
   }
 
   // Expected few payments rows, so we should return all payment at once
-  async getPayments(): Promise<PaymentsResponse> {
+  async getPayments(): Promise<PaymentListResponse> {
     const rows = await this.repository.findPayments();
 
-    return paymentsResponseSchema.parse(
+    return paymentListResponseSchema.parse(
       rows.map((row) => {
         const approved =
           row.committedAt !== null &&
@@ -155,7 +155,7 @@ export class WebPayService {
   async create(
     createWebpayDto: CreateWebpayDto,
     userId: string,
-  ): Promise<CreateWebpayResponse> {
+  ): Promise<WebpayCreateResponse> {
     const course: Course = await this.courseService.getById(
       createWebpayDto.course_id,
     );

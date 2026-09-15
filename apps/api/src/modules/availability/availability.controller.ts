@@ -11,15 +11,17 @@ import {
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
-  createAvailabilitySlotRequestSchema,
-  createAvailabilitySlotsRequestSchema,
-  updateAvailabilitySlotRequestSchema,
+  availabilitySlotCreateRequestSchema,
+  availabilitySlotBulkCreateRequestSchema,
+  availabilitySlotBulkDeleteRequestSchema,
+  availabilitySlotUpdateRequestSchema,
 } from '@aula-rayen/contracts/availability';
 import type {
   AvailabilitySlotResponse,
-  CreateAvailabilitySlotRequest,
-  CreateAvailabilitySlotsRequest,
-  UpdateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
+  AvailabilitySlotBulkCreateRequest,
+  AvailabilitySlotBulkDeleteRequest,
+  AvailabilitySlotUpdateRequest,
 } from '@aula-rayen/contracts/availability';
 
 import { ZodValidationPipe } from '@/common/pipes/zod-validation.pipe';
@@ -52,8 +54,8 @@ export class AvailabilityController {
   @Post()
   async create(
     @Session() session: UserSession,
-    @Body(new ZodValidationPipe(createAvailabilitySlotRequestSchema))
-    dto: CreateAvailabilitySlotRequest,
+    @Body(new ZodValidationPipe(availabilitySlotCreateRequestSchema))
+    dto: AvailabilitySlotCreateRequest,
   ): Promise<AvailabilitySlotResponse> {
     const slot = await this.availabilityService.create(dto, session.user.id);
 
@@ -63,8 +65,8 @@ export class AvailabilityController {
   @Post('batch')
   async createMany(
     @Session() session: UserSession,
-    @Body(new ZodValidationPipe(createAvailabilitySlotsRequestSchema))
-    dto: CreateAvailabilitySlotsRequest,
+    @Body(new ZodValidationPipe(availabilitySlotBulkCreateRequestSchema))
+    dto: AvailabilitySlotBulkCreateRequest,
   ): Promise<AvailabilitySlotResponse[]> {
     const slots = await this.availabilityService.createMany(
       dto,
@@ -77,12 +79,22 @@ export class AvailabilityController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body(new ZodValidationPipe(updateAvailabilitySlotRequestSchema))
-    dto: UpdateAvailabilitySlotRequest,
+    @Body(new ZodValidationPipe(availabilitySlotUpdateRequestSchema))
+    dto: AvailabilitySlotUpdateRequest,
   ): Promise<AvailabilitySlotResponse> {
     const slot = await this.availabilityService.update(id, dto);
 
     return toAvailabilitySlotResponse(slot);
+  }
+
+  @Delete('batch')
+  async removeMany(
+    @Body(new ZodValidationPipe(availabilitySlotBulkDeleteRequestSchema))
+    ids: AvailabilitySlotBulkDeleteRequest,
+  ): Promise<AvailabilitySlotResponse[]> {
+    const slots = await this.availabilityService.removeMany(ids);
+
+    return slots.map(toAvailabilitySlotResponse);
   }
 
   @Delete(':id')

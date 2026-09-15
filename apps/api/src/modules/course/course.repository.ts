@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
   CourseBuyerResponse,
-  UpdateCourseRequest,
+  CourseUpdateRequest,
 } from '@aula-rayen/contracts/course';
 import { and, eq } from 'drizzle-orm';
 
@@ -127,7 +127,7 @@ export class CourseRepository {
 
   async update(
     id: number,
-    course: UpdateCourseRequest,
+    course: CourseUpdateRequest,
   ): Promise<Course | null> {
     const [updateCourse] = await this.db
       .update(courses)

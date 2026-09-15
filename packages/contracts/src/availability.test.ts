@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  availabilitySlotListSchema,
+  availabilitySlotListResponseSchema,
   availabilitySlotResponseSchema,
-  createAvailabilitySlotRequestSchema,
-  createAvailabilitySlotsRequestSchema,
-  updateAvailabilitySlotRequestSchema,
+  availabilitySlotCreateRequestSchema,
+  availabilitySlotBulkCreateRequestSchema,
+  availabilitySlotUpdateRequestSchema,
 } from "./availability.js";
 
 const slot = {
@@ -21,7 +21,7 @@ const slot = {
 describe("Availability contracts", () => {
   it("accepts a slot response and a list of slots", () => {
     expect(availabilitySlotResponseSchema.parse(slot)).toEqual(slot);
-    expect(availabilitySlotListSchema.parse([slot])).toEqual([slot]);
+    expect(availabilitySlotListResponseSchema.parse([slot])).toEqual([slot]);
     expect(() =>
       availabilitySlotResponseSchema.parse({ ...slot, status: "taken" }),
     ).toThrow();
@@ -34,15 +34,15 @@ describe("Availability contracts", () => {
       assignedTo: slot.assignedTo,
     };
 
-    expect(createAvailabilitySlotRequestSchema.parse(request)).toEqual(request);
+    expect(availabilitySlotCreateRequestSchema.parse(request)).toEqual(request);
     expect(
-      createAvailabilitySlotRequestSchema.parse({
+      availabilitySlotCreateRequestSchema.parse({
         ...request,
         status: "disabled",
       }),
     ).toEqual({ ...request, status: "disabled" });
     expect(() =>
-      createAvailabilitySlotRequestSchema.parse({
+      availabilitySlotCreateRequestSchema.parse({
         ...request,
         startTime: "ayer",
       }),
@@ -51,11 +51,11 @@ describe("Availability contracts", () => {
 
   it("validates non-empty partial updates", () => {
     expect(
-      updateAvailabilitySlotRequestSchema.parse({ status: "disabled" }),
+      availabilitySlotUpdateRequestSchema.parse({ status: "disabled" }),
     ).toEqual({ status: "disabled" });
-    expect(() => updateAvailabilitySlotRequestSchema.parse({})).toThrow();
+    expect(() => availabilitySlotUpdateRequestSchema.parse({})).toThrow();
     expect(() =>
-      updateAvailabilitySlotRequestSchema.parse({
+      availabilitySlotUpdateRequestSchema.parse({
         status: "disabled",
         unknown: true,
       }),
@@ -69,12 +69,12 @@ describe("Availability contracts", () => {
       assignedTo: slot.assignedTo,
     };
 
-    expect(createAvailabilitySlotsRequestSchema.parse([request])).toEqual([
+    expect(availabilitySlotBulkCreateRequestSchema.parse([request])).toEqual([
       request,
     ]);
-    expect(() => createAvailabilitySlotsRequestSchema.parse([])).toThrow();
+    expect(() => availabilitySlotBulkCreateRequestSchema.parse([])).toThrow();
     expect(() =>
-      createAvailabilitySlotsRequestSchema.parse([
+      availabilitySlotBulkCreateRequestSchema.parse([
         { ...request, startTime: "ayer" },
       ]),
     ).toThrow();

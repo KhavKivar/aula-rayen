@@ -3,14 +3,14 @@ import { CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/features/admin-dashboard/components/payment-format";
 import { PaymentStatusBadge } from "@/features/admin-dashboard/components/payment-status-badge";
-import type { Payment } from "@aula-rayen/contracts/payment";
+import type { PaymentResponse } from "@aula-rayen/contracts/payment";
 
 export function PaymentsTable({
   payments,
   onSelectPayment,
 }: {
-  payments: readonly Payment[];
-  onSelectPayment: (payment: Payment) => void;
+  payments: readonly PaymentResponse[];
+  onSelectPayment: (payment: PaymentResponse) => void;
 }) {
   return (
     <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-card">

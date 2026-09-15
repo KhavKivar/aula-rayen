@@ -1,11 +1,14 @@
 import { useForm } from "@tanstack/react-form";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/features/admin-reservations/components/date-picker";
 import {
+  mondayBasedWeekday,
+  todayReference,
   weekDays,
   type FixedSchedule,
   type WeekDay,
@@ -15,26 +18,42 @@ export function SingleScheduleDialog({
   open,
   onOpenChange,
   onSave,
+  initialDate,
+  initialDay,
+  checkConflict,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (schedule: Omit<FixedSchedule, "id">) => void;
+  initialDate?: string;
+  initialDay?: WeekDay;
+  checkConflict?: (schedule: Omit<FixedSchedule, "id">) => boolean;
 }) {
+  const [conflictError, setConflictError] = useState(false);
   const form = useForm({
     defaultValues: {
-      day: "Lun" as WeekDay,
-      date: "2026-09-07",
+      day:
+        initialDay ??
+        weekDays[mondayBasedWeekday(initialDate ?? todayReference)] ??
+        "Lun",
+      date: initialDate ?? todayReference,
       startTime: "09:00",
       duration: "1" as "1" | "2",
     },
     onSubmit: ({ value }) => {
-      onSave({
+      const schedule: Omit<FixedSchedule, "id"> = {
         days: [value.day],
         startTime: value.startTime,
         duration: Number(value.duration) as 1 | 2,
         validFrom: value.date,
         validUntil: value.date,
-      });
+      };
+      if (checkConflict?.(schedule)) {
+        setConflictError(true);
+        return;
+      }
+      setConflictError(false);
+      onSave(schedule);
       onOpenChange(false);
     },
   });
@@ -42,7 +61,10 @@ export function SingleScheduleDialog({
   return (
     <FormDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => {
+        if (next) setConflictError(false);
+        onOpenChange(next);
+      }}
       title="Agregar un horario"
       description="Crea un bloque individual en la disponibilidad semanal."
     >
@@ -58,7 +80,13 @@ export function SingleScheduleDialog({
             <DatePicker
               label="Fecha"
               value={field.state.value}
-              onChange={field.handleChange}
+              onChange={(next) => {
+                field.handleChange(next);
+                form.setFieldValue(
+                  "day",
+                  weekDays[mondayBasedWeekday(next)] ?? "Lun",
+                );
+              }}
             />
           )}
         </form.Field>
@@ -111,6 +139,12 @@ export function SingleScheduleDialog({
             </label>
           )}
         </form.Field>
+        {conflictError ? (
+          <p role="alert" className="text-sm text-destructive">
+            Este horario se superpone con un bloque existente en la misma
+            fecha. Ajusta la hora o elige otra fecha.
+          </p>
+        ) : null}
         <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"

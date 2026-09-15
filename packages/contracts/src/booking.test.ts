@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  bookingListSchema,
+  bookingListResponseSchema,
   bookingResponseSchema,
-  createBookingRequestSchema,
-  updateBookingRequestSchema,
+  bookingCreateRequestSchema,
+  bookingUpdateRequestSchema,
 } from "./booking.js";
 
 const booking = {
@@ -20,7 +20,7 @@ const booking = {
 describe("Booking contracts", () => {
   it("accepts a booking response and a list of bookings", () => {
     expect(bookingResponseSchema.parse(booking)).toEqual(booking);
-    expect(bookingListSchema.parse([booking])).toEqual([booking]);
+    expect(bookingListResponseSchema.parse([booking])).toEqual([booking]);
     expect(() =>
       bookingResponseSchema.parse({ ...booking, status: "unknown" }),
     ).toThrow();
@@ -32,22 +32,22 @@ describe("Booking contracts", () => {
       expiresAt: booking.expiresAt,
     };
 
-    expect(createBookingRequestSchema.parse(request)).toEqual(request);
+    expect(bookingCreateRequestSchema.parse(request)).toEqual(request);
     expect(
-      createBookingRequestSchema.parse({ ...request, status: "confirmed" }),
+      bookingCreateRequestSchema.parse({ ...request, status: "confirmed" }),
     ).toEqual({ ...request, status: "confirmed" });
     expect(() =>
-      createBookingRequestSchema.parse({ ...request, slotId: 0 }),
+      bookingCreateRequestSchema.parse({ ...request, slotId: 0 }),
     ).toThrow();
   });
 
   it("validates non-empty partial updates", () => {
-    expect(updateBookingRequestSchema.parse({ status: "cancelled" })).toEqual({
+    expect(bookingUpdateRequestSchema.parse({ status: "cancelled" })).toEqual({
       status: "cancelled",
     });
-    expect(() => updateBookingRequestSchema.parse({})).toThrow();
+    expect(() => bookingUpdateRequestSchema.parse({})).toThrow();
     expect(() =>
-      updateBookingRequestSchema.parse({ status: "cancelled", unknown: true }),
+      bookingUpdateRequestSchema.parse({ status: "cancelled", unknown: true }),
     ).toThrow();
   });
 });
