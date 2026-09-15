@@ -7,6 +7,7 @@ import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/features/admin-reservations/components/date-picker";
 import {
+  mondayBasedWeekday,
   todayReference,
   weekDays,
   type FixedSchedule,
@@ -31,7 +32,10 @@ export function SingleScheduleDialog({
   const [conflictError, setConflictError] = useState(false);
   const form = useForm({
     defaultValues: {
-      day: initialDay ?? ("Lun" as WeekDay),
+      day:
+        initialDay ??
+        weekDays[mondayBasedWeekday(initialDate ?? todayReference)] ??
+        "Lun",
       date: initialDate ?? todayReference,
       startTime: "09:00",
       duration: "1" as "1" | "2",
@@ -76,7 +80,13 @@ export function SingleScheduleDialog({
             <DatePicker
               label="Fecha"
               value={field.state.value}
-              onChange={field.handleChange}
+              onChange={(next) => {
+                field.handleChange(next);
+                form.setFieldValue(
+                  "day",
+                  weekDays[mondayBasedWeekday(next)] ?? "Lun",
+                );
+              }}
             />
           )}
         </form.Field>

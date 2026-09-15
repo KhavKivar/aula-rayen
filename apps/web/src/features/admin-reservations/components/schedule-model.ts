@@ -113,7 +113,12 @@ function expandedDates(schedule: Omit<FixedSchedule, "id">): string[] {
   for (let day = start; day <= end; day += DAY_IN_MS) {
     const date = new Date(day).toISOString().slice(0, 10);
     const weekday = weekDays[mondayBasedWeekday(date)] ?? "Lun";
-    if (!schedule.days.includes(weekday)) continue;
+    if (
+      schedule.validFrom !== schedule.validUntil &&
+      !schedule.days.includes(weekday)
+    ) {
+      continue;
+    }
     dates.push(date);
   }
   return dates;

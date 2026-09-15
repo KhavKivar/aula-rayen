@@ -114,6 +114,11 @@ describe("ReservationsPanel", () => {
       ]),
     );
     await user.click(deleteButtons[0]);
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Sí, eliminar",
+      }),
+    );
     await waitFor(() => {
       expect(
         screen.getAllByRole("button", { name: /Eliminar .+ de 09:00 a 10:00/ }),
@@ -136,10 +141,10 @@ describe("ReservationsPanel", () => {
 
     expect(
       await screen.findByRole("button", {
-        name: "Eliminar Lun de 09:00 a 11:00",
+        name: "Eliminar Mar de 09:00 a 11:00",
       }),
     ).toBeVisible();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Agregar un horario" })).not.toBeInTheDocument();
   });
 
   it("blocks saving a schedule that overlaps an existing slot", async () => {
@@ -226,11 +231,11 @@ describe("ReservationsPanel", () => {
     await user.click(
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
-    expect(screen.getByText(/Se crearán 22 bloques/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 11 bloques/)).toBeVisible();
 
     await user.selectOptions(screen.getByLabelText("Duración"), "2");
 
-    expect(screen.getByText(/Se crearán 10 bloques/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 5 bloques/)).toBeVisible();
     expect(screen.getByText("09:00 a 11:00")).toBeVisible();
     expect(screen.queryByText("09:00 a 10:00")).not.toBeInTheDocument();
   });

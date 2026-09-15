@@ -15,7 +15,9 @@ import {
   describeSlotConflict,
   expandSchedulesToSlots,
   findConflictingSlots,
+  previewDateFormatter,
   scheduleHasConflict,
+  scheduleRange,
   toFixedSchedule,
   type FixedSchedule,
   type WeekDay,
@@ -34,11 +36,11 @@ function PageHeader({ onAddOne }: { onAddOne: () => void }) {
           id="reservations-title"
           className="mt-3 font-heading text-4xl leading-none tracking-[-0.04em] sm:text-5xl"
         >
-          Reservas
+          Disponibilidad
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-          Organiza tus horarios fijos y revisa las próximas sesiones desde un
-          solo lugar.
+          Publica tus horarios fijos y gestiona los bloques en los que puedes
+          recibir sesiones.
         </p>
       </div>
       <Button type="button" onClick={onAddOne}>
@@ -56,6 +58,9 @@ export function ReservationsPanel() {
   }>({});
   const [actionError, setActionError] = useState<string | null>(null);
   const [conflictError, setConflictError] = useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<FixedSchedule | null>(
+    null,
+  );
   const slotsQuery = useQuery(availabilityQueries.slots);
   const sessionQuery = useQuery(sessionQueries.session);
   const createSlots = useCreateAvailabilitySlots();
@@ -170,7 +175,9 @@ export function ReservationsPanel() {
             setScheduleDraft({ date, day });
             setSingleScheduleOpen(true);
           }}
-          onDelete={deleteSchedule}
+          onDelete={(id) => setPendingDelete(
+            schedules.find((schedule) => schedule.id === id) ?? null,
+          )}
           onDeleteDate={deleteSchedulesByDate}
         />
       </div>
@@ -184,6 +191,24 @@ export function ReservationsPanel() {
         checkConflict={(schedule) =>
           scheduleHasConflict(schedule, schedules)
         }
+      />
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        title={"¿Eliminar este horario de disponibilidad?"}
+        description={
+          pendingDelete
+            ? `Se quitará el bloque ${pendingDelete.days[0]} de ${scheduleRange(pendingDelete)} del ${previewDateFormatter.format(new Date(`${pendingDelete.validFrom}T00:00:00Z`))}.`
+            : undefined
+        }
+        confirmLabel="Sí, eliminar"
+        destructive
+        onConfirm={() => {
+          if (pendingDelete) deleteSchedule(pendingDelete.id);
+          setPendingDelete(null);
+        }}
       />
       <ConfirmDialog
         open={conflictError !== null}
