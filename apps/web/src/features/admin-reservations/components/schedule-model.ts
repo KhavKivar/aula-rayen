@@ -67,6 +67,15 @@ export function toIsoDate(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+/** Fecha de referencia "hoy" de la aplicación (lunes, alineada con la vista semanal). */
+export const todayReference = "2026-09-07";
+
+export function plusDays(isoDate: string, days: number) {
+  return toIsoDate(
+    new Date(Date.parse(`${isoDate}T00:00:00Z`) + days * DAY_IN_MS),
+  );
+}
+
 export function generateSchedules(value: ScheduleFormValues) {
   const duration = Number(value.duration) as 1 | 2;
   const start = timeToMinutes(value.startTime);
@@ -153,7 +162,7 @@ function slotTimePart(isoDateTime: string) {
   return isoDateTime.slice(11, 16);
 }
 
-function mondayBasedWeekday(datePart: string) {
+export function mondayBasedWeekday(datePart: string) {
   return (new Date(`${datePart}T00:00:00Z`).getUTCDay() + 6) % 7;
 }
 

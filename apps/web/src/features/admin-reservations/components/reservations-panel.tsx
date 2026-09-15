@@ -9,13 +9,15 @@ import {
   useCreateAvailabilitySlots,
   useDeleteAvailabilitySlot,
 } from "@/features/admin-reservations/api/use-availability-mutations";
-import { ScheduleBuilder } from "@/features/admin-reservations/components/schedule-builder";
+import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-calendar";
 import {
   expandSchedulesToSlots,
   toFixedSchedule,
   type FixedSchedule,
+  type WeekDay,
 } from "@/features/admin-reservations/components/schedule-model";
 import { SingleScheduleDialog } from "@/features/admin-reservations/components/single-schedule-dialog";
+import { ScheduleGeneratorForm } from "@/features/admin-reservations/components/schedule-generator-form";
 import { toApiErrorMessage } from "@/lib/api-error";
 import { sessionQueries } from "@/lib/session-queries";
 
@@ -44,6 +46,10 @@ function PageHeader({ onAddOne }: { onAddOne: () => void }) {
 
 export function ReservationsPanel() {
   const [singleScheduleOpen, setSingleScheduleOpen] = useState(false);
+  const [scheduleDraft, setScheduleDraft] = useState<{
+    date?: string;
+    day?: WeekDay;
+  }>({});
   const [actionError, setActionError] = useState<string | null>(null);
   const slotsQuery = useQuery(availabilityQueries.slots);
   const sessionQuery = useQuery(sessionQueries.session);
@@ -132,14 +138,23 @@ export function ReservationsPanel() {
         </p>
       ) : null}
       <div className="mt-8">
-        <ScheduleBuilder
+        <ScheduleGeneratorForm onSave={saveSchedules} />
+      </div>
+      <div className="mt-8">
+        <ReservationsCalendar
           schedules={schedules}
-          onSave={saveSchedules}
+          onAddForDate={(date, day) => {
+            setScheduleDraft({ date, day });
+            setSingleScheduleOpen(true);
+          }}
           onDelete={deleteSchedule}
           onDeleteDate={deleteSchedulesByDate}
         />
       </div>
       <SingleScheduleDialog
+        key={scheduleDraft.date ?? "default"}
+        initialDate={scheduleDraft.date}
+        initialDay={scheduleDraft.day}
         open={singleScheduleOpen}
         onOpenChange={setSingleScheduleOpen}
         onSave={(schedule) => saveSchedules([schedule])}

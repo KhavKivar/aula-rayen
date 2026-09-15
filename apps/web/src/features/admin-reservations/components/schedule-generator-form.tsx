@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/features/admin-reservations/components/date-picker";
 import {
   generateSchedules,
+  plusDays,
+  todayReference,
   weekDays,
   type FixedSchedule,
   type WeekDay,
@@ -31,8 +33,8 @@ export function ScheduleGeneratorForm({
       startTime: "09:00",
       endTime: "20:00",
       duration: "1" as "1" | "2",
-      validFrom: "2026-09-07",
-      validUntil: "2026-10-31",
+      validFrom: todayReference,
+      validUntil: plusDays(todayReference, 7),
     },
     onSubmit: ({ value }) => {
       if (value.days.length === 0) return;
@@ -181,7 +183,7 @@ export function ScheduleGeneratorForm({
             <Button
               type="submit"
               variant="outline"
-              className="w-full"
+              className="w-full bg-card hover:bg-muted"
               disabled={days.length === 0}
             >
               <Eye /> Generar vista previa

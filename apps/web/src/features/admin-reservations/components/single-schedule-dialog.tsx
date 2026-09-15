@@ -6,6 +6,7 @@ import { FormDialog } from "@/components/ui/form-dialog";
 import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/features/admin-reservations/components/date-picker";
 import {
+  todayReference,
   weekDays,
   type FixedSchedule,
   type WeekDay,
@@ -15,15 +16,19 @@ export function SingleScheduleDialog({
   open,
   onOpenChange,
   onSave,
+  initialDate,
+  initialDay,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (schedule: Omit<FixedSchedule, "id">) => void;
+  initialDate?: string;
+  initialDay?: WeekDay;
 }) {
   const form = useForm({
     defaultValues: {
-      day: "Lun" as WeekDay,
-      date: "2026-09-07",
+      day: initialDay ?? ("Lun" as WeekDay),
+      date: initialDate ?? todayReference,
       startTime: "09:00",
       duration: "1" as "1" | "2",
     },

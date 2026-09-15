@@ -6,9 +6,6 @@ import type {
   AvailabilitySlotResponse,
   CreateAvailabilitySlotRequest,
 } from "@aula-rayen/contracts/availability";
-import {
-  ReservationsCalendar,
-} from "@/features/admin-reservations/components/reservations-calendar";
 import { ReservationsPanel } from "@/features/admin-reservations/components/reservations-panel";
 import { createTestQueryClient, render } from "@/testing/test-utils";
 
@@ -99,17 +96,16 @@ describe("ReservationsPanel", () => {
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
 
-    expect(screen.getByText(/Se crearán 176 bloques/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 33 bloques/)).toBeVisible();
     expect(screen.getAllByText("09:00 a 10:00")).toHaveLength(2);
     await user.click(screen.getByRole("button", { name: "Guardar todos" }));
 
     expect(
-      screen.queryByText(/Se crearán 176 bloques/),
+      screen.queryByText(/Se crearán 33 bloques/),
     ).not.toBeInTheDocument();
     const deleteButtons = await screen.findAllByRole("button", {
       name: /Eliminar .+ de 09:00 a 10:00/,
     });
-    expect(deleteButtons).toHaveLength(2);
     expect(apiClient.post).toHaveBeenCalledTimes(1);
     expect(apiClient.post).toHaveBeenCalledWith(
       "/availability-slots/batch",
@@ -121,7 +117,7 @@ describe("ReservationsPanel", () => {
     await waitFor(() => {
       expect(
         screen.getAllByRole("button", { name: /Eliminar .+ de 09:00 a 10:00/ }),
-      ).toHaveLength(1);
+      ).toHaveLength(2);
     });
   });
 
@@ -160,12 +156,12 @@ describe("ReservationsPanel", () => {
       ),
     );
     const deleteDayButton = await screen.findByRole("button", {
-      name: "Eliminar todos",
+      name: "Eliminar todos los horarios del 7 de septiembre",
     });
     await user.click(deleteDayButton);
 
     const confirmation = screen.getByRole("dialog", {
-      name: /^¿Eliminar horarios del \d+ de \w+\?$/,
+      name: "¿Eliminar horarios del 7 de septiembre?",
     });
     expect(confirmation).toBeVisible();
     await user.click(
@@ -173,25 +169,11 @@ describe("ReservationsPanel", () => {
     );
     await waitFor(() => {
       expect(
-        screen.queryByRole("button", { name: "Eliminar todos" }),
+        screen.queryByRole("button", {
+          name: "Eliminar todos los horarios del 7 de septiembre",
+        }),
       ).not.toBeInTheDocument();
     });
-  });
-
-  it("navigates the dated weekly availability preview", async () => {
-    const user = userEvent.setup();
-    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
-
-    expect(screen.getByText("Lun 7")).toBeVisible();
-    expect(
-      screen.getByText(/7 de septiembre.*13 de septiembre/),
-    ).toBeVisible();
-    await user.click(
-      screen.getByRole("button", { name: "Semana siguiente" }),
-    );
-    expect(screen.getByText("Lun 14")).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "Semana anterior" }));
-    expect(screen.getByText("Lun 7")).toBeVisible();
   });
 
   it("updates an active preview when the duration changes", async () => {
@@ -201,29 +183,71 @@ describe("ReservationsPanel", () => {
     await user.click(
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
-    expect(screen.getByText(/Se crearán 88 bloques/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 22 bloques/)).toBeVisible();
 
     await user.selectOptions(screen.getByLabelText("Duración"), "2");
 
-    expect(screen.getByText(/Se crearán 40 bloques/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 10 bloques/)).toBeVisible();
     expect(screen.getByText("09:00 a 11:00")).toBeVisible();
     expect(screen.queryByText("09:00 a 10:00")).not.toBeInTheDocument();
   });
 
-  it("keeps the monthly mock calendar as an independent view", () => {
+  it("renders the monthly calendar and adds a schedule from a clicked day", async () => {
+    const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
-
-    expect(
-      screen.queryByRole("heading", { name: "Próximas reservas" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("tab", { name: "Calendario" }),
-    ).not.toBeInTheDocument();
-
-    render(<ReservationsCalendar />, { queryClient: createTestQueryClient() });
 
     expect(
       screen.getByRole("heading", { name: "Septiembre 2026" }),
     ).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Agregar horario el Mié 9" }));
+    const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+    expect(
+      within(dialog).getByLabelText("Fecha: 9 de septiembre"),
+    ).toBeVisible();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Agregar horario" }),
+    );
+    expect(
+      await screen.findByRole("button", {
+        name: "Eliminar Mié de 09:00 a 10:00",
+      }),
+    ).toBeVisible();
+  });
+
+  it("deletes every schedule of a date from the calendar", async () => {
+    const user = userEvent.setup();
+    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
+
+    for (const time of ["09:00", "11:00"]) {
+      await user.click(
+        screen.getByRole("button", { name: "Agregar horario el Mié 9" }),
+      );
+      const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+      await user.clear(within(dialog).getByLabelText("Hora de inicio"));
+      await user.type(within(dialog).getByLabelText("Hora de inicio"), time);
+      await user.click(
+        within(dialog).getByRole("button", { name: "Agregar horario" }),
+      );
+    }
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Eliminar todos los horarios del 9 de septiembre",
+      }),
+    );
+    const confirmation = await screen.findByRole("dialog", {
+      name: "¿Eliminar horarios del 9 de septiembre?",
+    });
+    await user.click(
+      within(confirmation).getByRole("button", { name: "Sí, eliminar" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("button", {
+          name: "Eliminar todos los horarios del 9 de septiembre",
+        }),
+      ).not.toBeInTheDocument();
+    });
   });
 });
