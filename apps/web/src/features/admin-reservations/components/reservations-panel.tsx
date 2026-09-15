@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { QueryState } from "@/components/ui/query-state";
 import { availabilityQueries } from "@/features/admin-reservations/api/queries";
 import {
@@ -11,7 +12,10 @@ import {
 } from "@/features/admin-reservations/api/use-availability-mutations";
 import { ReservationsCalendar } from "@/features/admin-reservations/components/reservations-calendar";
 import {
+  describeSlotConflict,
   expandSchedulesToSlots,
+  findConflictingSlots,
+  scheduleHasConflict,
   toFixedSchedule,
   type FixedSchedule,
   type WeekDay,
@@ -51,13 +55,22 @@ export function ReservationsPanel() {
     day?: WeekDay;
   }>({});
   const [actionError, setActionError] = useState<string | null>(null);
+  const [conflictError, setConflictError] = useState<string | null>(null);
   const slotsQuery = useQuery(availabilityQueries.slots);
   const sessionQuery = useQuery(sessionQueries.session);
   const createSlots = useCreateAvailabilitySlots();
   const deleteSlot = useDeleteAvailabilitySlot();
 
   const schedules = useMemo(
-    () => (slotsQuery.data ?? []).map(toFixedSchedule),
+    () =>
+      (slotsQuery.data ?? [])
+        .map(toFixedSchedule)
+        .sort((a, b) => {
+          const dateOrder = a.validFrom.localeCompare(b.validFrom);
+          return dateOrder !== 0
+            ? dateOrder
+            : a.startTime.localeCompare(b.startTime);
+        }),
     [slotsQuery.data],
   );
   const assigneeId = sessionQuery.data?.user.id;
@@ -75,6 +88,16 @@ export function ReservationsPanel() {
     try {
       const payloads = expandSchedulesToSlots(generated, requireAssignee());
       if (payloads.length === 0) return;
+      const conflict = findConflictingSlots(
+        payloads,
+        slotsQuery.data ?? [],
+      )[0];
+      if (conflict) {
+        setConflictError(
+          `El bloque (${describeSlotConflict(conflict)}) se superpone con un horario existente. Ajusta las horas o elige otra fecha.`,
+        );
+        return;
+      }
       setActionError(null);
       void createSlots.mutateAsync(payloads).catch((error: unknown) => {
         setActionError(
@@ -158,6 +181,19 @@ export function ReservationsPanel() {
         open={singleScheduleOpen}
         onOpenChange={setSingleScheduleOpen}
         onSave={(schedule) => saveSchedules([schedule])}
+        checkConflict={(schedule) =>
+          scheduleHasConflict(schedule, schedules)
+        }
+      />
+      <ConfirmDialog
+        open={conflictError !== null}
+        onOpenChange={(open) => {
+          if (!open) setConflictError(null);
+        }}
+        title="Conflicto de horarios"
+        description={conflictError ?? ""}
+        confirmLabel="Entendido"
+        onConfirm={() => setConflictError(null)}
       />
     </section>
   );

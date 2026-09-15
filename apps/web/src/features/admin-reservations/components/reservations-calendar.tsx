@@ -4,9 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
+  minutesToTime,
   mondayBasedWeekday,
   previewDateFormatter,
   scheduleRange,
+  timeToMinutes,
   toIsoDate,
   weekDays,
   type FixedSchedule,
@@ -165,7 +167,13 @@ export function ReservationsCalendar({
                         className="flex items-center gap-1 rounded-lg bg-sage px-2 py-1.5 text-[.68rem] leading-tight"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="font-semibold">{schedule.startTime}</p>
+                          <p className="font-semibold">
+                            {schedule.startTime} -{" "}
+                            {minutesToTime(
+                              timeToMinutes(schedule.startTime) +
+                                schedule.duration * 60,
+                            )}
+                          </p>
                           <p className="mt-0.5 truncate text-muted-foreground">
                             {schedule.duration}{" "}
                             {schedule.duration === 1 ? "hora" : "horas"}

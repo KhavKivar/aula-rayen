@@ -101,7 +101,7 @@ export function ScheduleGeneratorForm({
                           "min-h-11 rounded-xl border text-xs font-semibold transition",
                           selected
                             ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-background text-muted-foreground hover:border-primary/50",
+                            : "border-border bg-card text-muted-foreground hover:border-primary/50",
                         )}
                       >
                         <span className="flex items-center justify-center gap-1">

@@ -195,6 +195,52 @@ function toSlotPayload(
   };
 }
 
+export function findConflictingSlots(
+  payloads: CreateAvailabilitySlotRequest[],
+  existing: AvailabilitySlotResponse[],
+): CreateAvailabilitySlotRequest[] {
+  return payloads.filter((payload) => {
+    const date = slotDatePart(payload.startTime);
+    const startMinutes = timeToMinutes(slotTimePart(payload.startTime));
+    const endMinutes = timeToMinutes(slotTimePart(payload.endTime));
+    return existing.some((slot) => {
+      if (slotDatePart(slot.startTime) !== date) return false;
+      const otherStart = timeToMinutes(slotTimePart(slot.startTime));
+      const otherEnd = timeToMinutes(slotTimePart(slot.endTime));
+      return startMinutes < otherEnd && otherStart < endMinutes;
+    });
+  });
+}
+
+export function describeSlotConflict(
+  payload: CreateAvailabilitySlotRequest,
+): string {
+  const date = slotDatePart(payload.startTime);
+  const start = slotTimePart(payload.startTime);
+  const end = slotTimePart(payload.endTime);
+  return `${previewDateFormatter.format(new Date(`${date}T00:00:00Z`))}, de ${start} a ${end}`;
+}
+
+export function scheduleHasConflict(
+  schedule: Omit<FixedSchedule, "id">,
+  schedules: FixedSchedule[],
+): boolean {
+  return schedules.some((other) => {
+    if (
+      other.validFrom > schedule.validUntil ||
+      other.validUntil < schedule.validFrom
+    ) {
+      return false;
+    }
+    if (!other.days.some((day) => schedule.days.includes(day))) return false;
+    const start = timeToMinutes(schedule.startTime);
+    const end = start + schedule.duration * 60;
+    const otherStart = timeToMinutes(other.startTime);
+    const otherEnd = otherStart + other.duration * 60;
+    return start < otherEnd && otherStart < end;
+  });
+}
+
 export function expandSchedulesToSlots(
   schedules: Omit<FixedSchedule, "id">[],
   assignedTo: string,

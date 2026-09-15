@@ -142,6 +142,44 @@ describe("ReservationsPanel", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("blocks saving a schedule that overlaps an existing slot", async () => {
+    const user = userEvent.setup();
+    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
+
+    await user.click(
+      screen.getByRole("button", { name: "Agregar horario el Lun 7" }),
+    );
+    const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+    await user.click(
+      within(dialog).getByRole("button", { name: "Agregar horario" }),
+    );
+    await screen.findByRole("button", {
+      name: "Eliminar Lun de 09:00 a 10:00",
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Agregar horario el Lun 7" }),
+    );
+    const overlapDialog = screen.getByRole("dialog", {
+      name: "Agregar un horario",
+    });
+    await user.type(
+      within(overlapDialog).getByLabelText("Hora de inicio"),
+      "09:30",
+    );
+    await user.click(
+      within(overlapDialog).getByRole("button", { name: "Agregar horario" }),
+    );
+
+    expect(
+      await screen.findByRole("alert"),
+    ).toHaveTextContent(/se superpone/);
+    expect(
+      screen.getByRole("dialog", { name: "Agregar un horario" }),
+    ).toBeVisible();
+    expect(apiClient.post).toHaveBeenCalledTimes(1);
+  });
+
   it("confirms before deleting the saved schedules of a visible date", async () => {
     const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });

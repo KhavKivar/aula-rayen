@@ -1,5 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FormDialog } from "@/components/ui/form-dialog";
@@ -18,13 +19,16 @@ export function SingleScheduleDialog({
   onSave,
   initialDate,
   initialDay,
+  checkConflict,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (schedule: Omit<FixedSchedule, "id">) => void;
   initialDate?: string;
   initialDay?: WeekDay;
+  checkConflict?: (schedule: Omit<FixedSchedule, "id">) => boolean;
 }) {
+  const [conflictError, setConflictError] = useState(false);
   const form = useForm({
     defaultValues: {
       day: initialDay ?? ("Lun" as WeekDay),
@@ -33,13 +37,19 @@ export function SingleScheduleDialog({
       duration: "1" as "1" | "2",
     },
     onSubmit: ({ value }) => {
-      onSave({
+      const schedule: Omit<FixedSchedule, "id"> = {
         days: [value.day],
         startTime: value.startTime,
         duration: Number(value.duration) as 1 | 2,
         validFrom: value.date,
         validUntil: value.date,
-      });
+      };
+      if (checkConflict?.(schedule)) {
+        setConflictError(true);
+        return;
+      }
+      setConflictError(false);
+      onSave(schedule);
       onOpenChange(false);
     },
   });
@@ -47,7 +57,10 @@ export function SingleScheduleDialog({
   return (
     <FormDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => {
+        if (next) setConflictError(false);
+        onOpenChange(next);
+      }}
       title="Agregar un horario"
       description="Crea un bloque individual en la disponibilidad semanal."
     >
@@ -116,6 +129,12 @@ export function SingleScheduleDialog({
             </label>
           )}
         </form.Field>
+        {conflictError ? (
+          <p role="alert" className="text-sm text-destructive">
+            Este horario se superpone con un bloque existente en la misma
+            fecha. Ajusta la hora o elige otra fecha.
+          </p>
+        ) : null}
         <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
