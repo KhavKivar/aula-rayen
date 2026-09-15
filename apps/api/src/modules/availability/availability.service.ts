@@ -23,9 +23,12 @@ function assertValidRange(startTime: string, endTime: string) {
   }
 }
 
-function isSlotOverlapError(error: unknown): boolean {
+function findPgError(error: unknown): {
+  code?: unknown;
+  constraint?: unknown;
+} {
   // drizzle-orm envuelve el error del driver en DrizzleQueryError;
-  // el código pg (23P01) y la constraint viven en `cause`.
+  // el código y la constraint de pg viven en `cause`.
   const seen = new Set<unknown>();
   let current: unknown = error;
   while (
@@ -38,21 +41,40 @@ function isSlotOverlapError(error: unknown): boolean {
       code?: unknown;
       constraint?: unknown;
     };
-    if (
-      code === '23P01' ||
-      constraint === 'no_overlapping_slots_per_professional'
-    ) {
-      return true;
+    if (typeof code === 'string' || typeof constraint === 'string') {
+      return { code, constraint };
     }
     current = (current as { cause?: unknown }).cause;
   }
-  return false;
+  return {};
+}
+
+function isSlotOverlapError(error: unknown): boolean {
+  const { code, constraint } = findPgError(error);
+  return (
+    code === '23P01' || constraint === 'no_overlapping_slots_per_professional'
+  );
+}
+
+function isSlotHasBookingsError(error: unknown): boolean {
+  const { code, constraint } = findPgError(error);
+  return (
+    code === '23503' ||
+    (typeof constraint === 'string' && constraint.includes('slot_id'))
+  );
 }
 
 function toOverlapError(): Error {
   return conflictError(
     API_ERROR_CODES.AVAILABILITY_SLOT_OVERLAP,
     'Algunos bloques se solapan con horarios ya guardados para ese profesional',
+  );
+}
+
+function toHasBookingsError(): Error {
+  return conflictError(
+    API_ERROR_CODES.AVAILABILITY_SLOT_HAS_BOOKINGS,
+    'No se puede eliminar el slot porque tiene reservas asociadas',
   );
 }
 
@@ -133,7 +155,15 @@ export class AvailabilityService {
   }
 
   async remove(id: number) {
-    const deletedSlot = await this.repository.remove(id);
+    let deletedSlot;
+    try {
+      deletedSlot = await this.repository.remove(id);
+    } catch (error: unknown) {
+      if (isSlotHasBookingsError(error)) {
+        throw toHasBookingsError();
+      }
+      throw error;
+    }
 
     if (!deletedSlot) {
       throw notFoundError(
@@ -145,6 +175,13 @@ export class AvailabilityService {
   }
 
   async removeMany(ids: AvailabilitySlotBulkDeleteRequest) {
-    return await this.repository.removeMany(ids);
+    try {
+      return await this.repository.removeMany(ids);
+    } catch (error: unknown) {
+      if (isSlotHasBookingsError(error)) {
+        throw toHasBookingsError();
+      }
+      throw error;
+    }
   }
 }

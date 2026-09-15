@@ -21,7 +21,8 @@ interface ReservationsCalendarProps {
   schedules?: FixedSchedule[];
   onAddForDate?: (date: string, day: WeekDay) => void;
   onDelete?: (id: number) => void;
-  onDeleteDate?: (date: string) => void;
+  /** Resuelve `null` al eliminar con éxito o el mensaje de error a mostrar en el diálogo. */
+  onDeleteDate?: (date: string) => Promise<string | null>;
 }
 
 const monthFormatter = new Intl.DateTimeFormat("es-CL", {
@@ -48,6 +49,8 @@ export function ReservationsCalendar({
   const [monthOffset, setMonthOffset] = useState(0);
   const [deleteDate, setDeleteDate] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDatePending, setDeleteDatePending] = useState(false);
+  const [deleteDateError, setDeleteDateError] = useState<string | null>(null);
 
   // Se limpia el dato después de la animación de cierre para que el título
   // no pase a la versión vacía mientras el diálogo sale de pantalla.
@@ -228,17 +231,44 @@ export function ReservationsCalendar({
       <ConfirmDialog
         open={deleteDialogOpen}
         onOpenChange={(open) => {
-          if (!open) closeDeleteDialog();
+          if (!open) {
+            if (!deleteDatePending) {
+              setDeleteDateError(null);
+            }
+            closeDeleteDialog();
+          }
         }}
         title={`¿Eliminar horarios del ${deleteDate ? previewDateFormatter.format(new Date(`${deleteDate}T00:00:00Z`)) : ""}?`}
         description="Se quitarán todos los bloques de esta fecha. Los bloques de otras fechas no se verán afectados."
         confirmLabel="Sí, eliminar"
+        pendingLabel="Eliminando…"
         destructive
-        onConfirm={() => {
-          if (deleteDate) onDeleteDate?.(deleteDate);
-          closeDeleteDialog();
+        isPending={deleteDatePending}
+        onConfirm={async () => {
+          if (!deleteDate) return;
+          setDeleteDatePending(true);
+          setDeleteDateError(null);
+          try {
+            const error = await onDeleteDate?.(deleteDate);
+            if (error) {
+              setDeleteDateError(error);
+            } else {
+              closeDeleteDialog();
+            }
+          } finally {
+            setDeleteDatePending(false);
+          }
         }}
-      />
+      >
+        {deleteDateError ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-error-surface px-4 py-3 text-sm text-error"
+          >
+            {deleteDateError}
+          </p>
+        ) : null}
+      </ConfirmDialog>
     </section>
   );
 }

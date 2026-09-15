@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { API_ERROR_CODES } from "@aula-rayen/contracts/api-error";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
@@ -27,6 +28,11 @@ import { SingleScheduleDialog } from "@/features/admin-reservations/components/s
 import { ScheduleGeneratorForm } from "@/features/admin-reservations/components/schedule-generator-form";
 import { toApiErrorMessage } from "@/lib/api-error";
 import { sessionQueries } from "@/lib/session-queries";
+
+const deleteSlotCodeMessages: Record<string, string> = {
+  [API_ERROR_CODES.AVAILABILITY_SLOT_HAS_BOOKINGS]:
+    "No se puede eliminar el horario porque ya tiene reservas asociadas. Cancela las reservas de ese bloque antes de eliminarlo.",
+};
 
 function PageHeader({ onAddOne }: { onAddOne: () => void }) {
   return (
@@ -62,10 +68,13 @@ export function ReservationsPanel() {
   const [pendingDelete, setPendingDelete] = useState<FixedSchedule | null>(
     null,
   );
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const slotsQuery = useQuery(availabilityQueries.slots);
   const sessionQuery = useQuery(sessionQueries.session);
   const createSlots = useCreateAvailabilitySlots();
-  const deleteSlot = useDeleteAvailabilitySlot();
+  const deleteSlot = useDeleteAvailabilitySlot({
+    onSuccess: () => setPendingDelete(null),
+  });
   const deleteSlots = useDeleteAvailabilitySlots();
 
   const schedules = useMemo(
@@ -119,24 +128,33 @@ export function ReservationsPanel() {
   };
 
   const deleteSchedule = (id: number) => {
-    setActionError(null);
+    setDeleteError(null);
     void deleteSlot.mutateAsync({ id }).catch((error: unknown) => {
-      setActionError(
-        toApiErrorMessage(error, "No se pudo eliminar el horario"),
+      setDeleteError(
+        toApiErrorMessage(
+          error,
+          "No se pudo eliminar el horario",
+          deleteSlotCodeMessages,
+        ),
       );
     });
   };
 
-  const deleteSchedulesByDate = (date: string) => {
-    setActionError(null);
+  const deleteSchedulesByDate = (
+    date: string,
+  ): Promise<string | null> => {
     const ids = schedules
       .filter((schedule) => schedule.validFrom === date)
       .map((schedule) => schedule.id);
-    void deleteSlots.mutateAsync(ids).catch((error: unknown) => {
-      setActionError(
-        toApiErrorMessage(error, "No se pudieron eliminar los horarios"),
-      );
-    });
+    return deleteSlots.mutateAsync(ids).then(
+      () => null,
+      (error: unknown) =>
+        toApiErrorMessage(
+          error,
+          "No se pudieron eliminar los horarios",
+          deleteSlotCodeMessages,
+        ),
+    );
   };
 
   return (
@@ -195,7 +213,10 @@ export function ReservationsPanel() {
       <ConfirmDialog
         open={pendingDelete !== null}
         onOpenChange={(open) => {
-          if (!open) setPendingDelete(null);
+          if (!open) {
+            setPendingDelete(null);
+            setDeleteError(null);
+          }
         }}
         title={"¿Eliminar este horario de disponibilidad?"}
         description={
@@ -204,12 +225,22 @@ export function ReservationsPanel() {
             : undefined
         }
         confirmLabel="Sí, eliminar"
+        pendingLabel="Eliminando…"
         destructive
+        isPending={deleteSlot.isPending}
         onConfirm={() => {
           if (pendingDelete) deleteSchedule(pendingDelete.id);
-          setPendingDelete(null);
         }}
-      />
+      >
+        {deleteError ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-error-surface px-4 py-3 text-sm text-error"
+          >
+            {deleteError}
+          </p>
+        ) : null}
+      </ConfirmDialog>
       <ConfirmDialog
         open={conflictError !== null}
         onOpenChange={(open) => {
