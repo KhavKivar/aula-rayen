@@ -12,10 +12,12 @@ import {
   type WeekDay,
 } from "@/features/admin-reservations/components/schedule-model";
 
+type DeleteTarget = { day: WeekDay; isoDate: string };
+
 type WeekAvailabilityGridProps = {
   schedules: FixedSchedule[];
   onDelete: (id: number) => void;
-  onDeleteDay: (day: WeekDay) => void;
+  onDeleteDate: (date: string) => void;
 };
 
 function DayScheduleCard({
@@ -57,10 +59,10 @@ function DayScheduleCard({
 export function WeekAvailabilityGrid({
   schedules,
   onDelete,
-  onDeleteDay,
+  onDeleteDate,
 }: WeekAvailabilityGridProps) {
   const [weekOffset, setWeekOffset] = useState(0);
-  const [deleteDay, setDeleteDay] = useState<WeekDay | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
   const datedWeek = previewWeekDates(weekOffset);
   const weekLabel = `${previewDateFormatter.format(datedWeek[0].date)} – ${previewDateFormatter.format(datedWeek[6].date)}`;
 
@@ -149,7 +151,7 @@ export function WeekAvailabilityGrid({
                     variant="destructive"
                     size="sm"
                     className="mt-4 w-full"
-                    onClick={() => setDeleteDay(day)}
+                    onClick={() => setDeleteTarget({ day, isoDate })}
                   >
                     <Trash2 /> Eliminar todos
                   </Button>
@@ -160,17 +162,17 @@ export function WeekAvailabilityGrid({
         </div>
       </div>
       <ConfirmDialog
-        open={deleteDay !== null}
+        open={deleteTarget !== null}
         onOpenChange={(open) => {
-          if (!open) setDeleteDay(null);
+          if (!open) setDeleteTarget(null);
         }}
-        title={`¿Eliminar horarios del ${deleteDay}?`}
-        description="Se quitarán todos los bloques configurados para este día."
-        confirmLabel="Sí, eliminar todos"
+        title={`¿Eliminar horarios del ${deleteTarget ? previewDateFormatter.format(new Date(`${deleteTarget.isoDate}T00:00:00Z`)) : ""}?`}
+        description="Se quitarán los bloques de esta fecha. Los bloques de otras semanas no se verán afectados."
+        confirmLabel="Sí, eliminar"
         destructive
         onConfirm={() => {
-          if (deleteDay) onDeleteDay(deleteDay);
-          setDeleteDay(null);
+          if (deleteTarget) onDeleteDate(deleteTarget.isoDate);
+          setDeleteTarget(null);
         }}
       />
     </>

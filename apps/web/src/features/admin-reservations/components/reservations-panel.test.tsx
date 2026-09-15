@@ -99,12 +99,12 @@ describe("ReservationsPanel", () => {
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
 
-    expect(screen.getByText(/Se crearán 22 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 176 bloques/)).toBeVisible();
     expect(screen.getAllByText("09:00 a 10:00")).toHaveLength(2);
     await user.click(screen.getByRole("button", { name: "Guardar todos" }));
 
     expect(
-      screen.queryByText(/Se crearán 22 bloques semanales/),
+      screen.queryByText(/Se crearán 176 bloques/),
     ).not.toBeInTheDocument();
     const deleteButtons = await screen.findAllByRole("button", {
       name: /Eliminar .+ de 09:00 a 10:00/,
@@ -146,7 +146,7 @@ describe("ReservationsPanel", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("confirms before deleting all saved schedules", async () => {
+  it("confirms before deleting the saved schedules of a visible date", async () => {
     const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
 
@@ -165,11 +165,11 @@ describe("ReservationsPanel", () => {
     await user.click(deleteDayButton);
 
     const confirmation = screen.getByRole("dialog", {
-      name: "¿Eliminar horarios del Lun?",
+      name: /^¿Eliminar horarios del \d+ de \w+\?$/,
     });
     expect(confirmation).toBeVisible();
     await user.click(
-      within(confirmation).getByRole("button", { name: "Sí, eliminar todos" }),
+      within(confirmation).getByRole("button", { name: "Sí, eliminar" }),
     );
     await waitFor(() => {
       expect(
@@ -201,11 +201,11 @@ describe("ReservationsPanel", () => {
     await user.click(
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
-    expect(screen.getByText(/Se crearán 11 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 88 bloques/)).toBeVisible();
 
     await user.selectOptions(screen.getByLabelText("Duración"), "2");
 
-    expect(screen.getByText(/Se crearán 5 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 40 bloques/)).toBeVisible();
     expect(screen.getByText("09:00 a 11:00")).toBeVisible();
     expect(screen.queryByText("09:00 a 10:00")).not.toBeInTheDocument();
   });

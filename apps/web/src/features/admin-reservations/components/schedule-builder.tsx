@@ -1,4 +1,4 @@
-import type { FixedSchedule, WeekDay } from "@/features/admin-reservations/components/schedule-model";
+import type { FixedSchedule } from "@/features/admin-reservations/components/schedule-model";
 import { ScheduleGeneratorForm } from "@/features/admin-reservations/components/schedule-generator-form";
 import { WeekAvailabilityGrid } from "@/features/admin-reservations/components/week-availability-grid";
 
@@ -10,12 +10,12 @@ export function ScheduleBuilder({
   schedules,
   onSave,
   onDelete,
-  onDeleteDay,
+  onDeleteDate,
 }: {
   schedules: FixedSchedule[];
   onSave: (schedules: Omit<FixedSchedule, "id">[]) => void;
   onDelete: (id: number) => void;
-  onDeleteDay: (day: WeekDay) => void;
+  onDeleteDate: (date: string) => void;
 }) {
   return (
     <section
@@ -26,7 +26,7 @@ export function ScheduleBuilder({
       <WeekAvailabilityGrid
         schedules={schedules}
         onDelete={onDelete}
-        onDeleteDay={onDeleteDay}
+        onDeleteDate={onDeleteDate}
       />
     </section>
   );

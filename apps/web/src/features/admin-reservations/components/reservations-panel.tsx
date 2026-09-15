@@ -14,7 +14,6 @@ import {
   expandSchedulesToSlots,
   toFixedSchedule,
   type FixedSchedule,
-  type WeekDay,
 } from "@/features/admin-reservations/components/schedule-model";
 import { SingleScheduleDialog } from "@/features/admin-reservations/components/single-schedule-dialog";
 import { toApiErrorMessage } from "@/lib/api-error";
@@ -92,10 +91,10 @@ export function ReservationsPanel() {
     });
   };
 
-  const deleteSchedulesByDay = (day: WeekDay) => {
+  const deleteSchedulesByDate = (date: string) => {
     setActionError(null);
     const ids = schedules
-      .filter((schedule) => schedule.days.includes(day))
+      .filter((schedule) => schedule.validFrom === date)
       .map((schedule) => schedule.id);
     void Promise.all(ids.map((id) => deleteSlot.mutateAsync({ id }))).catch(
       (error: unknown) => {
@@ -137,7 +136,7 @@ export function ReservationsPanel() {
           schedules={schedules}
           onSave={saveSchedules}
           onDelete={deleteSchedule}
-          onDeleteDay={deleteSchedulesByDay}
+          onDeleteDate={deleteSchedulesByDate}
         />
       </div>
       <SingleScheduleDialog

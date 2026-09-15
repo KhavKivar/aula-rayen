@@ -90,6 +90,61 @@ export function generateSchedules(value: ScheduleFormValues) {
 
 const DAY_IN_MS = 86_400_000;
 
+function expandedDates(schedule: Omit<FixedSchedule, "id">): string[] {
+  const dates: string[] = [];
+  const start = Date.parse(`${schedule.validFrom}T00:00:00Z`);
+  const end = Date.parse(`${schedule.validUntil}T00:00:00Z`);
+  for (let day = start; day <= end; day += DAY_IN_MS) {
+    const date = new Date(day).toISOString().slice(0, 10);
+    const weekday = weekDays[mondayBasedWeekday(date)] ?? "Lun";
+    if (!schedule.days.includes(weekday)) continue;
+    dates.push(date);
+  }
+  return dates;
+}
+
+export function countGeneratedSlots(
+  schedules: Omit<FixedSchedule, "id">[],
+): Record<WeekDay, number> {
+  const counts: Record<WeekDay, number> = {
+    Lun: 0,
+    Mar: 0,
+    Mié: 0,
+    Jue: 0,
+    Vie: 0,
+    Sáb: 0,
+    Dom: 0,
+  };
+  for (const schedule of schedules) {
+    for (const date of expandedDates(schedule)) {
+      const weekday = weekDays[mondayBasedWeekday(date)] ?? "Lun";
+      counts[weekday] += 1;
+    }
+  }
+  return counts;
+}
+
+export function totalGeneratedSlots(
+  schedules: Omit<FixedSchedule, "id">[],
+): number {
+  return schedules.reduce(
+    (total, schedule) => total + expandedDates(schedule).length,
+    0,
+  );
+}
+
+const shortDateFormatter = new Intl.DateTimeFormat("es-CL", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+export function formatGeneratedDates(schedule: Omit<FixedSchedule, "id">) {
+  return expandedDates(schedule)
+    .map((date) => shortDateFormatter.format(new Date(`${date}T00:00:00Z`)))
+    .join(", ");
+}
+
 function slotDatePart(isoDateTime: string) {
   return isoDateTime.slice(0, 10);
 }
