@@ -10,8 +10,14 @@ import {
 } from "@/components/ui/popover";
 import {
   previewDateFormatter,
-  toIsoDate,
 } from "@/features/admin-reservations/components/schedule-model";
+
+const toLocalIsoDate = (date: Date) =>
+  [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
 
 export function DatePicker({
   label,
@@ -22,7 +28,7 @@ export function DatePicker({
   value: string;
   onChange: (value: string) => void;
 }) {
-  const selected = new Date(`${value}T00:00:00Z`);
+  const selected = new Date(`${value}T00:00:00`);
   return (
     <div className="space-y-2">
       <p className="text-sm font-medium">{label}</p>
@@ -46,7 +52,7 @@ export function DatePicker({
             locale={es}
             selected={selected}
             onSelect={(date) => {
-              if (date) onChange(toIsoDate(date));
+              if (date) onChange(toLocalIsoDate(date));
             }}
           />
         </PopoverContent>

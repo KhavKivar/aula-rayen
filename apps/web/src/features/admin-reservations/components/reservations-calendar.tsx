@@ -28,10 +28,7 @@ const monthFormatter = new Intl.DateTimeFormat("es-CL", {
   timeZone: "UTC",
 });
 
-const SHORT_REFERENCE = {
-  year: 2026,
-  monthIndex: 8,
-};
+const today = new Date();
 
 function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -50,7 +47,11 @@ export function ReservationsCalendar({
   const [monthOffset, setMonthOffset] = useState(0);
   const [deleteDate, setDeleteDate] = useState<string | null>(null);
   const reference = new Date(
-    Date.UTC(SHORT_REFERENCE.year, SHORT_REFERENCE.monthIndex + monthOffset, 1),
+    Date.UTC(
+      today.getFullYear(),
+      today.getMonth() + monthOffset,
+      1,
+    ),
   );
   const year = reference.getUTCFullYear();
   const month = reference.getUTCMonth();
@@ -58,6 +59,7 @@ export function ReservationsCalendar({
   const firstWeekday = mondayBasedWeekday(toIsoDate(reference));
   const cells = daysInMonth + firstWeekday;
   const monthLabel = `${capitalize(monthFormatter.format(reference))} ${year}`;
+  const todayIso = toIsoDate(today);
 
   return (
     <section
@@ -139,7 +141,11 @@ export function ReservationsCalendar({
                       <button
                         type="button"
                         aria-label={`Agregar horario el ${weekday} ${dayNumber}`}
-                        className="flex size-7 items-center justify-center rounded-full text-xs outline-none transition hover:bg-sage focus-visible:ring-2 focus-visible:ring-ring"
+                        className={cn(
+                          "flex size-7 items-center justify-center rounded-full text-xs outline-none transition hover:bg-sage focus-visible:ring-2 focus-visible:ring-ring",
+                          isoDate === todayIso &&
+                            "bg-sage/40 font-semibold ring-1 ring-ring",
+                        )}
                         onClick={() => onAddForDate?.(isoDate, weekday)}
                       >
                         {dayNumber}
