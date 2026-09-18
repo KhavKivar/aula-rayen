@@ -1,4 +1,4 @@
-FROM node:24-alpine AS build
+FROM --platform=$BUILDPLATFORM node:24-alpine AS build
 
 RUN corepack enable
 
@@ -19,9 +19,12 @@ RUN pnpm --filter @aula-rayen/api deploy --legacy --prod /prod
 
 FROM node:24-alpine AS runtime
 
+ARG APP_VERSION=development
+
 WORKDIR /app
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    APP_VERSION=$APP_VERSION
 
 COPY --from=build /prod ./
 COPY --from=build /app/apps/api/dist ./dist

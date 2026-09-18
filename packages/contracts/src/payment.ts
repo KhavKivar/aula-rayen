@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const paymentStatusSchema = z.enum(["approved", "pending", "rejected"]);
 
-export const paymentSchema = z
+export const paymentResponseSchema = z
   .object({
     orderId: z.string().trim().min(1),
     userId: z.string().trim().min(1),
@@ -18,8 +18,8 @@ export const paymentSchema = z
   })
   .strict();
 
-export const paymentsResponseSchema = z.array(paymentSchema);
+export const paymentListResponseSchema = z.array(paymentResponseSchema);
 
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>;
-export type Payment = z.infer<typeof paymentSchema>;
-export type PaymentsResponse = z.infer<typeof paymentsResponseSchema>;
+export type PaymentResponse = z.infer<typeof paymentResponseSchema>;
+export type PaymentListResponse = z.infer<typeof paymentListResponseSchema>;

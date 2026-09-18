@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { paymentsResponseSchema } from "./payment.js";
+import { paymentListResponseSchema } from "./payment.js";
 
 const basePayment = {
   orderId: "AR-1048",
@@ -16,10 +16,10 @@ const basePayment = {
   authorizationCode: "872193",
 };
 
-describe("paymentsResponseSchema", () => {
+describe("paymentListResponseSchema", () => {
   it("accepts a list of admin payments", () => {
     expect(
-      paymentsResponseSchema.parse([
+      paymentListResponseSchema.parse([
         basePayment,
         { ...basePayment, orderId: "AR-1047", status: "pending" },
       ]),
@@ -29,17 +29,17 @@ describe("paymentsResponseSchema", () => {
   it("allows missing authorization code", () => {
     const { authorizationCode: _omitted, ...withoutCode } = basePayment;
 
-    expect(paymentsResponseSchema.parse([withoutCode])[0]).not.toHaveProperty(
+    expect(paymentListResponseSchema.parse([withoutCode])[0]).not.toHaveProperty(
       "authorizationCode",
     );
   });
 
   it("rejects unknown statuses and full card numbers outside maskedCard", () => {
     expect(() =>
-      paymentsResponseSchema.parse([{ ...basePayment, status: "refunded" }]),
+      paymentListResponseSchema.parse([{ ...basePayment, status: "refunded" }]),
     ).toThrow();
     expect(() =>
-      paymentsResponseSchema.parse([{ ...basePayment, maskedCard: "" }]),
+      paymentListResponseSchema.parse([{ ...basePayment, maskedCard: "" }]),
     ).toThrow();
   });
 });

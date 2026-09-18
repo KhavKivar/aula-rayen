@@ -1,6 +1,11 @@
-import type { Payment } from "@aula-rayen/contracts/payment";
+import type { PaymentResponse } from "@aula-rayen/contracts/payment";
 
-export const demoTransactions: readonly Payment[] = [
+/**
+ * Datos de ejemplo solo para pruebas del panel de pagos. No forman parte
+ * del código de producción: viven aquí para que ningún componente pueda
+ * presentarlos como datos reales.
+ */
+export const fixturePayments: readonly PaymentResponse[] = [
   {
     orderId: "AR-1048",
     userId: "user-camila",

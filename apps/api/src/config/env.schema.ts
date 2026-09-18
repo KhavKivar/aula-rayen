@@ -15,6 +15,7 @@ export const envSchema = z
       .enum(['development', 'test', 'production'])
       .default('development'),
     PORT: z.coerce.number().int().positive().default(3000),
+    APP_VERSION: z.string().trim().min(1).default('development'),
 
     DATABASE_URL: z.string().min(1),
     BASE_URL: z.url().default('http://localhost:3000'),

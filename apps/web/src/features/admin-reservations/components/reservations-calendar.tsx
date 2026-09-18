@@ -1,30 +1,78 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { weekDays } from "@/features/admin-reservations/components/schedule-model";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  minutesToTime,
+  mondayBasedWeekday,
+  previewDateFormatter,
+  scheduleRange,
+  timeToMinutes,
+  toLocalIsoDate,
+  toIsoDate,
+  weekDays,
+  type FixedSchedule,
+  type WeekDay,
+} from "@/features/admin-reservations/components/schedule-model";
 import { cn } from "@/lib/utils";
 
-interface Booking {
-  id: number;
-  attendee: string;
-  initials: string;
-  service: string;
-  day: number;
-  dateLabel: string;
-  time: string;
-  duration: string;
-  status: "Confirmada" | "Pendiente";
+interface ReservationsCalendarProps {
+  schedules?: FixedSchedule[];
+  onAddForDate?: (date: string, day: WeekDay) => void;
+  onDelete?: (id: number) => void;
+  /** Resuelve `null` al eliminar con éxito o el mensaje de error a mostrar en el diálogo. */
+  onDeleteDate?: (date: string) => Promise<string | null>;
 }
 
-const bookings: Booking[] = [
-  { id: 1, attendee: "Camila Rojas", initials: "CR", service: "Sesión individual", day: 8, dateLabel: "Martes, 8 de septiembre", time: "09:00", duration: "1 hora", status: "Confirmada" },
-  { id: 2, attendee: "Martín Silva", initials: "MS", service: "Orientación familiar", day: 8, dateLabel: "Martes, 8 de septiembre", time: "15:00", duration: "2 horas", status: "Pendiente" },
-  { id: 3, attendee: "Josefa Díaz", initials: "JD", service: "Sesión individual", day: 10, dateLabel: "Jueves, 10 de septiembre", time: "11:00", duration: "1 hora", status: "Confirmada" },
-  { id: 4, attendee: "Sebastián Soto", initials: "SS", service: "Seguimiento", day: 14, dateLabel: "Lunes, 14 de septiembre", time: "16:00", duration: "1 hora", status: "Confirmada" },
-];
+const monthFormatter = new Intl.DateTimeFormat("es-CL", {
+  month: "long",
+  timeZone: "UTC",
+});
 
-export function ReservationsCalendar() {
-  const days = Array.from({ length: 35 }, (_, index) => index - 1);
+const today = new Date();
+
+function capitalize(text: string) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/**
+ * Vista mensual de la disponibilidad guardada. Cada día muestra sus
+ * bloques y permite agregar un horario nuevo en esa fecha.
+ */
+export function ReservationsCalendar({
+  schedules = [],
+  onAddForDate,
+  onDelete,
+  onDeleteDate,
+}: ReservationsCalendarProps) {
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [deleteDate, setDeleteDate] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteDatePending, setDeleteDatePending] = useState(false);
+  const [deleteDateError, setDeleteDateError] = useState<string | null>(null);
+
+  // Se limpia el dato después de la animación de cierre para que el título
+  // no pase a la versión vacía mientras el diálogo sale de pantalla.
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    window.setTimeout(() => setDeleteDate(null), 250);
+  };
+  const reference = new Date(
+    Date.UTC(
+      today.getFullYear(),
+      today.getMonth() + monthOffset,
+      1,
+    ),
+  );
+  const year = reference.getUTCFullYear();
+  const month = reference.getUTCMonth();
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const firstWeekday = mondayBasedWeekday(toIsoDate(reference));
+  const cells = daysInMonth + firstWeekday;
+  const monthLabel = `${capitalize(monthFormatter.format(reference))} ${year}`;
+  const todayIso = toLocalIsoDate(today);
+
   return (
     <section
       className="rounded-3xl border border-border bg-card p-4 shadow-soft sm:p-7"
@@ -34,17 +82,31 @@ export function ReservationsCalendar() {
         <div>
           <p className="section-kicker">Vista mensual</p>
           <h2 id="calendar-title" className="mt-2 font-heading text-3xl">
-            Septiembre 2026
+            {monthLabel}
           </h2>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon-sm" aria-label="Mes anterior">
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label="Mes anterior"
+            onClick={() => setMonthOffset((current) => current - 1)}
+          >
             <ChevronLeft />
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setMonthOffset(0)}
+          >
             Hoy
           </Button>
-          <Button variant="outline" size="icon-sm" aria-label="Mes siguiente">
+          <Button
+            variant="outline"
+            size="icon-sm"
+            aria-label="Mes siguiente"
+            onClick={() => setMonthOffset((current) => current + 1)}
+          >
             <ChevronRight />
           </Button>
         </div>
@@ -62,42 +124,92 @@ export function ReservationsCalendar() {
             ))}
           </div>
           <div className="grid grid-cols-7">
-            {days.map((day, index) => {
-              const dayBookings = bookings.filter(
-                (booking) => booking.day === day,
+            {Array.from({ length: Math.ceil(cells / 7) * 7 }, (_, index) => {
+              const dayNumber = index - firstWeekday + 1;
+              const inMonth = dayNumber >= 1 && dayNumber <= daysInMonth;
+              const isoDate = toIsoDate(
+                new Date(Date.UTC(year, month, dayNumber)),
               );
-              const inMonth = day > 0 && day <= 30;
+              const weekday = weekDays[mondayBasedWeekday(isoDate)] ?? "Lun";
+              const daySchedules = inMonth
+                ? schedules.filter(
+                    (schedule) =>
+                      schedule.days.includes(weekday) &&
+                      isoDate >= schedule.validFrom &&
+                      isoDate <= schedule.validUntil,
+                  )
+                : [];
               return (
                 <div
                   key={index}
                   className={cn(
-                    "min-h-28 border-b border-r border-border p-2",
+                    "flex min-h-28 flex-col border-b border-r border-border p-2",
                     index % 7 === 0 && "border-l",
                     !inMonth && "bg-muted/40",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "grid size-7 place-items-center rounded-full text-xs",
-                      day === 11 &&
-                        "bg-primary font-semibold text-primary-foreground",
-                      !inMonth && "invisible",
-                    )}
-                  >
-                    {day}
-                  </span>
-                  <div className="mt-1 space-y-1">
-                    {dayBookings.map((booking) => (
-                      <div
-                        key={booking.id}
-                        className="rounded-lg bg-sage px-2 py-1.5 text-[.68rem] leading-tight"
+                  {inMonth ? (
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        aria-label={`Agregar horario el ${weekday} ${dayNumber}`}
+                        className={cn(
+                          "flex size-7 items-center justify-center rounded-full text-xs outline-none transition hover:bg-sage focus-visible:ring-2 focus-visible:ring-ring",
+                          isoDate === todayIso &&
+                            "bg-sage/40 font-semibold ring-1 ring-ring",
+                        )}
+                        onClick={() => onAddForDate?.(isoDate, weekday)}
                       >
-                        <p className="font-semibold">
-                          {booking.time} · {booking.attendee.split(" ")[0]}
-                        </p>
-                        <p className="mt-0.5 truncate text-muted-foreground">
-                          {booking.service}
-                        </p>
+                        {dayNumber}
+                      </button>
+                      {daySchedules.length > 0 && onDeleteDate ? (
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          aria-label={`Eliminar todos los horarios del ${previewDateFormatter.format(new Date(`${isoDate}T00:00:00Z`))}`}
+                          onClick={() => {
+                            setDeleteDate(isoDate);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 />
+                        </Button>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <span className="invisible block size-7 text-xs">
+                      {dayNumber}
+                    </span>
+                  )}
+                  <div className="mt-1 flex-1 space-y-1">
+                    {daySchedules.map((schedule, slotIndex) => (
+                      <div
+                        key={`${schedule.id}-${slotIndex}`}
+                        className="flex items-center gap-1 rounded-lg bg-sage px-2 py-1.5 text-[.68rem] leading-tight"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold">
+                            {schedule.startTime} -{" "}
+                            {minutesToTime(
+                              timeToMinutes(schedule.startTime) +
+                                schedule.duration * 60,
+                            )}
+                          </p>
+                          <p className="mt-0.5 truncate text-muted-foreground">
+                            {schedule.duration}{" "}
+                            {schedule.duration === 1 ? "hora" : "horas"}
+                          </p>
+                        </div>
+                        {onDelete ? (
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label={`Eliminar ${weekday} de ${scheduleRange(schedule)}`}
+                            onClick={() => onDelete(schedule.id)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        ) : null}
                       </div>
                     ))}
                   </div>
@@ -110,13 +222,53 @@ export function ReservationsCalendar() {
       <div className="mt-5 flex flex-wrap items-center gap-5 text-xs text-muted-foreground">
         <span className="flex items-center gap-2">
           <span className="size-2.5 rounded-full bg-sage ring-1 ring-primary/20" />{" "}
-          Reserva confirmada
-        </span>
-        <span className="flex items-center gap-2">
-          <span className="size-2.5 rounded-full bg-clay ring-1 ring-terracotta/20" />{" "}
           Horario disponible
         </span>
+        {onAddForDate ? (
+          <span className="flex items-center gap-2">Haz clic en un día para agregar un horario.</span>
+        ) : null}
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            if (!deleteDatePending) {
+              setDeleteDateError(null);
+            }
+            closeDeleteDialog();
+          }
+        }}
+        title={`¿Eliminar horarios del ${deleteDate ? previewDateFormatter.format(new Date(`${deleteDate}T00:00:00Z`)) : ""}?`}
+        description="Se quitarán todos los bloques de esta fecha. Los bloques de otras fechas no se verán afectados."
+        confirmLabel="Sí, eliminar"
+        pendingLabel="Eliminando…"
+        destructive
+        isPending={deleteDatePending}
+        onConfirm={async () => {
+          if (!deleteDate) return;
+          setDeleteDatePending(true);
+          setDeleteDateError(null);
+          try {
+            const error = await onDeleteDate?.(deleteDate);
+            if (error) {
+              setDeleteDateError(error);
+            } else {
+              closeDeleteDialog();
+            }
+          } finally {
+            setDeleteDatePending(false);
+          }
+        }}
+      >
+        {deleteDateError ? (
+          <p
+            role="alert"
+            className="mt-4 rounded-xl bg-error-surface px-4 py-3 text-sm text-error"
+          >
+            {deleteDateError}
+          </p>
+        ) : null}
+      </ConfirmDialog>
     </section>
   );
 }

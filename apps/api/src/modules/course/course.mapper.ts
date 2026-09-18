@@ -1,6 +1,6 @@
 import type {
   CourseCatalogItem as CourseCatalogContract,
-  CourseDetail,
+  CourseDetailResponse,
 } from '@aula-rayen/contracts/course';
 
 import type { Course } from '@/db/types';
@@ -15,7 +15,7 @@ export function toCourseCatalogItem(
   };
 }
 
-export function toCourseDetail(course: Course): CourseDetail {
+export function toCourseDetail(course: Course): CourseDetailResponse {
   return {
     ...course,
     createdAt: course.createdAt.toISOString(),

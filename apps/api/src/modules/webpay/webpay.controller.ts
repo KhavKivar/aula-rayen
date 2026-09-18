@@ -4,11 +4,11 @@ import { WebPayService } from './webpay.service';
 import { CreateWebpayDto } from './dto/create-webpay.dto';
 import { Roles, Session } from '@thallesp/nestjs-better-auth';
 import type { UserSession } from '@thallesp/nestjs-better-auth';
-import type { PaymentsResponse } from '@aula-rayen/contracts/payment';
+import type { PaymentListResponse } from '@aula-rayen/contracts/payment';
 import type {
   CommitRedirect,
   CommitResult,
-  CreateWebpayResponse,
+  WebpayCreateResponse,
   PaymentResultStatus,
   WebpayAdminSessionsResponse,
 } from '@aula-rayen/contracts/webpay';
@@ -42,7 +42,7 @@ export class WebPayController {
   // Return only the succesful payment
   @Get('payments')
   @Roles(['admin'])
-  async findPayments(): Promise<PaymentsResponse> {
+  async findPayments(): Promise<PaymentListResponse> {
     return this.webpayService.getPayments();
   }
 
@@ -50,7 +50,7 @@ export class WebPayController {
   create(
     @Body() createWebpayDto: CreateWebpayDto,
     @Session() session: UserSession,
-  ): Promise<CreateWebpayResponse> {
+  ): Promise<WebpayCreateResponse> {
     return this.webpayService.create(createWebpayDto, session.user.id);
   }
 

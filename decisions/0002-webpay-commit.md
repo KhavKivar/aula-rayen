@@ -13,7 +13,6 @@ El callback de Transbank debe procesarse una sola vez y nunca otorgar acceso por
 - Sin `token_ws`, el resultado es `canceled` y no se llama a Transbank.
 - `takeSession` usa `takenAt` como claim atómico. Solo el ganador confirma; los demás retornan `pending`.
 - Un callback repetido sobre una sesión ya completada responde `ok` sin volver a llamar a Transbank.
-- Si el claim queda huérfano (proceso o red caídos antes de persistir), pasada una ventana de gracia de 2 minutos un callback nuevo puede reclamarlo y reintentar el commit. Si Transbank rechaza el reintento, se consulta `status(token)` para recuperar el resultado real antes de decidir.
 - Un pago es válido únicamente si está autorizado y coinciden la orden y el monto guardados.
 - El pago autorizado y el acceso al curso se guardan en una transacción.
 - Los intentos rechazados se registran sin otorgar acceso.
@@ -22,4 +21,3 @@ El callback de Transbank debe procesarse una sola vez y nunca otorgar acceso por
 ## Consecuencias
 
 - El token se consume una sola vez y un callback concurrente no duplica la compra.
-- Ningún claim queda bloqueado para siempre: un fallo transitorio se recupera en el siguiente callback.

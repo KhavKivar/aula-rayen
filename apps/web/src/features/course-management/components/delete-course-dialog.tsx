@@ -1,18 +1,5 @@
-import { LoaderCircle } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogDescription,
-  DialogHeader,
-  DialogPopup,
-  DialogPortal,
-  DialogTitle,
-  DialogViewport,
-} from "@/components/ui/dialog";
 import type { CourseCatalogItem } from "@aula-rayen/contracts/course";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useDeleteCourse } from "@/features/course-management/api/use-course-mutations";
 import { toApiErrorMessage } from "@/lib/api-error";
 
@@ -39,58 +26,25 @@ export function DeleteCourseDialog({
   if (!open || !course) return null;
 
   return (
-    <Dialog open onOpenChange={onOpenChange}>
-      <DialogPortal>
-        <DialogBackdrop />
-        <DialogViewport>
-          <DialogPopup className="max-w-md">
-            <DialogHeader>
-              <div>
-                <DialogTitle>¿Eliminar curso?</DialogTitle>
-                <DialogDescription>
-                  {`Vas a eliminar "${course.title}". Esta acción es irreversible.`}
-                </DialogDescription>
-              </div>
-              <DialogClose />
-            </DialogHeader>
-
-            {mutation.isError ? (
-              <p role="alert" className="mt-4 text-sm text-destructive">
-                {toApiErrorMessage(
-                  mutation.error,
-                  "No se pudo eliminar el curso",
-                )}
-              </p>
-            ) : null}
-
-            <div className="mt-6 flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={mutation.isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => mutation.mutate({ id: course.id })}
-                disabled={mutation.isPending}
-              >
-                {mutation.isPending ? (
-                  <>
-                    <LoaderCircle className="animate-spin" aria-hidden="true" />
-                    Eliminando...
-                  </>
-                ) : (
-                  "Eliminar"
-                )}
-              </Button>
-            </div>
-          </DialogPopup>
-        </DialogViewport>
-      </DialogPortal>
-    </Dialog>
+    <ConfirmDialog
+      open
+      onOpenChange={onOpenChange}
+      title="¿Eliminar curso?"
+      description={`Vas a eliminar "${course.title}". Esta acción es irreversible.`}
+      confirmLabel="Eliminar"
+      pendingLabel="Eliminando..."
+      destructive
+      isPending={mutation.isPending}
+      onConfirm={() => mutation.mutate({ id: course.id })}
+    >
+      {mutation.isError ? (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          {toApiErrorMessage(
+            mutation.error,
+            "No se pudo eliminar el curso",
+          )}
+        </p>
+      ) : null}
+    </ConfirmDialog>
   );
 }

@@ -57,10 +57,19 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 
 ## Despliegue
 
-- Un push a `main` que modifica `apps/web/**` activa `deploy-web.yml`.
-- La API se despliega con Dokploy (fuera de GitHub Actions); no existe `deploy-api.yml`.
-- Los cambios en `packages/contracts/**` activan el despliegue web y afectan a la API;
-  verifica ambos consumidores antes de hacer push.
+- `ci.yml` valida contratos, API y web en cada PR; configúralo como check requerido
+  en `main` para bloquear merges sin validación.
+- Un push a `main` activa `deploy.yml`, que detecta las áreas cambiadas y despliega
+  solo lo afectado. Si el release toca la API y la web, la API se despliega y
+  verifica primero (`GET /health` reporta el commit) y la web se publica después.
+- La API se publica como imagen inmutable en GHCR (`sha-<commit>`, más `main` que el
+  pipeline re-apunta) y Dokploy solo la ejecuta, sin `docker build` en el VPS.
+- Los cambios en `packages/contracts/**` o en archivos compartidos despliegan ambas
+  aplicaciones; mantén los contratos retrocompatibles (ampliar antes de eliminar).
+- Rollback: `pnpm rollback <commit>` desde la raíz revierte la web y luego la API a ese
+  release (`pnpm rollback --list` muestra los candidatos). Las migraciones no se revierten.
+- Secretos: `DOKPLOY_API_KEY` y credenciales de Cloudflare en GitHub; los secretos de
+  ejecución de la API viven solo en Dokploy.
 - Revisa el alcance del diff antes de hacer push, porque puede iniciar un despliegue
   de producción.
 - No ejecutes despliegues manuales si el usuario solo pidió validar o compilar.
@@ -69,6 +78,13 @@ completo antes de publicar cambios de configuración, autenticación o despliegu
 
 - TypeScript estricto; evita `any` nuevo y aserciones `!` para ocultar configuración
   ausente.
+- Contratos HTTP en `packages/contracts`: los esquemas se nombran con el recurso
+  primero y la acción al final, formato `{recurso}{Acción}`. Requests:
+  `{recurso}CreateRequestSchema`, `{recurso}UpdateRequestSchema`;
+  operaciones masivas: `{recurso}BulkCreateRequestSchema` /
+  `{recurso}BulkDeleteRequestSchema`. Responses: `{recurso}ResponseSchema`,
+  `{recurso}ListResponseSchema`. Los tipos `z.infer` correspondientes comparten el
+  mismo nombre quitando el sufijo `Schema`.
 - Usa imports absolutos con `@/` dentro de cada aplicación cuando estén disponibles.
 - Prefiere módulos pequeños con una responsabilidad clara.
 - Conserva los nombres del dominio en inglés en código y los mensajes visibles al

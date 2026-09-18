@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   {
     to: "/dashboard/admin/reservations" as const,
-    label: "Reservas",
+    label: "Disponibilidad",
     icon: CalendarClock,
   },
   {

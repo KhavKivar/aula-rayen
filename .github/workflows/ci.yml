@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Validate contracts
+        run: |
+          pnpm --filter @aula-rayen/contracts typecheck
+          pnpm --filter @aula-rayen/contracts test:run
+          pnpm --filter @aula-rayen/contracts build
+
+  migrations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Block edits to migrations already in main
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          base="${base:-origin/main}"
+
+          changed="$(git diff --name-only "$base" HEAD -- apps/api/drizzle || true)"
+          if [ -z "$changed" ]; then
+            echo "Sin cambios en apps/api/drizzle."
+            exit 0
+          fi
+
+          failed=0
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            case "$file" in
+              apps/api/drizzle/meta/_journal.json)
+                diff_out="$(git diff "$base" HEAD -- "$file" || true)"
+                if echo "$diff_out" | grep -q '^-'; then
+                  echo "::error file=$file::Se eliminó o modificó una entrada ya existente en el journal de drizzle. Las migraciones ya aplicadas en main son inmutables; agrega solo entradas nuevas."
+                  failed=1
+                else
+                  echo "Journal: solo entradas nuevas, ok."
+                fi
+                ;;
+              *)
+                if git cat-file -e "$base:$file" 2>/dev/null; then
+                  status="$(git diff --name-status "$base" HEAD -- "$file" | awk '{print $1}')"
+                  echo "::error file=$file::La migración '$file' ya existe en main y fue $status. Las migraciones aplicadas son inmutables: crea una nueva con 'pnpm --filter @aula-rayen/api db:generate'."
+                  failed=1
+                else
+                  echo "Nueva migración: $file, ok."
+                fi
+                ;;
+            esac
+          done <<< "$changed"
+
+          exit $failed
+
+  api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Validate API
+        run: |
+          pnpm --filter @aula-rayen/contracts build
+          pnpm --filter @aula-rayen/api exec eslint src test
+          pnpm --filter @aula-rayen/api test
+          pnpm --filter @aula-rayen/api typecheck
+          pnpm --filter @aula-rayen/api build
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_PUBLIC_API_URL: http://127.0.0.1:3999
+      VITE_PUBLIC_AUTH_URL: http://127.0.0.1:3999/auth
+      VITE_PUBLIC_SITE_URL: http://127.0.0.1:3001
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+          package-manager-cache: false
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --child-concurrency=1
+      - name: Validate web
+        run: |
+          pnpm --filter @aula-rayen/contracts build
+          pnpm --filter @aula-rayen/web lint
+          pnpm --filter @aula-rayen/web typecheck
+          pnpm --filter @aula-rayen/web test:run
+          pnpm --filter @aula-rayen/web build
+          pnpm --filter @aula-rayen/web check:landing

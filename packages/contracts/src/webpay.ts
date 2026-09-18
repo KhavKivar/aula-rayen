@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // POST /webpay — request. Espeja CreateWebpayDto del backend
 // (class-validator) para que ambos lados validen lo mismo.
-export const createWebpayRequestSchema = z
+export const webpayCreateRequestSchema = z
   .object({
     course_id: z.number().int().positive(),
   })
@@ -10,7 +10,7 @@ export const createWebpayRequestSchema = z
 
 // POST /webpay — response de Transbank reenviada al frontend
 // para el auto-submit del form con token_ws.
-export const createWebpayResponseSchema = z
+export const webpayCreateResponseSchema = z
   .object({
     token: z.string().min(1),
     url: z.url(),
@@ -71,8 +71,8 @@ export const webpayAdminSessionsResponseSchema = z.array(
   webpayAdminSessionSchema,
 );
 
-export type CreateWebpayRequest = z.infer<typeof createWebpayRequestSchema>;
-export type CreateWebpayResponse = z.infer<typeof createWebpayResponseSchema>;
+export type WebpayCreateRequest = z.infer<typeof webpayCreateRequestSchema>;
+export type WebpayCreateResponse = z.infer<typeof webpayCreateResponseSchema>;
 export type CommitResult = z.infer<typeof commitResultSchema>;
 export type CommitRedirect = z.infer<typeof commitRedirectSchema>;
 export type PaymentResultStatus = z.infer<typeof paymentResultStatusSchema>;

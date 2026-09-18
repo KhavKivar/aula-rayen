@@ -33,7 +33,14 @@ To roll back, remove the production setting, redeploy the API, expire the
 domain-scoped session cookie through logout or an operational cleanup response,
 and require users to sign in again to establish host-only sessions.
 
-## Dokploy con PostgreSQL local
+## Imagen inmutable y Dokploy
+
+GitHub Actions publica `ghcr.io/khavkivar/aula-rayen-api` en GHCR con dos tags: el
+del commit (`sha-<short>`) y `main`, que el pipeline re-apunta de forma atómica en
+cada release. `apps/api/docker-compose.yml` consume la imagen publicada (no incluye
+`build:`) y Dokploy solo la descarga y ejecuta. `APP_VERSION` se hornea en la imagen
+como build-arg y `GET /health` la reporta, de modo que el pipeline verifica el commit
+desplegado antes de publicar la web.
 
 Despliega `apps/api/docker-compose.yml` como una aplicación Compose desde la
 raíz del repositorio. El Compose crea:
@@ -58,11 +65,30 @@ API_MEMORY_LIMIT=768m
 API_CPU_LIMIT=1.0
 POSTGRES_MEMORY_LIMIT=1g
 POSTGRES_CPU_LIMIT=1.0
+
+# `main` apunta a la última release; el pipeline la re-apunta en cada despliegue.
+IMAGE_TAG=main
 ```
 
 La contraseña debe estar codificada para URL si contiene `@`, `:`, `/`, `?`,
 `#` o `%`. No expongas 5432 mediante Domains ni Ports en Dokploy. Asocia el
 dominio público únicamente al servicio `api` y su puerto 3000.
+
+Dokploy necesita además credenciales de solo lectura de GHCR para descargar la
+imagen privada.
+
+### Rollback
+
+Desde la raíz del repositorio:
+
+```bash
+pnpm rollback --list        # releases exitosos recientes
+pnpm rollback <commit>      # revierte web y API a ese release
+```
+
+El comando re-apunta `main` a la imagen de ese commit, dispara el redeploy y espera a
+que `/health` reporte la versión. Las migraciones no se revierten: la versión anterior
+debe soportar el esquema ya aplicado.
 
 ### Migración desde Neon
 

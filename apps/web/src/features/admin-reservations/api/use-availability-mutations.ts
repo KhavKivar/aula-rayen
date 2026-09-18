@@ -7,6 +7,7 @@ import {
 import { queryKeys } from "@/config/query-keys";
 import { createAvailabilitySlots } from "@/features/admin-reservations/api/create-availability-slot";
 import { deleteAvailabilitySlot } from "@/features/admin-reservations/api/delete-availability-slot";
+import { deleteAvailabilitySlots } from "@/features/admin-reservations/api/delete-availability-slots";
 
 type MutationCallbacks = {
   onSuccess?: () => void;
@@ -39,6 +40,20 @@ export function useDeleteAvailabilitySlot({
 
   return useMutation({
     mutationFn: deleteAvailabilitySlot,
+    onSuccess: async () => {
+      await invalidateSlots(queryClient);
+      onSuccess?.();
+    },
+  });
+}
+
+export function useDeleteAvailabilitySlots({
+  onSuccess,
+}: MutationCallbacks = {}) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteAvailabilitySlots,
     onSuccess: async () => {
       await invalidateSlots(queryClient);
       onSuccess?.();

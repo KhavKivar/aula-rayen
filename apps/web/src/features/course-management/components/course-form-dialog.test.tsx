@@ -90,4 +90,67 @@ describe("CourseFormDialog", () => {
     );
     expect(mockUpdate).not.toHaveBeenCalled();
   });
+
+  it("rejects an empty price instead of saving the course as free", async () => {
+    const user = userEvent.setup();
+    mockCreate.mockResolvedValue({});
+
+    render(
+      <CourseFormDialog open={true} mode="create" onOpenChange={vi.fn()} />,
+    );
+
+    await user.type(screen.getByLabelText("Título"), "Nuevo curso");
+    await user.type(screen.getByLabelText("Descripción"), "Descripción");
+    await user.type(
+      screen.getByLabelText("Link del video"),
+      "https://example.com/video",
+    );
+    await user.type(
+      screen.getByLabelText("Link del material"),
+      "https://example.com/file",
+    );
+    await user.type(screen.getByLabelText("Duración"), "2 horas");
+
+    await user.click(screen.getByRole("button", { name: "Crear" }));
+
+    await waitFor(() => expect(mockCreate).not.toHaveBeenCalled());
+    const priceInput = screen.getByLabelText("Precio (CLP)");
+    await waitFor(() =>
+      expect(priceInput).toHaveAttribute("aria-describedby", "price-error"),
+    );
+    expect(document.getElementById("price-error")).toHaveAttribute(
+      "role",
+      "alert",
+    );
+  });
+
+  it("shows the API error without an unhandled rejection", async () => {
+    const user = userEvent.setup();
+    mockCreate.mockRejectedValue(new Error("boom"));
+
+    render(
+      <CourseFormDialog open={true} mode="create" onOpenChange={vi.fn()} />,
+    );
+
+    await user.type(screen.getByLabelText("Título"), "Nuevo curso");
+    await user.type(screen.getByLabelText("Descripción"), "Descripción");
+    await user.type(
+      screen.getByLabelText("Link del video"),
+      "https://example.com/video",
+    );
+    await user.type(
+      screen.getByLabelText("Link del material"),
+      "https://example.com/file",
+    );
+    await user.type(screen.getByLabelText("Duración"), "2 horas");
+    await user.type(screen.getByLabelText("Precio (CLP)"), "25000");
+
+    await user.click(screen.getByRole("button", { name: "Crear" }));
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        /No se pudo crear el curso|boom/,
+      ),
+    );
+  });
 });

@@ -1,5 +1,5 @@
 import type {
-  Payment,
+  PaymentResponse,
   PaymentStatus,
 } from "@aula-rayen/contracts/payment";
 
@@ -18,10 +18,10 @@ export interface PaymentMetrics {
 }
 
 export function filterPayments(
-  transactions: readonly Payment[],
+  transactions: readonly PaymentResponse[],
   filters: PaymentFilters,
   today: Date = new Date(),
-): Payment[] {
+): PaymentResponse[] {
   const query = filters.query.trim().toLocaleLowerCase("es-CL");
   const endOfToday = Date.UTC(
     today.getUTCFullYear(),
@@ -51,7 +51,7 @@ export function filterPayments(
 }
 
 export function getPaymentMetrics(
-  transactions: readonly Payment[],
+  transactions: readonly PaymentResponse[],
 ): PaymentMetrics {
   return transactions.reduce<PaymentMetrics>(
     (metrics, transaction) => {

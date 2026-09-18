@@ -15,6 +15,12 @@ export class AppController {
   @Get('health')
   @AllowAnonymous()
   health() {
-    return { status: 'ok' };
+    return { status: 'ok', version: this.appService.getVersion() };
+  }
+
+  @Get('ping')
+  @AllowAnonymous()
+  ping() {
+    return { pong: true, revision: 2 };
   }
 }

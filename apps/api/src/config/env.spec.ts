@@ -30,6 +30,21 @@ describe('environment configuration', () => {
     expect(result.DOMAIN).toBeUndefined();
   });
 
+  it('defaults the application version to development', () => {
+    const result = envSchema.parse(validEnvironment);
+
+    expect(result.APP_VERSION).toBe('development');
+  });
+
+  it('keeps an explicit application version', () => {
+    const result = envSchema.parse({
+      ...validEnvironment,
+      APP_VERSION: 'sha-abc1234',
+    });
+
+    expect(result.APP_VERSION).toBe('sha-abc1234');
+  });
+
   it('accepts an auth URL whose path matches the mounted path', () => {
     const result = envSchema.safeParse({
       ...validEnvironment,

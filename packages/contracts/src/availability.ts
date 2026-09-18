@@ -23,17 +23,17 @@ export const availabilitySlotResponseSchema = z
   })
   .strict();
 
-export const availabilitySlotListSchema = z.array(
+export const availabilitySlotListResponseSchema = z.array(
   availabilitySlotResponseSchema,
 );
 
-export const createAvailabilitySlotRequestSchema =
+export const availabilitySlotCreateRequestSchema =
   availabilitySlotMutableFieldsSchema
     .omit({ status: true })
     .extend({ status: availabilitySlotStatusSchema.optional() })
     .strict();
 
-export const updateAvailabilitySlotRequestSchema =
+export const availabilitySlotUpdateRequestSchema =
   availabilitySlotMutableFieldsSchema
     .partial()
     .refine((value) => Object.keys(value).length > 0, {
@@ -42,8 +42,13 @@ export const updateAvailabilitySlotRequestSchema =
 
 export const MAX_AVAILABILITY_SLOTS_BATCH = 1000;
 
-export const createAvailabilitySlotsRequestSchema = z
-  .array(createAvailabilitySlotRequestSchema)
+export const availabilitySlotBulkCreateRequestSchema = z
+  .array(availabilitySlotCreateRequestSchema)
+  .min(1)
+  .max(MAX_AVAILABILITY_SLOTS_BATCH);
+
+export const availabilitySlotBulkDeleteRequestSchema = z
+  .array(z.number().int().positive())
   .min(1)
   .max(MAX_AVAILABILITY_SLOTS_BATCH);
 
@@ -53,13 +58,16 @@ export type AvailabilitySlotStatus = z.infer<
 export type AvailabilitySlotResponse = z.infer<
   typeof availabilitySlotResponseSchema
 >;
-export type AvailabilitySlotList = z.infer<typeof availabilitySlotListSchema>;
-export type CreateAvailabilitySlotRequest = z.infer<
-  typeof createAvailabilitySlotRequestSchema
+export type AvailabilitySlotListResponse = z.infer<typeof availabilitySlotListResponseSchema>;
+export type AvailabilitySlotCreateRequest = z.infer<
+  typeof availabilitySlotCreateRequestSchema
 >;
-export type UpdateAvailabilitySlotRequest = z.infer<
-  typeof updateAvailabilitySlotRequestSchema
+export type AvailabilitySlotUpdateRequest = z.infer<
+  typeof availabilitySlotUpdateRequestSchema
 >;
-export type CreateAvailabilitySlotsRequest = z.infer<
-  typeof createAvailabilitySlotsRequestSchema
+export type AvailabilitySlotBulkCreateRequest = z.infer<
+  typeof availabilitySlotBulkCreateRequestSchema
+>;
+export type AvailabilitySlotBulkDeleteRequest = z.infer<
+  typeof availabilitySlotBulkDeleteRequestSchema
 >;

@@ -1,11 +1,9 @@
-import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { LogIn } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { FormField } from "@/components/ui/form-field";
-import { Input } from "@/components/ui/input";
+import { useAppForm, TextField } from "@/components/ui/form";
 import { login, loginWithGoogle } from "@/features/auth/api/login";
 import { GoogleIcon } from "@/features/auth/components/google-icon";
 import { AuthError } from "@/features/auth/errors/auth-error";
@@ -15,6 +13,8 @@ import {
 } from "@/features/auth/schemas/login-schema";
 
 import { clearSessionCache } from "@/lib/session-cache";
+
+const inputClassName = "h-11 bg-card px-4 shadow-none";
 
 export function LoginForm({
   redirectTo = "/dashboard",
@@ -43,7 +43,7 @@ export function LoginForm({
     mutationFn: () => loginWithGoogle(redirectTo),
   });
 
-  const form = useForm({
+  const form = useAppForm({
     defaultValues: {
       email: "",
       password: "",
@@ -96,69 +96,37 @@ export function LoginForm({
         </div>
       </div>
 
-      <form.Field name="email">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
+      <form.AppField name="email">
+        {() => (
+          <TextField
+            label="Correo electrónico"
+            type="email"
+            placeholder="nombre@ejemplo.com"
+            autoComplete="email"
+            inputClassName={inputClassName}
+          />
+        )}
+      </form.AppField>
 
-          return (
-            <FormField
-              inputId={field.name}
-              label="Correo electrónico"
-              error={error}
-            >
-              <Input
-                id={field.name}
-                name={field.name}
-                type="email"
-                placeholder="nombre@ejemplo.com"
-                autoComplete="email"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? "email-error" : undefined}
-                className="h-11 bg-card px-4 shadow-none"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
-
-      <form.Field name="password">
-        {(field) => {
-          const error = field.state.meta.errors[0]?.message;
-
-          return (
-            <FormField
-              inputId={field.name}
-              label="Contraseña"
-              error={error}
-              labelAction={
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  ¿La olvidaste?
-                </Link>
-              }
-            >
-              <Input
-                id={field.name}
-                name={field.name}
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(event) => field.handleChange(event.target.value)}
-                aria-invalid={Boolean(error)}
-                aria-describedby={error ? "password-error" : undefined}
-                className="h-11 bg-card px-4 shadow-none"
-              />
-            </FormField>
-          );
-        }}
-      </form.Field>
+      <form.AppField name="password">
+        {() => (
+          <TextField
+            label="Contraseña"
+            type="password"
+            placeholder="••••••••"
+            autoComplete="current-password"
+            inputClassName={inputClassName}
+            labelAction={
+              <Link
+                to="/forgot-password"
+                className="text-xs font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+              >
+                ¿La olvidaste?
+              </Link>
+            }
+          />
+        )}
+      </form.AppField>
 
       {loginMutation.isError ? (
         <p role="alert" className="text-sm text-destructive">

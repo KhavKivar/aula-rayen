@@ -1,14 +1,11 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   AvailabilitySlotResponse,
-  CreateAvailabilitySlotRequest,
+  AvailabilitySlotCreateRequest,
 } from "@aula-rayen/contracts/availability";
-import {
-  ReservationsCalendar,
-} from "@/features/admin-reservations/components/reservations-calendar";
 import { ReservationsPanel } from "@/features/admin-reservations/components/reservations-panel";
 import { createTestQueryClient, render } from "@/testing/test-utils";
 
@@ -55,7 +52,7 @@ function mockBackend() {
       if (url !== "/availability-slots/batch" || !Array.isArray(payload)) {
         throw new Error(`unexpected POST ${url}`);
       }
-      const created = (payload as CreateAvailabilitySlotRequest[]).map(
+      const created = (payload as AvailabilitySlotCreateRequest[]).map(
         (body) => {
           const slot: AvailabilitySlotResponse = {
             id: nextSlotId++,
@@ -71,23 +68,47 @@ function mockBackend() {
       return { data: created };
     },
   );
-  vi.mocked(apiClient.delete).mockImplementation(async (url: string) => {
-    const id = Number(String(url).split("/").pop());
-    const index = storedSlots.findIndex((slot) => slot.id === id);
-    if (index === -1) throw new Error(`slot ${id} not found`);
-    const [removed] = storedSlots.splice(index, 1);
-    return { data: removed };
-  });
+  vi.mocked(apiClient.delete).mockImplementation(
+    async (url: string, config?: unknown) => {
+      const ids =
+        (
+          config as { data?: number[] } | undefined
+        )?.data instanceof Array
+          ? (config as { data: number[] }).data
+          : [];
+      if (url === "/availability-slots/batch" && ids.length > 0) {
+        const removed: AvailabilitySlotResponse[] = [];
+        for (const id of ids) {
+          const index = storedSlots.findIndex((slot) => slot.id === id);
+          if (index === -1) throw new Error(`slot ${id} not found`);
+          const [removedSlot] = storedSlots.splice(index, 1);
+          removed.push(removedSlot);
+        }
+        return { data: removed };
+      }
+      const id = Number(String(url).split("/").pop());
+      const index = storedSlots.findIndex((slot) => slot.id === id);
+      if (index === -1) throw new Error(`slot ${id} not found`);
+      const [removedSlot] = storedSlots.splice(index, 1);
+      return { data: removedSlot };
+    },
+  );
 }
 
 describe("ReservationsPanel", () => {
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-09-08T12:00:00-03:00"));
     storedSlots.length = 0;
     nextSlotId = 1;
     vi.mocked(apiClient.get).mockReset();
     vi.mocked(apiClient.post).mockReset();
     vi.mocked(apiClient.delete).mockReset();
     mockBackend();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("previews a daily range before saving all generated slots", async () => {
@@ -99,17 +120,16 @@ describe("ReservationsPanel", () => {
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
 
-    expect(screen.getByText(/Se crearán 22 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 33 bloques/)).toBeVisible();
     expect(screen.getAllByText("09:00 a 10:00")).toHaveLength(2);
     await user.click(screen.getByRole("button", { name: "Guardar todos" }));
 
     expect(
-      screen.queryByText(/Se crearán 22 bloques semanales/),
+      screen.queryByText(/Se crearán 33 bloques/),
     ).not.toBeInTheDocument();
     const deleteButtons = await screen.findAllByRole("button", {
       name: /Eliminar .+ de 09:00 a 10:00/,
     });
-    expect(deleteButtons).toHaveLength(2);
     expect(apiClient.post).toHaveBeenCalledTimes(1);
     expect(apiClient.post).toHaveBeenCalledWith(
       "/availability-slots/batch",
@@ -118,10 +138,15 @@ describe("ReservationsPanel", () => {
       ]),
     );
     await user.click(deleteButtons[0]);
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Sí, eliminar",
+      }),
+    );
     await waitFor(() => {
       expect(
         screen.getAllByRole("button", { name: /Eliminar .+ de 09:00 a 10:00/ }),
-      ).toHaveLength(1);
+      ).toHaveLength(2);
     });
   });
 
@@ -140,15 +165,58 @@ describe("ReservationsPanel", () => {
 
     expect(
       await screen.findByRole("button", {
-        name: "Eliminar Lun de 09:00 a 11:00",
+        name: "Eliminar Mar de 09:00 a 11:00",
       }),
     ).toBeVisible();
-    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog", { name: "Agregar un horario" })).not.toBeInTheDocument();
   });
 
-  it("confirms before deleting all saved schedules", async () => {
+  it("blocks saving a schedule that overlaps an existing slot", async () => {
     const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
+
+    await user.click(
+      screen.getByRole("button", { name: "Agregar horario el Lun 7" }),
+    );
+    const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+    await user.click(
+      within(dialog).getByRole("button", { name: "Agregar horario" }),
+    );
+    await screen.findByRole("button", {
+      name: "Eliminar Lun de 09:00 a 10:00",
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Agregar horario el Lun 7" }),
+    );
+    const overlapDialog = screen.getByRole("dialog", {
+      name: "Agregar un horario",
+    });
+    await user.type(
+      within(overlapDialog).getByLabelText("Hora de inicio"),
+      "09:30",
+    );
+    await user.click(
+      within(overlapDialog).getByRole("button", { name: "Agregar horario" }),
+    );
+
+    expect(
+      await screen.findByRole("alert"),
+    ).toHaveTextContent(/se superpone/);
+    expect(
+      screen.getByRole("dialog", { name: "Agregar un horario" }),
+    ).toBeVisible();
+    expect(apiClient.post).toHaveBeenCalledTimes(1);
+  });
+
+  it("confirms before deleting the saved schedules of a visible date", async () => {
+    const user = userEvent.setup();
+    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
+
+    const todayLabel = new Intl.DateTimeFormat("es-CL", {
+      day: "numeric",
+      month: "long",
+    }).format(new Date());
 
     await user.click(
       screen.getByRole("button", { name: "Agregar un horario" }),
@@ -160,38 +228,24 @@ describe("ReservationsPanel", () => {
       ),
     );
     const deleteDayButton = await screen.findByRole("button", {
-      name: "Eliminar todos",
+      name: `Eliminar todos los horarios del ${todayLabel}`,
     });
     await user.click(deleteDayButton);
 
     const confirmation = screen.getByRole("dialog", {
-      name: "¿Eliminar horarios del Lun?",
+      name: `¿Eliminar horarios del ${todayLabel}?`,
     });
     expect(confirmation).toBeVisible();
     await user.click(
-      within(confirmation).getByRole("button", { name: "Sí, eliminar todos" }),
+      within(confirmation).getByRole("button", { name: "Sí, eliminar" }),
     );
     await waitFor(() => {
       expect(
-        screen.queryByRole("button", { name: "Eliminar todos" }),
+        screen.queryByRole("button", {
+          name: `Eliminar todos los horarios del ${todayLabel}`,
+        }),
       ).not.toBeInTheDocument();
     });
-  });
-
-  it("navigates the dated weekly availability preview", async () => {
-    const user = userEvent.setup();
-    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
-
-    expect(screen.getByText("Lun 7")).toBeVisible();
-    expect(
-      screen.getByText(/7 de septiembre.*13 de septiembre/),
-    ).toBeVisible();
-    await user.click(
-      screen.getByRole("button", { name: "Semana siguiente" }),
-    );
-    expect(screen.getByText("Lun 14")).toBeVisible();
-    await user.click(screen.getByRole("button", { name: "Semana anterior" }));
-    expect(screen.getByText("Lun 7")).toBeVisible();
   });
 
   it("updates an active preview when the duration changes", async () => {
@@ -201,29 +255,71 @@ describe("ReservationsPanel", () => {
     await user.click(
       screen.getByRole("button", { name: "Generar vista previa" }),
     );
-    expect(screen.getByText(/Se crearán 11 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 11 bloques/)).toBeVisible();
 
     await user.selectOptions(screen.getByLabelText("Duración"), "2");
 
-    expect(screen.getByText(/Se crearán 5 bloques semanales/)).toBeVisible();
+    expect(screen.getByText(/Se crearán 5 bloques/)).toBeVisible();
     expect(screen.getByText("09:00 a 11:00")).toBeVisible();
     expect(screen.queryByText("09:00 a 10:00")).not.toBeInTheDocument();
   });
 
-  it("keeps the monthly mock calendar as an independent view", () => {
+  it("renders the monthly calendar and adds a schedule from a clicked day", async () => {
+    const user = userEvent.setup();
     render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
-
-    expect(
-      screen.queryByRole("heading", { name: "Próximas reservas" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("tab", { name: "Calendario" }),
-    ).not.toBeInTheDocument();
-
-    render(<ReservationsCalendar />, { queryClient: createTestQueryClient() });
 
     expect(
       screen.getByRole("heading", { name: "Septiembre 2026" }),
     ).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Agregar horario el Mié 9" }));
+    const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+    expect(
+      within(dialog).getByLabelText("Fecha: 9 de septiembre"),
+    ).toBeVisible();
+    await user.click(
+      within(dialog).getByRole("button", { name: "Agregar horario" }),
+    );
+    expect(
+      await screen.findByRole("button", {
+        name: "Eliminar Mié de 09:00 a 10:00",
+      }),
+    ).toBeVisible();
+  });
+
+  it("deletes every schedule of a date from the calendar", async () => {
+    const user = userEvent.setup();
+    render(<ReservationsPanel />, { queryClient: createTestQueryClient() });
+
+    for (const time of ["09:00", "11:00"]) {
+      await user.click(
+        screen.getByRole("button", { name: "Agregar horario el Mié 9" }),
+      );
+      const dialog = screen.getByRole("dialog", { name: "Agregar un horario" });
+      await user.clear(within(dialog).getByLabelText("Hora de inicio"));
+      await user.type(within(dialog).getByLabelText("Hora de inicio"), time);
+      await user.click(
+        within(dialog).getByRole("button", { name: "Agregar horario" }),
+      );
+    }
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Eliminar todos los horarios del 9 de septiembre",
+      }),
+    );
+    const confirmation = await screen.findByRole("dialog", {
+      name: "¿Eliminar horarios del 9 de septiembre?",
+    });
+    await user.click(
+      within(confirmation).getByRole("button", { name: "Sí, eliminar" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("button", {
+          name: "Eliminar todos los horarios del 9 de septiembre",
+        }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

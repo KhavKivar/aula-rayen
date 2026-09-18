@@ -36,6 +36,7 @@ describe('AvailabilityService', () => {
             createMany: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
+            removeMany: jest.fn(),
           },
         },
       ],
@@ -215,6 +216,41 @@ describe('AvailabilityService', () => {
       repository.remove.mockResolvedValue(null);
 
       await expect(service.remove(slot.id)).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw conflict when the slot has booking attempts', async () => {
+      const fkError = Object.assign(new Error('violates foreign key'), {
+        code: '23503',
+        constraint: 'booking_attempts_slot_id_availability_slots_id_fk',
+      });
+      repository.remove.mockRejectedValue(
+        Object.assign(new Error('DrizzleQueryError'), { cause: fkError }),
+      );
+
+      await expect(service.remove(slot.id)).rejects.toThrow(ConflictException);
+    });
+  });
+
+  describe('DeleteMany', () => {
+    it('should throw conflict when any slot has booking attempts', async () => {
+      repository.removeMany.mockRejectedValue(
+        Object.assign(new Error('violates foreign key'), {
+          code: '23503',
+          constraint: 'booking_attempts_slot_id_availability_slots_id_fk',
+        }),
+      );
+
+      await expect(service.removeMany([slot.id])).rejects.toThrow(
+        ConflictException,
+      );
+    });
+
+    it('should rethrow unexpected repository errors', async () => {
+      repository.removeMany.mockRejectedValue(new Error('connection lost'));
+
+      await expect(service.removeMany([slot.id])).rejects.toThrow(
+        'connection lost',
+      );
     });
   });
 });
