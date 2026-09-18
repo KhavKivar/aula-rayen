@@ -57,7 +57,7 @@ export function DatePicker({
               variant="ghost"
               size="sm"
               className="w-full"
-              onClick={() => onChange(todayReference)}
+              onClick={() => onChange(todayReference())}
             >
               Volver a hoy
             </Button>

@@ -75,7 +75,9 @@ export const toLocalIsoDate = (date: Date) =>
     String(date.getDate()).padStart(2, "0"),
   ].join("-");
 
-export const todayReference = toLocalIsoDate(new Date());
+export function todayReference() {
+  return toLocalIsoDate(new Date());
+}
 
 export function plusDays(isoDate: string, days: number) {
   return toIsoDate(
