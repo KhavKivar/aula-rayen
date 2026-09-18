@@ -64,7 +64,7 @@ export function LandingHero({
           </div>
         </div>
       </div>
-      <FlowerVisual className="mx-auto w-full max-w-lg lg:max-w-none" />
+      <FlowerVisual className="mx-auto hidden w-full max-w-lg lg:block lg:max-w-none" />
     </section>
   );
 }
