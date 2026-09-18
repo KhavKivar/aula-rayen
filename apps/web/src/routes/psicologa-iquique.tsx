@@ -19,6 +19,7 @@ import { LandingServices } from "@/features/landing/components/landing-services"
 import { LandingTrustBar } from "@/features/landing/components/landing-trust-bar";
 import { ExternalInstagramLink } from "@/features/landing/components/external-instagram-link";
 import { ExternalWhatsAppLink } from "@/features/landing/components/external-whatsapp-link";
+import { BookingCtaCalendar } from "@/features/booking/components/booking-cta-calendar";
 
 const page = SEO_PAGES.iquique;
 const canonical = canonicalUrl(page.path);
@@ -147,7 +148,7 @@ function IquiquePage() {
       <LandingServices />
       <LandingProfessional />
       <LandingFaq />
-      <LandingCta />
+      <LandingCta bookingPreview={<BookingCtaCalendar />} />
       <LandingFooter />
     </main>
   );

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Navbar } from "@/components/ui/navbar";
 import { usePublicSession } from "@/lib/session-queries";
 import { LandingCourses } from "@/features/landing/components/landing-courses";
@@ -9,7 +10,7 @@ import { LandingProfessional } from "@/features/landing/components/landing-profe
 import { LandingServices } from "@/features/landing/components/landing-services";
 import { LandingTrustBar } from "@/features/landing/components/landing-trust-bar";
 
-export function LandingPage() {
+export function LandingPage({ bookingPreview }: { bookingPreview?: ReactNode } = {}) {
   const { data: session, isPending } = usePublicSession();
 
   const isLoggedIn = Boolean(session?.user);
@@ -23,7 +24,7 @@ export function LandingPage() {
       <LandingProfessional />
       <LandingCourses />
       <LandingFaq />
-      <LandingCta />
+      <LandingCta bookingPreview={bookingPreview} />
       <LandingFooter />
     </main>
   );

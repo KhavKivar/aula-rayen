@@ -9,6 +9,7 @@ import {
 } from "@/config/seo";
 import { LandingPage } from "@/features/landing/components/landing-page";
 import { visibleFaqs } from "@/features/landing/components/landing-faq";
+import { BookingCtaCalendar } from "@/features/booking/components/booking-cta-calendar";
 
 const page = SEO_PAGES.home;
 const canonical = canonicalUrl(page.path);
@@ -42,5 +43,7 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  component: LandingPage,
+  component: () => (
+    <LandingPage bookingPreview={<BookingCtaCalendar />} />
+  ),
 });

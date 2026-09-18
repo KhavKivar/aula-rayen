@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as PaymentResultRouteImport } from './routes/payment-result'
 import { Route as PsicologaIquiqueRouteImport } from './routes/psicologa-iquique'
+import { Route as ReservarRouteImport } from './routes/reservar'
 import { Route as SobrePamelaRayenRouteImport } from './routes/sobre-pamela-rayen'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
@@ -50,6 +51,11 @@ const PaymentResultRoute = PaymentResultRouteImport.update({
 const PsicologaIquiqueRoute = PsicologaIquiqueRouteImport.update({
   id: '/psicologa-iquique',
   path: '/psicologa-iquique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReservarRoute = ReservarRouteImport.update({
+  id: '/reservar',
+  path: '/reservar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SobrePamelaRayenRoute = SobrePamelaRayenRouteImport.update({
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/payment-result': typeof PaymentResultRoute
   '/psicologa-iquique': typeof PsicologaIquiqueRoute
+  '/reservar': typeof ReservarRoute
   '/sobre-pamela-rayen': typeof SobrePamelaRayenRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
@@ -154,6 +161,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/payment-result': typeof PaymentResultRoute
   '/psicologa-iquique': typeof PsicologaIquiqueRoute
+  '/reservar': typeof ReservarRoute
   '/sobre-pamela-rayen': typeof SobrePamelaRayenRoute
   '/forgot-password': typeof AuthForgotPasswordRoute
   '/login': typeof AuthLoginRoute
@@ -174,6 +182,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/payment-result': typeof PaymentResultRoute
   '/psicologa-iquique': typeof PsicologaIquiqueRoute
+  '/reservar': typeof ReservarRoute
   '/sobre-pamela-rayen': typeof SobrePamelaRayenRoute
   '/_auth/forgot-password': typeof AuthForgotPasswordRoute
   '/_auth/login': typeof AuthLoginRoute
@@ -195,6 +204,7 @@ export interface FileRouteTypes {
     | '/'
     | '/payment-result'
     | '/psicologa-iquique'
+    | '/reservar'
     | '/sobre-pamela-rayen'
     | '/forgot-password'
     | '/login'
@@ -214,6 +224,7 @@ export interface FileRouteTypes {
     | '/'
     | '/payment-result'
     | '/psicologa-iquique'
+    | '/reservar'
     | '/sobre-pamela-rayen'
     | '/forgot-password'
     | '/login'
@@ -233,6 +244,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/payment-result'
     | '/psicologa-iquique'
+    | '/reservar'
     | '/sobre-pamela-rayen'
     | '/_auth/forgot-password'
     | '/_auth/login'
@@ -255,6 +267,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   PaymentResultRoute: typeof PaymentResultRoute
   PsicologaIquiqueRoute: typeof PsicologaIquiqueRoute
+  ReservarRoute: typeof ReservarRoute
   SobrePamelaRayenRoute: typeof SobrePamelaRayenRoute
 }
 
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/psicologa-iquique'
       fullPath: '/psicologa-iquique'
       preLoaderRoute: typeof PsicologaIquiqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reservar': {
+      id: '/reservar'
+      path: '/reservar'
+      fullPath: '/reservar'
+      preLoaderRoute: typeof ReservarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sobre-pamela-rayen': {
@@ -476,6 +496,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   PaymentResultRoute: PaymentResultRoute,
   PsicologaIquiqueRoute: PsicologaIquiqueRoute,
+  ReservarRoute: ReservarRoute,
   SobrePamelaRayenRoute: SobrePamelaRayenRoute,
 }
 export const routeTree = rootRouteImport
