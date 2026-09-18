@@ -34,9 +34,9 @@ export function SingleScheduleDialog({
     defaultValues: {
       day:
         initialDay ??
-        weekDays[mondayBasedWeekday(initialDate ?? todayReference)] ??
+        weekDays[mondayBasedWeekday(initialDate ?? todayReference())] ??
         "Lun",
-      date: initialDate ?? todayReference,
+      date: initialDate ?? todayReference(),
       startTime: "09:00",
       duration: "1" as "1" | "2",
     },

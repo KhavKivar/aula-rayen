@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   AvailabilitySlotResponse,
@@ -97,12 +97,18 @@ function mockBackend() {
 
 describe("ReservationsPanel", () => {
   beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-09-08T12:00:00-03:00"));
     storedSlots.length = 0;
     nextSlotId = 1;
     vi.mocked(apiClient.get).mockReset();
     vi.mocked(apiClient.post).mockReset();
     vi.mocked(apiClient.delete).mockReset();
     mockBackend();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("previews a daily range before saving all generated slots", async () => {
