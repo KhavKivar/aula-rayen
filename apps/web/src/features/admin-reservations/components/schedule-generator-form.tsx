@@ -33,8 +33,8 @@ export function ScheduleGeneratorForm({
       startTime: "09:00",
       endTime: "20:00",
       duration: "1" as "1" | "2",
-      validFrom: todayReference,
-      validUntil: plusDays(todayReference, 7),
+      validFrom: todayReference(),
+      validUntil: plusDays(todayReference(), 7),
     },
     onSubmit: ({ value }) => {
       if (value.days.length === 0) return;

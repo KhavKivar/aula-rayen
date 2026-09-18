@@ -101,7 +101,7 @@ export function FlowerVisual({ className }: { className?: string }) {
         type="button"
         disabled={!hydrated}
         onClick={() => setPlaying((current) => !current)}
-        className="absolute right-3 top-5 flex min-h-11 items-center gap-2 rounded-full border border-white/70 bg-background/95 px-4 text-xs font-medium shadow-sm transition hover:bg-card"
+        className="absolute right-3 top-5 hidden min-h-11 items-center gap-2 rounded-full border border-white/70 bg-background/95 px-4 text-xs font-medium shadow-sm transition hover:bg-card sm:flex"
         aria-label={playing ? "Pausar animación" : "Reproducir animación"}
       >
         {playing ? <Pause className="size-3.5" aria-hidden="true" /> : <Play className="size-3.5" aria-hidden="true" />}
