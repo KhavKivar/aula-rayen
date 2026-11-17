@@ -3,7 +3,7 @@
   "title": "Production site content",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "isDemo", "brand", "professional", "social", "assets"],
+  "required": ["version", "isDemo", "brand", "professional", "social", "assets", "booking"],
   "properties": {
     "$schema": { "type": "string" },
     "version": { "const": 1 },
@@ -52,6 +52,20 @@
       "properties": {
         "profileImageUrl": { "type": "string", "format": "uri" },
         "profileImageAlt": { "type": "string", "minLength": 1 }
+      }
+    },
+    "booking": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calendlyUrl"],
+      "properties": {
+        "calendlyUrl": {
+          "description": "Enlace público del evento de Calendly (https://calendly.com/usuario/evento). Con null, la home ofrece agendar por WhatsApp.",
+          "oneOf": [
+            { "type": "string", "format": "uri", "pattern": "^https://calendly\\.com/" },
+            { "type": "null" }
+          ]
+        }
       }
     }
   }

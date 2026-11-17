@@ -64,21 +64,21 @@ async function readLanding() {
 
 try {
   const html = await readLanding();
+  const bookingHref =
+    siteContent.booking.calendlyUrl ?? "https://wa.me/56979363667?text=";
   const requiredContent = [
     ['lang="es"', "idioma español"],
-    ["Aula Rayen", "marca comercial"],
-    ["Arteterapia para niños y niñas", "curso inicial"],
-    ["Próximamente", "estado del curso"],
-    ['href="/login"', "enlace de inicio de sesión"],
     [siteContent.professional.name, "identidad profesional"],
-    ['id="cursos"', "sección de cursos"],
-    ['id="atencion"', "servicios psicológicos"],
-    ['id="agenda"', "contacto para agendar"],
-    ['href="#agenda"', "acceso al contacto desde la portada"],
-    ['class="bloom-garden ', "ilustración del jardín"],
-    ['aria-label="Una maceta sonriente se balancea mientras una mariposa juega entre sus hojas"', "animación accesible"],
-    ['id="profesional"', "sección profesional"],
+    ["Lo que sientes también se puede", "título principal"],
+    ["Agendar hora", "botón para agendar"],
+    [`href="${bookingHref}`, "enlace para agendar"],
+    ['href="https://wa.me/56979363667?text=', "botón de WhatsApp"],
+    ['class="home-hero__drawing"', "dibujo del inicio"],
+    ['id="como-funciona"', "sección de pasos"],
+    ['id="como-trabajo"', "sección de cómo trabajo"],
+    ['id="sobre-rayen"', "sección profesional"],
     ['id="preguntas"', "sección de preguntas"],
+    ['aria-label="Toca a Coco para que ladre"', "Coco accesible"],
     ['property="og:image"', "imagen social"],
     ['name="description"', "descripción SEO"],
   ];

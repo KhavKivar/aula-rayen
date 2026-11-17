@@ -30,8 +30,6 @@ const monthFormatter = new Intl.DateTimeFormat("es-CL", {
   timeZone: "UTC",
 });
 
-const today = new Date();
-
 function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -46,6 +44,8 @@ export function ReservationsCalendar({
   onDelete,
   onDeleteDate,
 }: ReservationsCalendarProps) {
+  // Se calcula al montar (no al importar el módulo) para que «hoy» sea el día real.
+  const [today] = useState(() => new Date());
   const [monthOffset, setMonthOffset] = useState(0);
   const [deleteDate, setDeleteDate] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

@@ -8,7 +8,7 @@ import {
   professionalServiceJsonLd,
 } from "@/config/seo";
 import { LandingPage } from "@/features/landing/components/landing-page";
-import { visibleFaqs } from "@/features/landing/components/landing-faq";
+import { homeFaqs } from "@/features/landing/home/home-faq";
 
 const page = SEO_PAGES.home;
 const canonical = canonicalUrl(page.path);
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/")({
       },
       {
         type: "application/ld+json",
-        children: JSON.stringify(faqJsonLd(visibleFaqs)),
+        children: JSON.stringify(faqJsonLd(homeFaqs)),
       },
     ],
   }),

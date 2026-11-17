@@ -1,30 +1,39 @@
-import { Navbar } from "@/components/ui/navbar";
-import { usePublicSession } from "@/lib/session-queries";
-import { LandingCourses } from "@/features/landing/components/landing-courses";
-import { LandingCta } from "@/features/landing/components/landing-cta";
-import { LandingFaq } from "@/features/landing/components/landing-faq";
-import { LandingFooter } from "@/features/landing/components/landing-footer";
-import { LandingHero } from "@/features/landing/components/landing-hero";
-import { LandingProfessional } from "@/features/landing/components/landing-professional";
-import { LandingServices } from "@/features/landing/components/landing-services";
-import { LandingTrustBar } from "@/features/landing/components/landing-trust-bar";
+import { HomeHero } from "@/features/landing/home/home-hero";
+import { CocoDog } from "@/features/landing/home/coco-dog";
+import { HomeFaq } from "@/features/landing/home/home-faq";
+import { HomeFooter } from "@/features/landing/home/home-footer";
+import { HomeHeader } from "@/features/landing/home/home-header";
+import {
+  AboutSection,
+  ApproachSection,
+  AudienceCards,
+  BookingSteps,
+  ClosingSection,
+  CreativeGallery,
+  LocationSection,
+} from "@/features/landing/home/home-sections";
+import { SketchFilter } from "@/features/landing/home/illustrations";
+import "@/features/landing/home/home.css";
 
+/** Home «cuaderno»: «Agendar hora» lleva a Calendly; ver variants/01-cuaderno. */
 export function LandingPage() {
-  const { data: session, isPending } = usePublicSession();
-
-  const isLoggedIn = Boolean(session?.user);
-
   return (
-    <main className="overflow-x-clip bg-background text-foreground">
-      <Navbar isLoggedIn={isLoggedIn} isPending={isPending} />
-      <LandingHero />
-      <LandingTrustBar />
-      <LandingServices />
-      <LandingProfessional />
-      <LandingCourses />
-      <LandingFaq />
-      <LandingCta />
-      <LandingFooter />
-    </main>
+    <div className="home">
+      <SketchFilter />
+      <HomeHeader />
+      <main id="inicio">
+        <HomeHero />
+        <BookingSteps />
+        <AudienceCards />
+        <ApproachSection />
+        <CreativeGallery />
+        <AboutSection />
+        <LocationSection />
+        <HomeFaq />
+        <ClosingSection />
+      </main>
+      <HomeFooter />
+      <CocoDog />
+    </div>
   );
 }
