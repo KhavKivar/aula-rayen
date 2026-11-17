@@ -3,7 +3,7 @@ import { expect, test } from "./fixtures/auth";
 test("original flower loops and can be paused and resumed", async ({
   authPage: page,
 }) => {
-  await page.goto("/");
+  await page.goto("/psicologa-iquique");
   const flower = page.getByLabel("Flor de arcilla en movimiento suave");
   await expect
     .poll(() => flower.evaluate((video: HTMLVideoElement) => !video.paused))
@@ -24,7 +24,7 @@ test("reduced motion keeps the flower still until explicitly played", async ({
   authPage: page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/psicologa-iquique");
   const flower = page.getByLabel("Flor de arcilla en movimiento suave");
   await expect(
     page.getByRole("button", { name: "Reproducir animación" }),
@@ -39,25 +39,31 @@ test("reduced motion keeps the flower still until explicitly played", async ({
     .toBe(true);
 });
 
-test("mobile navigation reaches appointment contact without a fictitious booking", async ({
+test("every «Agendar hora» button opens Calendly in a new tab", async ({
   authPage: page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const menu = page.getByRole("button", { name: "Abrir menú" });
-  await menu.click();
-  await page
-    .getByRole("navigation", { name: "Navegación móvil" })
-    .getByRole("link", { name: "Agendar hora" })
-    .click();
-  await expect(menu).toHaveAttribute("aria-expanded", "false");
-  await expect(page).toHaveURL(/#agenda$/);
-  await expect(
-    page.getByRole("link", { name: /Consultar disponibilidad/ }),
-  ).toHaveAttribute("href", /^https:\/\/www.instagram.com\//);
+  const buttons = page.getByRole("link", { name: /Agendar hora/ });
+  expect(await buttons.count()).toBeGreaterThanOrEqual(3);
+  for (const button of await buttons.all()) {
+    await expect(button).toHaveAttribute(
+      "href",
+      /^https:\/\/calendly\.com\/scalderondiz/,
+    );
+    await expect(button).toHaveAttribute("target", "_blank");
+  }
+  await expect(page.getByRole("link", { name: "Ingresar" })).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("Coco barks when tapped", async ({ authPage: page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Toca a Coco para que ladre" }).click();
+  await expect(page.getByText(/Guau|Wau/)).toBeVisible();
 });

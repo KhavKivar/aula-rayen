@@ -19,6 +19,10 @@ type DeploymentContent = {
     profileImageUrl: string;
     profileImageAlt: string;
   };
+  booking: {
+    /** Enlace público del evento de Calendly. Sin enlace, se agenda por WhatsApp. */
+    calendlyUrl: string | null;
+  };
 };
 
 const deployment: DeploymentContent = deploymentContent;
