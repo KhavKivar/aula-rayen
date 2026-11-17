@@ -7,8 +7,10 @@ const EDGE = 8;
 /** Pausa mínima entre ladridos automáticos (al tocarlo siempre ladra). */
 const BARK_PAUSE_MS = 3500;
 /** Velocidad de Coco al caminar, en píxeles por segundo. */
-const WALK_SPEED = 110;
-const WALK_SPEED_MOBILE = 60;
+const WALK_SPEED_MOBILE = 48;
+/** En escritorio avanza en proporción al scroll (factor y tope por cuadro). */
+const DESKTOP_SCROLL_FACTOR = 0.72;
+const DESKTOP_MAX_STEP = 80;
 /** Ladra cada tantos píxeles caminados. */
 const BARK_EVERY_PX = 700;
 
@@ -59,8 +61,13 @@ export function CocoDog() {
       barks: 0,
       lastScroll: 0,
       lastTick: 0,
+      lastY: window.scrollY,
       frame: 0,
     };
+    // Celular (pantalla táctil o angosta): el scroll es mucho más rápido.
+    const isMobile = () =>
+      window.matchMedia("(pointer: coarse)").matches || window.innerWidth < 640;
+    let stopWalkTimer = 0;
     let bubbleTimer = 0;
 
     const width = () => root.getBoundingClientRect().width;
@@ -95,22 +102,8 @@ export function CocoDog() {
       root.style.setProperty("--coco-direction", String(state.direction));
     };
 
-    // Camina a paso fijo (píxeles por segundo) mientras hay scroll, sin
-    // importar qué tan rápido se deslice la página. Así en celular, donde un
-    // deslizón mueve cientos de píxeles, no sale disparado.
-    const step = (now: number) => {
-      const elapsed = state.lastTick ? Math.min(now - state.lastTick, 64) : 16;
-      state.lastTick = now;
-      const scrolling = now - state.lastScroll < 180;
-      if (!scrolling) {
-        root.classList.remove("is-walking");
-        state.frame = 0;
-        state.lastTick = 0;
-        return;
-      }
+    const advance = (moved: number) => {
       const max = window.innerWidth - width() - EDGE;
-      const speed = window.innerWidth < 640 ? WALK_SPEED_MOBILE : WALK_SPEED;
-      const moved = (speed * elapsed) / 1000;
       state.x += moved * state.direction;
       if (state.x >= max || state.x <= EDGE) {
         state.x = clamp(state.x, EDGE, max);
@@ -124,6 +117,29 @@ export function CocoDog() {
       }
       place();
       avoidButtons();
+    };
+
+    // Escritorio: avanza en proporción a lo que se desplaza la página.
+    const walkWithScroll = (delta: number) => {
+      advance(Math.min(Math.abs(delta), DESKTOP_MAX_STEP) * DESKTOP_SCROLL_FACTOR);
+      root.classList.add("is-walking");
+      window.clearTimeout(stopWalkTimer);
+      stopWalkTimer = window.setTimeout(() => root.classList.remove("is-walking"), 160);
+    };
+
+    // Celular: camina a paso fijo (píxeles por segundo) mientras hay scroll,
+    // sin importar qué tan rápido se deslice la página.
+    const step = (now: number) => {
+      const elapsed = state.lastTick ? Math.min(now - state.lastTick, 64) : 16;
+      state.lastTick = now;
+      const scrolling = now - state.lastScroll < 180;
+      if (!scrolling) {
+        root.classList.remove("is-walking");
+        state.frame = 0;
+        state.lastTick = 0;
+        return;
+      }
+      advance((WALK_SPEED_MOBILE * elapsed) / 1000);
       root.classList.add("is-walking");
       state.frame = requestAnimationFrame(step);
     };
@@ -145,13 +161,26 @@ export function CocoDog() {
       root.classList.toggle("is-hidden", covers);
     };
 
+    let scrollFrame = 0;
     const onScroll = () => {
       state.lastScroll = performance.now();
       if (reduced) {
         avoidButtons();
         return;
       }
-      if (!state.frame) state.frame = requestAnimationFrame(step);
+      if (isMobile()) {
+        state.lastY = window.scrollY;
+        if (!state.frame) state.frame = requestAnimationFrame(step);
+        return;
+      }
+      if (scrollFrame) return;
+      scrollFrame = requestAnimationFrame(() => {
+        scrollFrame = 0;
+        const y = window.scrollY;
+        const delta = y - state.lastY;
+        state.lastY = y;
+        if (delta !== 0) walkWithScroll(delta);
+      });
     };
 
     const onResize = () => {
@@ -173,6 +202,8 @@ export function CocoDog() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(state.frame);
+      cancelAnimationFrame(scrollFrame);
+      window.clearTimeout(stopWalkTimer);
       window.clearTimeout(bubbleTimer);
       window.clearTimeout(greeting);
     };
