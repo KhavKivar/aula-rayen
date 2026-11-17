@@ -103,7 +103,7 @@
 
 - Rayen Calderón · Psicóloga clínica y arteterapeuta · Iquique, Chile
 - Psicóloga en Iquique · Sobre mí · WhatsApp · Instagram
-- Si estás en una crisis o en riesgo, llama a la línea de prevención del suicidio **\*4141** (gratuita, desde celulares) o acude al servicio de urgencia más cercano.
+- (Aviso de crisis retirado por ahora; volver a agregarlo con el número confirmado.)
 
 ## Coco
 

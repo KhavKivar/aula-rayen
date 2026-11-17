@@ -315,7 +315,6 @@
 .home-footer__brand { font: 700 34px/1 var(--home-hand); }
 .home-footer__links { display: flex; flex-wrap: wrap; gap: 8px 20px; }
 .home-footer a { color: var(--home-paper); text-underline-offset: 4px; }
-.home-footer__crisis { font-size: 14px; opacity: 0.9; }
 .home-footer__legal { font-size: 13px; opacity: 0.7; margin-top: 28px !important; }
 
 /* ---------- Dibujos que se pintan ---------- */

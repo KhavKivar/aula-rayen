@@ -28,11 +28,6 @@ export function HomeFooter() {
               </a>
             ) : null}
           </p>
-          <p className="home-footer__crisis">
-            Si estás en una crisis o en riesgo, llama a la línea de prevención del
-            suicidio <strong>*4141</strong> (gratuita, desde celulares) o acude al
-            servicio de urgencia más cercano.
-          </p>
         </div>
       </div>
       <p className="home-container home-footer__legal">
