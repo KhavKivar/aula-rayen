@@ -17,9 +17,10 @@ function paintAll() {
   const reduced = prefersReducedMotion();
   const viewportHeight = window.innerHeight;
   painters.forEach(({ element, brush }) => {
+    const rect = element.getBoundingClientRect();
     const progress = reduced
       ? 1
-      : paintProgress(element.getBoundingClientRect().top, viewportHeight);
+      : paintProgress(rect.top, rect.height, viewportHeight);
     brush.style.strokeDashoffset = String(1 - progress);
   });
 }
