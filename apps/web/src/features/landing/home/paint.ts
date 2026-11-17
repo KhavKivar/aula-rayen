@@ -36,17 +36,20 @@ export function buildBrushPath(width: number, height: number, rows: number) {
 
 /**
  * Avance (0–1) de un dibujo según su posición en la pantalla.
- * Empieza cuando el borde de arriba entra por abajo de la pantalla y termina
- * cuando el borde de abajo llega a `end` del alto visible (0.55 = un poco más
- * abajo de la mitad), es decir, cuando el dibujo completo ya está a la vista.
+ * El recorrido va desde que el borde de arriba entra por abajo de la pantalla
+ * hasta que el borde de abajo llega a `end` del alto visible (0.1, justo antes
+ * de que el dibujo salga por arriba). Sobre ese recorrido se aplica una curva
+ * ease-out: pinta rápido al principio y deja una porción menor para el final.
+ * `power` controla qué tan marcada es la curva (1 = lineal).
  */
 export function paintProgress(
   top: number,
   height: number,
   viewportHeight: number,
-  end = 0.55,
+  { end = 0.1, power = 2 } = {},
 ) {
   if (viewportHeight <= 0) return 1;
   const travel = viewportHeight * (1 - end) + height;
-  return clamp((viewportHeight - top) / travel, 0, 1);
+  const linear = clamp((viewportHeight - top) / travel, 0, 1);
+  return 1 - (1 - linear) ** power;
 }
