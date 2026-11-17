@@ -310,6 +310,6 @@ jobs:
       - name: Smoke test production
         run: |
           body="$(curl -fsS "$WEB_URL/")"
-          printf '%s' "$body" | grep -q "Aula Rayen"
-          printf '%s' "$body" | grep -q 'id="cursos"'
+          printf '%s' "$body" | grep -q "Lo que sientes también se puede"
+          printf '%s' "$body" | grep -q 'id="como-funciona"'
           echo "Smoke test OK"
