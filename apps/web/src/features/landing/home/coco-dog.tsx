@@ -4,6 +4,13 @@ import { clamp } from "@/features/landing/home/paint";
 
 const BARKS = ["¡Guau!", "¡Guau guau!", "¡Wau!"];
 const EDGE = 8;
+/** Pausa mínima entre ladridos automáticos (al tocarlo siempre ladra). */
+const BARK_PAUSE_MS = 3500;
+/** Velocidad de Coco al caminar, en píxeles por segundo. */
+const WALK_SPEED = 110;
+const WALK_SPEED_MOBILE = 60;
+/** Ladra cada tantos píxeles caminados. */
+const BARK_EVERY_PX = 700;
 
 // Ladrido sintetizado (sin archivos). Solo suena al tocar a Coco.
 function playBark(context: AudioContext) {
@@ -50,16 +57,17 @@ export function CocoDog() {
       distance: 0,
       lastBark: 0,
       barks: 0,
-      lastY: window.scrollY,
+      lastScroll: 0,
+      lastTick: 0,
       frame: 0,
     };
-    let walkTimer = 0;
     let bubbleTimer = 0;
 
     const width = () => root.getBoundingClientRect().width;
     const bark = ({ text, sound = false }: { text?: string; sound?: boolean } = {}) => {
       const now = performance.now();
-      if (!sound && now - state.lastBark < 900) return;
+      if (root.classList.contains("is-hidden")) return;
+      if (!sound && now - state.lastBark < BARK_PAUSE_MS) return;
       state.lastBark = now;
       setBubble(text ?? BARKS[state.barks % BARKS.length]);
       state.barks += 1;
@@ -87,39 +95,69 @@ export function CocoDog() {
       root.style.setProperty("--coco-direction", String(state.direction));
     };
 
-    const walk = (delta: number) => {
+    // Camina a paso fijo (píxeles por segundo) mientras hay scroll, sin
+    // importar qué tan rápido se deslice la página. Así en celular, donde un
+    // deslizón mueve cientos de píxeles, no sale disparado.
+    const step = (now: number) => {
+      const elapsed = state.lastTick ? Math.min(now - state.lastTick, 64) : 16;
+      state.lastTick = now;
+      const scrolling = now - state.lastScroll < 180;
+      if (!scrolling) {
+        root.classList.remove("is-walking");
+        state.frame = 0;
+        state.lastTick = 0;
+        return;
+      }
       const max = window.innerWidth - width() - EDGE;
-      state.x += Math.min(Math.abs(delta), 80) * 0.9 * state.direction;
+      const speed = window.innerWidth < 640 ? WALK_SPEED_MOBILE : WALK_SPEED;
+      const moved = (speed * elapsed) / 1000;
+      state.x += moved * state.direction;
       if (state.x >= max || state.x <= EDGE) {
         state.x = clamp(state.x, EDGE, max);
         state.direction *= -1;
         bark();
       }
-      state.distance += Math.abs(delta);
-      if (state.distance > 1600) {
+      state.distance += moved;
+      if (state.distance > BARK_EVERY_PX) {
         state.distance = 0;
         bark();
       }
       place();
+      avoidButtons();
       root.classList.add("is-walking");
-      window.clearTimeout(walkTimer);
-      walkTimer = window.setTimeout(() => root.classList.remove("is-walking"), 160);
+      state.frame = requestAnimationFrame(step);
+    };
+
+    // Coco nunca tapa un botón: si se cruza con uno, se agacha y se esconde.
+    const avoidButtons = () => {
+      const size = width();
+      const top = window.innerHeight - size * 0.9;
+      const covers = [...document.querySelectorAll(".home-button")].some((button) => {
+        if (root.contains(button)) return false;
+        const area = button.getBoundingClientRect();
+        return (
+          area.bottom > top &&
+          area.top < window.innerHeight &&
+          area.left < state.x + size &&
+          area.right > state.x
+        );
+      });
+      root.classList.toggle("is-hidden", covers);
     };
 
     const onScroll = () => {
-      if (state.frame) return;
-      state.frame = requestAnimationFrame(() => {
-        state.frame = 0;
-        const y = window.scrollY;
-        const delta = y - state.lastY;
-        state.lastY = y;
-        if (!reduced && delta !== 0) walk(delta);
-      });
+      state.lastScroll = performance.now();
+      if (reduced) {
+        avoidButtons();
+        return;
+      }
+      if (!state.frame) state.frame = requestAnimationFrame(step);
     };
 
     const onResize = () => {
       state.x = clamp(state.x, EDGE, window.innerWidth - width() - EDGE);
       place();
+      avoidButtons();
     };
 
     if (reduced) state.x = window.innerWidth - width() - 24;
@@ -135,7 +173,6 @@ export function CocoDog() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       cancelAnimationFrame(state.frame);
-      window.clearTimeout(walkTimer);
       window.clearTimeout(bubbleTimer);
       window.clearTimeout(greeting);
     };

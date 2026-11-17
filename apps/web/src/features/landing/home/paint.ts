@@ -35,16 +35,18 @@ export function buildBrushPath(width: number, height: number, rows: number) {
 }
 
 /**
- * Avance (0–1) de un elemento según su borde superior en la pantalla.
- * Empieza cuando el borde entra en `start` del alto visible y termina después
- * de recorrer `travel` del alto visible.
+ * Avance (0–1) de un dibujo según su posición en la pantalla.
+ * Empieza cuando el borde de arriba entra por abajo de la pantalla y termina
+ * cuando el borde de abajo llega a `end` del alto visible (0.55 = un poco más
+ * abajo de la mitad), es decir, cuando el dibujo completo ya está a la vista.
  */
 export function paintProgress(
   top: number,
+  height: number,
   viewportHeight: number,
-  start = 0.95,
-  travel = 0.55,
+  end = 0.55,
 ) {
   if (viewportHeight <= 0) return 1;
-  return clamp((viewportHeight * start - top) / (viewportHeight * travel), 0, 1);
+  const travel = viewportHeight * (1 - end) + height;
+  return clamp((viewportHeight - top) / travel, 0, 1);
 }

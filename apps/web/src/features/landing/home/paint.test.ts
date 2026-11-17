@@ -22,15 +22,21 @@ describe("buildBrushPath", () => {
 
 describe("paintProgress", () => {
   it("vale 0 mientras el dibujo no entra en la pantalla", () => {
-    expect(paintProgress(1000, 800)).toBe(0);
+    expect(paintProgress(1000, 300, 800)).toBe(0);
+    expect(paintProgress(800, 300, 800)).toBe(0);
   });
 
-  it("avanza a medida que el dibujo sube", () => {
-    expect(paintProgress(540, 800)).toBeCloseTo(0.5);
+  it("todavía no termina cuando el dibujo recién asoma", () => {
+    expect(paintProgress(600, 300, 800)).toBeLessThan(0.5);
   });
 
-  it("queda pintado del todo al llegar arriba", () => {
-    expect(paintProgress(100, 800)).toBe(1);
-    expect(paintProgress(-500, 800)).toBe(1);
+  it("termina cuando el dibujo completo está a la vista", () => {
+    // borde de abajo en el 55 % de la pantalla: top + 300 = 440
+    expect(paintProgress(140, 300, 800)).toBe(1);
+    expect(paintProgress(-500, 300, 800)).toBe(1);
+  });
+
+  it("avanza de forma proporcional entre el inicio y el final", () => {
+    expect(paintProgress(470, 300, 800)).toBeCloseTo(0.5);
   });
 });
